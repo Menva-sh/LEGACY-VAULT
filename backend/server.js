@@ -9,8 +9,8 @@ const deadManswitchScheduler = require('./services/deadManswitchScheduler');
 let authRoutes, assetRoutes, executorRoutes, willRoutes, switchRoutes, executorPortalRoutes;
 
 try {
-  console.log('Importing auth routes from ../routes/authRoutes...');
-  authRoutes = require('../routes/authRoutes');
+  console.log('Importing auth routes from ./routes/authRoutes...');
+  authRoutes = require('./routes/authRoutes');
   console.log('✅ Auth routes imported');
 } catch (err) {
   console.error('❌ Failed to import auth routes:', err.message);
@@ -19,7 +19,7 @@ try {
 
 try {
   console.log('Importing asset routes...');
-  assetRoutes = require('../routes/assetRoutes');
+  assetRoutes = require('./routes/assetRoutes');
   console.log('✅ Asset routes imported');
 } catch (err) {
   console.error('❌ Failed to import asset routes:', err.message);
@@ -27,7 +27,7 @@ try {
 
 try {
   console.log('Importing executor routes...');
-  executorRoutes = require('../routes/executorRoutes');
+  executorRoutes = require('./routes/executorRoutes');
   console.log('✅ Executor routes imported');
 } catch (err) {
   console.error('❌ Failed to import executor routes:', err.message);
@@ -35,7 +35,7 @@ try {
 
 try {
   console.log('Importing will routes...');
-  willRoutes = require('../routes/willRoutes');
+  willRoutes = require('./routes/willRoutes');
   console.log('✅ Will routes imported');
 } catch (err) {
   console.error('❌ Failed to import will routes:', err.message);
@@ -43,7 +43,7 @@ try {
 
 try {
   console.log('Importing switch routes...');
-  switchRoutes = require('../routes/switchRoutes');
+  switchRoutes = require('./routes/switchRoutes');
   console.log('✅ Switch routes imported');
 } catch (err) {
   console.error('❌ Failed to import switch routes:', err.message);
@@ -51,7 +51,7 @@ try {
 
 try {
   console.log('Importing portal routes...');
-  executorPortalRoutes = require('../routes/executorPortalRoutes');
+  executorPortalRoutes = require('./routes/executorPortalRoutes');
   console.log('✅ Portal routes imported');
 } catch (err) {
   console.error('❌ Failed to import portal routes:', err.message);

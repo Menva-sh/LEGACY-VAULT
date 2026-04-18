@@ -1,5 +1,5 @@
 const express = require('express');
-const { getExecutorDashboard, viewWill, viewAsset, getExecutorLogs } = require('../backend/controllers/executorPortalController');
+const { getExecutorDashboard, viewWill, viewAsset, getExecutorLogs } = require('../controllers/executorPortalController');
 
 const router = express.Router();
 

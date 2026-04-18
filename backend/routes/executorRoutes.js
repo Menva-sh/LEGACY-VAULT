@@ -1,6 +1,6 @@
 const express = require('express');
-const { verifyToken } = require('../backend/middleware/authMiddleware');
-const { addNewExecutor, getAllExecutors, getExecutor, updateExecutorInfo, setExecutorStatus, removeExecutorFromVault } = require('../backend/controllers/executorController');
+const { verifyToken } = require('../middleware/authMiddleware');
+const { addNewExecutor, getAllExecutors, getExecutor, updateExecutorInfo, setExecutorStatus, removeExecutorFromVault } = require('../controllers/executorController');
 
 const router = express.Router();
 

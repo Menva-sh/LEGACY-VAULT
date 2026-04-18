@@ -1,6 +1,6 @@
 const express = require('express');
-const { verifyToken } = require('../backend/middleware/authMiddleware');
-const { uploadAsset, getAllAssets, getAsset, updateAssetMetadata, removeAsset } = require('../backend/controllers/assetController');
+const { verifyToken } = require('../middleware/authMiddleware');
+const { uploadAsset, getAllAssets, getAsset, updateAssetMetadata, removeAsset } = require('../controllers/assetController');
 
 const router = express.Router();
 

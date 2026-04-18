@@ -1,6 +1,6 @@
 const express = require('express');
-const { verifyToken } = require('../backend/middleware/authMiddleware');
-const { createNewSwitch, getAllSwitches, getSwitch, updateSwitchConfig, pingTheSwitch, manuallyTriggerSwitch, toggleSwitch, removeSwitch } = require('../backend/controllers/switchController');
+const { verifyToken } = require('../middleware/authMiddleware');
+const { createNewSwitch, getAllSwitches, getSwitch, updateSwitchConfig, pingTheSwitch, manuallyTriggerSwitch, toggleSwitch, removeSwitch } = require('../controllers/switchController');
 
 const router = express.Router();
 

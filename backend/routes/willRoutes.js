@@ -1,7 +1,7 @@
 const express = require('express');
-const { verifyToken } = require('../backend/middleware/authMiddleware');
-const { createNewWill, getAllWills, getWill, updateWillContent, publishTheWill, removeWill } = require('../backend/controllers/willController');
-const { generateDigitalWill } = require('../backend/controllers/willGeneratorController');
+const { verifyToken } = require('../middleware/authMiddleware');
+const { createNewWill, getAllWills, getWill, updateWillContent, publishTheWill, removeWill } = require('../controllers/willController');
+const { generateDigitalWill } = require('../controllers/willGeneratorController');
 
 const router = express.Router();
 
