@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Digital Assets - LEGACY VAULT</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Sidebar -->
+    <nav class="sidebar">
+      <div class="sidebar-brand">LEGACY VAULT</div>
+      <ul class="sidebar-nav">
+        <li><a href="/pages/dashboard">Dashboard</a></li>
+        <li><a href="/pages/assets" class="active">Assets</a></li>
+        <li><a href="/pages/executors">Executors</a></li>
+        <li><a href="/pages/wills">Wills</a></li>
+        <li><a href="/pages/switches">Switches</a></li>
+        <li><a href="/" onclick="logoutUser()">Logout</a></li>
+      </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <h1>Digital Assets</h1>
+        <button class="btn btn-primary" onclick="openModal('addAssetModal')">Add Asset</button>
+      </div>
+
+      <div id="assetsContainer"></div>
+    </div>
+  </div>
+
+  <!-- Add Asset Modal -->
+  <div id="addAssetModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Add Digital Asset</h2>
+        <button class="modal-close" onclick="closeModal('addAssetModal')">×</button>
+      </div>
+      <form id="addAssetForm">
+        <div class="form-group">
+          <label>Asset Name</label>
+          <input type="text" id="assetName" placeholder="e.g., My Photos" required>
+        </div>
+        <div class="form-group">
+          <label>Asset Type</label>
+          <select id="assetType" required>
+            <option value="">Select Type</option>
+            <option value="photos">Photos</option>
+            <option value="documents">Documents</option>
+            <option value="cryptocurrency">Cryptocurrency</option>
+            <option value="bank_account">Bank Account</option>
+            <option value="social_media">Social Media</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea id="assetDescription" placeholder="Enter description..."></textarea>
+        </div>
+        <div class="form-group">
+          <label>File Path/Location</label>
+          <input type="text" id="assetPath" placeholder="e.g., /storage/photos/">
+        </div>
+        <div class="form-group">
+          <label>File Size (bytes)</label>
+          <input type="number" id="assetSize" placeholder="0">
+        </div>
+        <div class="form-group">
+          <label>
+            <input type="checkbox" id="assetEncrypted">
+            Encrypted
+          </label>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Create Asset</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Edit Asset Modal -->
+  <div id="editAssetModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Edit Digital Asset</h2>
+        <button class="modal-close" onclick="closeModal('editAssetModal')">×</button>
+      </div>
+      <form id="editAssetForm">
+        <input type="hidden" id="editAssetId">
+        <div class="form-group">
+          <label>Asset Name</label>
+          <input type="text" id="editAssetName" placeholder="e.g., My Photos" required>
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea id="editAssetDescription" placeholder="Enter description..."></textarea>
+        </div>
+        <div class="form-group">
+          <label>File Path/Location</label>
+          <input type="text" id="editAssetPath" placeholder="e.g., /storage/photos/">
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Update Asset</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script>
+    redirectToLogin();
+
+    async function loadAssets() {
+      try {
+        const data = await getAssets();
+        const container = document.getElementById('assetsContainer');
+
+        if (!data.assets || data.assets.length === 0) {
+          container.innerHTML = '<div class="alert alert-info">No assets yet. Create one to get started!</div>';
+          return;
+        }
+
+        container.innerHTML = data.assets.map(asset => `
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <h3>${asset.asset_name}</h3>
+                <p style="color: var(--text-light); font-size: 12px;">Type: ${asset.asset_type}</p>
+              </div>
+              <div style="display: flex; gap: 10px;">
+                <button class="btn btn-secondary btn-sm" onclick="editAsset(${asset.id})">Edit</button>
+                <button class="btn btn-danger btn-sm" onclick="confirmDelete(${asset.id})">Delete</button>
+              </div>
+            </div>
+            <p>${asset.description || 'No description'}</p>
+            <p style="color: var(--text-light); font-size: 12px;">
+              ${asset.is_encrypted ? 'Encrypted' : ''} | Size: ${(asset.file_size / 1024).toFixed(2)} KB
+            </p>
+          </div>
+        `).join('');
+      } catch (error) {
+        showAlert('Error loading assets: ' + error.message, 'danger');
+      }
+    }
+
+    async function confirmDelete(assetId) {
+      if (confirm('Are you sure you want to delete this asset?')) {
+        try {
+          await deleteAsset(assetId);
+          showAlert('Asset deleted successfully', 'success');
+          loadAssets();
+        } catch (error) {
+          showAlert('Error: ' + error.message, 'danger');
+        }
+      }
+    }
+
+    async function editAsset(assetId) {
+      try {
+        const data = await getAsset(assetId);
+        const asset = data.asset;
+        
+        // Populate edit modal with asset data
+        document.getElementById('editAssetId').value = asset.id;
+        document.getElementById('editAssetName').value = asset.asset_name;
+        document.getElementById('editAssetDescription').value = asset.description || '';
+        document.getElementById('editAssetPath').value = asset.file_path || '';
+        
+        openModal('editAssetModal');
+      } catch (error) {
+        showAlert('Error loading asset: ' + error.message, 'danger');
+      }
+    }
+
+    document.getElementById('addAssetForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      try {
+        await createAsset(
+          document.getElementById('assetName').value,
+          document.getElementById('assetType').value,
+          document.getElementById('assetDescription').value,
+          document.getElementById('assetPath').value,
+          parseInt(document.getElementById('assetSize').value) || 0,
+          document.getElementById('assetEncrypted').checked
+        );
+
+        showAlert('Asset created successfully', 'success');
+        closeModal('addAssetModal');
+        document.getElementById('addAssetForm').reset();
+        loadAssets();
+      } catch (error) {
+        showAlert('Error: ' + error.message, 'danger');
+      }
+    });
+
+    document.getElementById('editAssetForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      try {
+        const assetId = document.getElementById('editAssetId').value;
+        await updateAsset(
+          assetId,
+          document.getElementById('editAssetName').value,
+          document.getElementById('editAssetDescription').value
+        );
+
+        showAlert('Asset updated successfully', 'success');
+        closeModal('editAssetModal');
+        document.getElementById('editAssetForm').reset();
+        loadAssets();
+      } catch (error) {
+        showAlert('Error: ' + error.message, 'danger');
+      }
+    });
+
+    loadAssets();
+  </script>
+</body>
+</html>

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - LEGACY VAULT</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Sidebar -->
+    <nav class="sidebar">
+      <div class="sidebar-brand">LEGACY VAULT</div>
+      <ul class="sidebar-nav">
+        <li><a href="/pages/dashboard" class="active">Dashboard</a></li>
+        <li><a href="/pages/assets">Assets</a></li>
+        <li><a href="/pages/executors">Executors</a></li>
+        <li><a href="/pages/wills">Wills</a></li>
+        <li><a href="/pages/switches">Switches</a></li>
+        <li><a href="/" onclick="logoutUser()">Logout</a></li>
+      </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <h1>Welcome, <span id="userName">User</span>!</h1>
+      <p style="color: var(--text-light); margin-bottom: 30px;">Manage your digital legacy securely</p>
+
+      <!-- Stats Grid -->
+      <div class="grid">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Digital Assets</div>
+          </div>
+          <div style="font-size: 32px; font-weight: bold; color: var(--primary); margin: 20px 0;">
+            <span id="assetCount">--</span>
+          </div>
+          <p style="color: var(--text-light); margin-bottom: 15px;">Total assets stored</p>
+          <a href="/pages/assets" class="btn btn-primary btn-sm">View Assets</a>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Executors</div>
+          </div>
+          <div style="font-size: 32px; font-weight: bold; color: var(--success); margin: 20px 0;">
+            <span id="executorCount">--</span>
+          </div>
+          <p style="color: var(--text-light); margin-bottom: 15px;">Designated executors</p>
+          <a href="/pages/executors" class="btn btn-success btn-sm">Manage Executors</a>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Digital Wills</div>
+          </div>
+          <div style="font-size: 32px; font-weight: bold; color: var(--warning); margin: 20px 0;">
+            <span id="willCount">--</span>
+          </div>
+          <p style="color: var(--text-light); margin-bottom: 15px;">Wills created</p>
+          <a href="/pages/wills" class="btn btn-warning btn-sm">Manage Wills</a>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Dead Man's Switches</div>
+          </div>
+          <div style="font-size: 32px; font-weight: bold; color: var(--danger); margin: 20px 0;">
+            <span id="switchCount">--</span>
+          </div>
+          <p style="color: var(--text-light); margin-bottom: 15px;">Active triggers</p>
+          <a href="/pages/switches" class="btn btn-danger btn-sm">View Switches</a>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">🚀 Quick Actions</div>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;">
+          <button class="btn btn-primary" onclick="goTo('/pages/assets')">➕ Add Asset</button>
+          <button class="btn btn-success" onclick="goTo('/pages/executors')">➕ Add Executor</button>
+          <button class="btn btn-warning" onclick="goTo('/pages/wills')">➕ Create Will</button>
+          <button class="btn btn-danger" onclick="goTo('/pages/switches')">➕ Setup Switch</button>
+        </div>
+      </div>
+
+      <!-- Recent Activity -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📝 Account Info</div>
+        </div>
+        <table class="table">
+          <tr>
+            <td style="font-weight: 600;">Email:</td>
+            <td id="userEmail">--</td>
+          </tr>
+          <tr>
+            <td style="font-weight: 600;">Name:</td>
+            <td id="userFullName">--</td>
+          </tr>
+          <tr>
+            <td style="font-weight: 600;">Member Since:</td>
+            <td id="userCreated">--</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script>
+    redirectToLogin();
+
+    async function loadDashboard() {
+      const user = getCurrentUser();
+
+      if (user) {
+        document.getElementById('userName').textContent = user.firstName || user.email;
+        document.getElementById('userEmail').textContent = user.email;
+        document.getElementById('userFullName').textContent = `${user.firstName} ${user.lastName}`;
+      }
+
+      try {
+        const [assets, executors, wills, switches] = await Promise.all([
+          getAssets(),
+          getExecutors(),
+          getWills(),
+          getSwitches(),
+        ]);
+
+        document.getElementById('assetCount').textContent = assets.count || 0;
+        document.getElementById('executorCount').textContent = executors.count || 0;
+        document.getElementById('willCount').textContent = wills.count || 0;
+        document.getElementById('switchCount').textContent = switches.count || 0;
+      } catch (error) {
+        console.error('Error loading dashboard:', error);
+      }
+    }
+
+    function goTo(page) {
+      window.location.href = page;
+    }
+
+    loadDashboard();
+  </script>
+</body>
+</html>

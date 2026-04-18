@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Executors - LEGACY VAULT</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Sidebar -->
+    <nav class="sidebar">
+      <div class="sidebar-brand">LEGACY VAULT</div>
+      <ul class="sidebar-nav">
+        <li><a href="/pages/dashboard">Dashboard</a></li>
+        <li><a href="/pages/assets">Assets</a></li>
+        <li><a href="/pages/executors" class="active">Executors</a></li>
+        <li><a href="/pages/wills">Wills</a></li>
+        <li><a href="/pages/switches">Switches</a></li>
+        <li><a href="/" onclick="logoutUser()">Logout</a></li>
+      </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <h1>Executors</h1>
+        <button class="btn btn-primary" onclick="openModal('addExecutorModal')">Designate Executor</button>
+      </div>
+
+      <div id="executorsContainer"></div>
+    </div>
+  </div>
+
+  <!-- Add Executor Modal -->
+  <div id="addExecutorModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Designate Executor</h2>
+        <button class="modal-close" onclick="closeModal('addExecutorModal')">×</button>
+      </div>
+      <form id="addExecutorForm">
+        <div class="form-group">
+          <label>Executor Email</label>
+          <input type="email" id="executorEmail" placeholder="executor@example.com" required>
+        </div>
+        <div class="form-group">
+          <label>Executor Name</label>
+          <input type="text" id="executorName" placeholder="e.g., John Smith" required>
+        </div>
+        <div class="form-group">
+          <label>Permissions</label>
+          <select id="executorPermissions" required>
+            <option value="view">View Only</option>
+            <option value="edit">Edit</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Designate Executor</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script>
+    redirectToLogin();
+
+    async function loadExecutors() {
+      try {
+        const data = await getExecutors();
+        const container = document.getElementById('executorsContainer');
+
+        if (!data.executors || data.executors.length === 0) {
+          container.innerHTML = '<div class="alert alert-info">No executors designated yet.</div>';
+          return;
+        }
+
+        container.innerHTML = data.executors.map(executor => `
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <h3>${executor.executor_name}</h3>
+                <p style="color: var(--text-light); font-size: 12px;">${executor.executor_email}</p>
+              </div>
+              <div style="display: flex; gap: 10px;">
+                <button class="btn btn-secondary btn-sm" onclick="openStatusModal(${executor.id})">Status</button>
+                <button class="btn btn-danger btn-sm" onclick="confirmDelete(${executor.id})">Remove</button>
+              </div>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
+              <div>
+                <p style="color: var(--text-light); font-size: 12px;">Permissions</p>
+                <p style="font-weight: 600;">${executor.permissions}</p>
+              </div>
+              <div>
+                <p style="color: var(--text-light); font-size: 12px;">Status</p>
+                <p style="font-weight: 600;">
+                  <span style="padding: 4px 8px; border-radius: 4px; background: ${executor.status === 'approved' ? '#dcfce7' : '#fee2e2'}; color: ${executor.status === 'approved' ? '#166534' : '#7f1d1d'};">
+                    ${executor.status}
+                  </span>
+                </p>
+              </div>
+              <div>
+                <p style="color: var(--text-light); font-size: 12px;">Active</p>
+                <p style=\"font-weight: 600;\">${executor.is_active ? 'Yes' : 'No'}</p>
+              </div>
+            </div>
+          </div>
+        `).join('');
+      } catch (error) {
+        showAlert('Error loading executors: ' + error.message, 'danger');
+      }
+    }
+
+    async function confirmDelete(executorId) {
+      if (confirm('Are you sure you want to remove this executor?')) {
+        try {
+          await removeExecutor(executorId);
+          showAlert('Executor removed successfully', 'success');
+          loadExecutors();
+        } catch (error) {
+          showAlert('Error: ' + error.message, 'danger');
+        }
+      }
+    }
+
+    function openStatusModal(executorId) {
+      const modal = document.createElement('div');
+      modal.className = 'modal active';
+      modal.innerHTML = `
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2>Change Executor Status</h2>
+            <button class="modal-close" onclick="this.parentElement.parentElement.remove()">×</button>
+          </div>
+          <div style="display: grid; gap: 10px;">
+            <button class="btn btn-success" onclick="updateStatus(${executorId}, 'approved'); this.parentElement.parentElement.parentElement.remove();">Approve</button>
+            <button class="btn btn-danger" onclick="updateStatus(${executorId}, 'denied'); this.parentElement.parentElement.parentElement.remove();">Deny</button>
+            <button class="btn btn-warning" onclick="updateStatus(${executorId}, 'deactivated'); this.parentElement.parentElement.parentElement.remove();">Deactivate</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+    }
+
+    async function updateStatus(executorId, status) {
+      try {
+        await setExecutorStatus(executorId, status);
+        showAlert(`Executor status updated to "${status}"`, 'success');
+        loadExecutors();
+      } catch (error) {
+        showAlert('Error: ' + error.message, 'danger');
+      }
+    }
+
+    document.getElementById('addExecutorForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      try {
+        await addExecutor(
+          document.getElementById('executorEmail').value,
+          document.getElementById('executorName').value,
+          document.getElementById('executorPermissions').value
+        );
+
+        showAlert('Executor designated successfully', 'success');
+        closeModal('addExecutorModal');
+        document.getElementById('addExecutorForm').reset();
+        loadExecutors();
+      } catch (error) {
+        showAlert('Error: ' + error.message, 'danger');
+      }
+    });
+
+    loadExecutors();
+  </script>
+</body>
+</html>

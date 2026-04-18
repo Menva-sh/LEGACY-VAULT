@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Digital Wills - LEGACY VAULT</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Sidebar -->
+    <nav class="sidebar">
+      <div class="sidebar-brand">LEGACY VAULT</div>
+      <ul class="sidebar-nav">
+        <li><a href="/pages/dashboard">Dashboard</a></li>
+        <li><a href="/pages/assets">Assets</a></li>
+        <li><a href="/pages/executors">Executors</a></li>
+        <li><a href="/pages/wills" class="active">Wills</a></li>
+        <li><a href="/pages/switches">Switches</a></li>
+        <li><a href="/" onclick="logoutUser()">Logout</a></li>
+      </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <h1>Digital Wills</h1>
+        <div style="display: flex; gap: 10px;">
+          <button class="btn btn-success" onclick="generateDigitalWill()" style="background-color: #27ae60;">Generate PDF Will</button>
+          <button class="btn btn-primary" onclick="openModal('addWillModal')">Create Will</button>
+        </div>
+      </div>
+
+      <div id="willsContainer"></div>
+    </div>
+  </div>
+
+  <!-- View Will Modal -->
+  <div id="viewWillModal" class="modal">
+    <div class="modal-content" style="max-width: 700px;">
+      <div class="modal-header">
+        <h2 id="viewWillTitle">Digital Will</h2>
+        <button class="modal-close" onclick="closeModal('viewWillModal')">×</button>
+      </div>
+      <div style="max-height: 500px; overflow-y: auto;">
+        <div class="form-group">
+          <label>Status</label>
+          <p><strong id="viewWillStatus">-</strong></p>
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <p id="viewWillDescription" style="white-space: pre-wrap;">-</p>
+        </div>
+        <div class="form-group">
+          <label>Content</label>
+          <p id="viewWillContent" style="white-space: pre-wrap; max-height: 250px; overflow-y: auto;">-</p>
+        </div>
+        <div id="viewWillPdfSection" style="display: none;">
+          <div class="form-group">
+            <label>Generated PDF</label>
+            <button class="btn btn-success" id="downloadPdfBtn" style="width: 100%; background-color: #27ae60;">⬇️ Download PDF</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Will Modal -->
+  <div id="addWillModal" class="modal">
+    <div class="modal-content" style="max-width: 600px;">
+      <div class="modal-header">
+        <h2>Create Digital Will</h2>
+        <button class="modal-close" onclick="closeModal('addWillModal')">×</button>
+      </div>
+      <form id="addWillForm">
+        <div class="form-group">
+          <label>Will Title</label>
+          <input type="text" id="willTitle" placeholder="e.g., My Digital Legacy" required>
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea id="willDescription" placeholder="Brief description..."></textarea>
+        </div>
+        <div class="form-group">
+          <label>Will Content</label>
+          <textarea id="willContent" placeholder="Full will instructions..." style="min-height: 150px;"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Executor (Optional)</label>
+          <select id="willExecutor">
+            <option value="">Select Executor</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Create Will</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script>
+    redirectToLogin();
+
+    async function loadWills() {
+      try {
+        const data = await getWills();
+        const container = document.getElementById('willsContainer');
+
+        if (!data.wills || data.wills.length === 0) {
+          container.innerHTML = '<div class="alert alert-info">No wills created yet. Click "Generate PDF Will" to create one.</div>';
+          return;
+        }
+
+        container.innerHTML = data.wills.map(will => `
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <h3>${will.title}</h3>
+                <p style="color: var(--text-light); font-size: 12px;">Status: ${will.status}</p>
+                ${will.file_path ? `<p style="color: var(--text-light); font-size: 11px;">Generated</p>` : ''}
+              </div>
+              <div style="display: flex; gap: 10px;">
+                ${will.file_path ? `<button class="btn btn-success btn-sm" onclick="downloadWill('${will.file_path}', '${will.title}')">Download PDF</button>` : ''}
+                <button class="btn btn-secondary btn-sm" onclick="viewWill(${will.id})">View</button>
+                <button class="btn btn-danger btn-sm" onclick="confirmDelete(${will.id})">Delete</button>
+              </div>
+            </div>
+            <p>${will.description || 'No description'}</p>
+          </div>
+        `).join('');
+      } catch (error) {
+        showAlert('Error loading wills: ' + error.message, 'danger');
+      }
+    }
+
+    async function loadExecutorsForSelect() {
+      try {
+        const data = await getExecutors();
+        const select = document.getElementById('willExecutor');
+        
+        if (data.executors && data.executors.length > 0) {
+          data.executors.forEach(executor => {
+            const option = document.createElement('option');
+            option.value = executor.id;
+            option.textContent = executor.executor_name;
+            select.appendChild(option);
+          });
+        }
+      } catch (error) {
+        console.error('Error loading executors:', error);
+      }
+    }
+
+    function viewWill(willId) {
+      try {
+        const token = getToken();
+        
+        // Fetch the specific will details
+        fetch(`http://localhost:3000/wills/${willId}`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        })
+        .then(res => res.json())
+        .then(responseData => {
+          const will = responseData.will;
+          
+          if (!will) {
+            showAlert('Will not found', 'danger');
+            return;
+          }
+
+          // Populate modal
+          document.getElementById('viewWillTitle').textContent = will.title;
+          document.getElementById('viewWillStatus').textContent = will.status;
+          document.getElementById('viewWillDescription').textContent = will.description || 'No description';
+          document.getElementById('viewWillContent').textContent = will.content || 'No content';
+
+          // Show PDF download button if file exists
+          const pdfSection = document.getElementById('viewWillPdfSection');
+          if (will.file_path) {
+            pdfSection.style.display = 'block';
+            document.getElementById('downloadPdfBtn').onclick = () => downloadWill(will.file_path, will.title);
+          } else {
+            pdfSection.style.display = 'none';
+          }
+
+          openModal('viewWillModal');
+        })
+        .catch(error => {
+          showAlert('Error loading will: ' + error.message, 'danger');
+        });
+      } catch (error) {
+        showAlert('Error: ' + error.message, 'danger');
+      }
+    }
+
+    function downloadWill(filePath, willTitle) {
+      try {
+        // Create a download link
+        const link = document.createElement('a');
+        link.href = `http://localhost:3000/${filePath}`;
+        link.download = willTitle.replace(/\s+/g, '_') + '.pdf';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        showAlert('PDF downloaded successfully!', 'success');
+      } catch (error) {
+        showAlert('Error downloading PDF: ' + error.message, 'danger');
+      }
+    }
+
+    async function confirmDelete(willId) {
+      if (confirm('Are you sure you want to delete this will?')) {
+        try {
+          await deleteWill(willId);
+          showAlert('Will deleted successfully', 'success');
+          loadWills();
+        } catch (error) {
+          showAlert('Error: ' + error.message, 'danger');
+        }
+      }
+    }
+
+    async function generateDigitalWill() {
+      try {
+        // Show loading message
+        showAlert('Generating your digital will PDF...', 'info');
+        
+        // Call the API to generate will
+        const token = getToken();
+        const response = await fetch('http://localhost:3000/generate-will', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error || 'Failed to generate will');
+        }
+
+        const willData = await response.json();
+
+        // Reload wills to show the newly generated will
+        loadWills();
+        
+        // Show success message
+        setTimeout(() => {
+          showAlert('✓ Digital will PDF generated! Refresh to see download option.', 'success');
+        }, 500);
+
+      } catch (error) {
+        console.error('Generate will error:', error);
+        showAlert('Error generating will: ' + error.message, 'danger');
+      }
+    }
+
+    document.getElementById('addWillForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      try {
+        await createWill(
+          document.getElementById('willTitle').value,
+          document.getElementById('willDescription').value,
+          document.getElementById('willContent').value,
+          document.getElementById('willExecutor').value || null
+        );
+
+        showAlert('Will created successfully', 'success');
+        closeModal('addWillModal');
+        document.getElementById('addWillForm').reset();
+        loadWills();
+      } catch (error) {
+        showAlert('Error: ' + error.message, 'danger');
+      }
+    });
+
+    loadWills();
+    loadExecutorsForSelect();
+  </script>
+</body>
+</html>
