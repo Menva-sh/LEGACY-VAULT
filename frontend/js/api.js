@@ -1,5 +1,5 @@
 // API Configuration
-const API_URL = 'http://localhost:3000';
+const API_URL = 'https://legacy-vault-17a0.onrender.com';
 
 // Get token from localStorage
 function getToken() {
