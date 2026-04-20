@@ -1,60 +1,194 @@
 const express = require('express');
+const cors = require('cors');
+const initializeDatabase = require('./initDb');
+const { verifyToken } = require('./middleware/authMiddleware');
+const { generateDigitalWill } = require('./controllers/willGeneratorController');
+const deadManswitchScheduler = require('./services/deadManswitchScheduler');
 
-console.log('🚀 Starting ULTRA-MINIMAL diagnostic server...');
+// Import routes with error handling
+let authRoutes, assetRoutes, executorRoutes, willRoutes, switchRoutes, executorPortalRoutes;
+
+try {
+  console.log('Importing auth routes from ./routes/authRoutes...');
+  authRoutes = require('./routes/authRoutes');
+  console.log('✅ Auth routes imported');
+} catch (err) {
+  console.error('❌ Failed to import auth routes:', err.message);
+  process.exit(1);
+}
+
+try {
+  console.log('Importing asset routes...');
+  assetRoutes = require('./routes/assetRoutes');
+  console.log('✅ Asset routes imported');
+} catch (err) {
+  console.error('❌ Failed to import asset routes:', err.message);
+}
+
+try {
+  console.log('Importing executor routes...');
+  executorRoutes = require('./routes/executorRoutes');
+  console.log('✅ Executor routes imported');
+} catch (err) {
+  console.error('❌ Failed to import executor routes:', err.message);
+}
+
+try {
+  console.log('Importing will routes...');
+  willRoutes = require('./routes/willRoutes');
+  console.log('✅ Will routes imported');
+} catch (err) {
+  console.error('❌ Failed to import will routes:', err.message);
+}
+
+try {
+  console.log('Importing switch routes...');
+  switchRoutes = require('./routes/switchRoutes');
+  console.log('✅ Switch routes imported');
+} catch (err) {
+  console.error('❌ Failed to import switch routes:', err.message);
+}
+
+try {
+  console.log('Importing portal routes...');
+  executorPortalRoutes = require('./routes/executorPortalRoutes');
+  console.log('✅ Portal routes imported');
+} catch (err) {
+  console.error('❌ Failed to import portal routes:', err.message);
+}
 
 const app = express();
 
-// Log ALL requests
+// CORS configuration with fallback for Render deployment
+const getAllowedOrigins = () => {
+  const defaultOrigins = [
+    'http://localhost:3000',
+    'http://localhost:8080',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:8080'
+  ];
+
+  if (process.env.CORS_ORIGIN) {
+    const envOrigins = process.env.CORS_ORIGIN.split(',').map(o => o.trim());
+    return [...envOrigins, ...defaultOrigins];
+  }
+
+  return defaultOrigins;
+};
+
+const allowedOrigins = getAllowedOrigins();
+
+const corsOptions = {
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps, curl, Postman)
+    if (!origin) {
+      return callback(null, true);
+    }
+
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.warn(`⚠️ CORS blocked request from origin: ${origin}`);
+      callback(new Error(`CORS policy: ${origin} not allowed`));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  maxAge: 86400 // 24 hours
+};
+
+console.log('🔍 CORS_ORIGIN env var:', process.env.CORS_ORIGIN || 'NOT SET');
+console.log('✅ CORS allowed origins:', allowedOrigins);
+
+app.use(cors(corsOptions));
+app.use(express.json());
+
+// Serve generated PDFs as static files
+app.use('/generated_wills', express.static('generated_wills'));
+
+// Request logging middleware
 app.use((req, res, next) => {
-  console.log(`\n📨 REQUEST: ${req.method} ${req.path}`);
-  console.log(`   URL: ${req.url}`);
-  console.log(`   Headers:`, {
-    origin: req.headers.origin,
-    host: req.headers.host,
-    'content-type': req.headers['content-type']
-  });
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
   next();
 });
 
-// Root route - MUST respond
+// Initialize database tables
+initializeDatabase()
+  .then(() => console.log('✅ Database initialization complete'))
+  .catch(err => {
+    console.error('❌ Database initialization failed:', err.message);
+    console.error('Continuing anyway - database may not be ready for queries');
+  });
+
+// Routes
+console.log('Setting up root route...');
 app.get('/', (req, res) => {
-  console.log('✅ Root route handler executed');
-  return res.status(200).json({ 
-    status: 'OK', 
-    message: 'Backend is running',
-    timestamp: new Date().toISOString(),
-    PORT: process.env.PORT || 3000
-  });
+  res.json({ status: 'OK', message: 'Backend is running', timestamp: new Date() });
 });
 
-// Test route
+// GET /generate-will - Generate digital will PDF
+console.log('Setting up digital will generator...');
+app.get('/generate-will', verifyToken, generateDigitalWill);
+
+console.log('Loading auth routes...');
+app.use('/auth', authRoutes);
+console.log('Loading asset routes...');
+app.use('/assets', assetRoutes);
+console.log('Loading executor routes...');
+app.use('/executors', executorRoutes);
+console.log('Loading will routes...');
+app.use('/wills', willRoutes);
+console.log('Loading switch routes...');
+app.use('/switches', switchRoutes);
+console.log('Loading portal routes...');
+app.use('/portal', executorPortalRoutes);
+console.log('All routes loaded successfully');
+
 app.get('/test', (req, res) => {
-  console.log('✅ Test route handler executed');
-  return res.json({ message: 'Test working' });
+  res.json({ message: 'Test route working', routes: Object.keys(app._router.stack).filter(i => i !== 'query' && i !== 'expressInit' && i !== 'cors' && i !== 'json' && i !== 'json') });
 });
 
-// Catch-all for debugging
-app.use((req, res) => {
-  console.log(`⚠️  No specific route matched for: ${req.method} ${req.path}`);
-  return res.status(404).json({ 
-    error: 'Route not found',
-    requested: `${req.method} ${req.path}`,
-    availableRoutes: ['GET /', 'GET /test']
+// Protected dashboard route for testing
+app.get('/dashboard-test', require('./middleware/authMiddleware').verifyToken, (req, res) => {
+  res.json({
+    message: 'Welcome to protected dashboard',
+    user: req.user,
+    timestamp: new Date()
   });
 });
+
+// Manual trigger for Dead Man's Switch check (for testing)
+app.post('/test/dead-mans-switch-check', async (req, res) => {
+  try {
+    console.log('[Manual Test] Triggering Dead Man\'s Switch check...');
+    await deadManswitchScheduler.runManually();
+    res.json({ message: 'Dead Man\'s Switch check completed', timestamp: new Date() });
+  } catch (error) {
+    console.error('[Manual Test] Error:', error);
+    res.status(500).json({ error: 'Check failed', details: error.message });
+  }
+});
+
+// 404 handler
+app.use((req, res) => {
+  console.log(`[404] No route found for: ${req.method} ${req.path}`);
+  res.status(404).json({ error: `Route not found: ${req.method} ${req.path}` });
+});
+
+// Start Dead Man's Switch scheduler
+console.log('\n=== INITIALIZING SCHEDULED JOBS ===');
+try {
+  deadManswitchScheduler.start();
+  console.log('✅ Dead Man\'s Switch scheduler started');
+} catch (err) {
+  console.error('⚠️  Failed to start scheduler:', err.message);
+}
+console.log('=== SCHEDULED JOBS INITIALIZED ===\n');
 
 const PORT = process.env.PORT || 3000;
-
 app.listen(PORT, () => {
-  console.log(`\n${'='.repeat(60)}`);
-  console.log(`✅ DIAGNOSTIC SERVER RUNNING ON PORT ${PORT}`);
-  console.log(`${'='.repeat(60)}`);
-  console.log(`Ready to accept requests at: http://localhost:${PORT}`);
-  console.log(`${'='.repeat(60)}\n`);
-});
-
-// Handle shutdown gracefully
-process.on('SIGTERM', () => {
-  console.log('\n🛑 SIGTERM received, shutting down...');
-  process.exit(0);
+  console.log(`\n✅ Server running on port ${PORT}`);
+  console.log(`✅ CORS enabled for:`, allowedOrigins);
+  console.log('✅ Ready to accept requests\n');
 });
