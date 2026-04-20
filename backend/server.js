@@ -34,7 +34,7 @@ app.get('/test', (req, res) => {
 });
 
 // Catch-all for debugging
-app.all('*', (req, res) => {
+app.use((req, res) => {
   console.log(`⚠️  No specific route matched for: ${req.method} ${req.path}`);
   return res.status(404).json({ 
     error: 'Route not found',
