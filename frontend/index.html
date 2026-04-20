@@ -107,7 +107,7 @@
         await registerUser(email, password, firstName, lastName);
         showAlert('Account created successfully!', 'success');
         setTimeout(() => {
-          window.location.href = '/pages/dashboard';
+          window.location.href = '/pages/dashboard.html';
         }, 1000);
       } catch (error) {
         showAlert(error.message, 'danger');
