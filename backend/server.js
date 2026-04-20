@@ -102,10 +102,6 @@ console.log('🔍 CORS_ORIGIN env var:', process.env.CORS_ORIGIN || 'NOT SET');
 console.log('✅ CORS allowed origins:', allowedOrigins);
 
 app.use(cors(corsOptions));
-
-// Explicit OPTIONS handler for preflight requests
-app.options('*', cors(corsOptions));
-
 app.use(express.json());
 
 // Serve generated PDFs as static files
