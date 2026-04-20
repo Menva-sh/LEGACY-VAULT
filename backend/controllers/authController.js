@@ -48,6 +48,10 @@ const register = async (req, res) => {
       }
     });
   } catch (err) {
+    // Handle duplicate key constraint error
+    if (err.message.includes('unique constraint') || err.message.includes('duplicate key')) {
+      return res.status(409).json({ error: 'Email already registered. Please login or use a different email.' });
+    }
     console.error('Register error:', err);
     res.status(500).json({ error: 'Registration failed' });
   }
