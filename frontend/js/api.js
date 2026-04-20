@@ -24,6 +24,7 @@ async function apiRequest(endpoint, method = 'GET', body = null) {
     headers: {
       'Content-Type': 'application/json',
     },
+    credentials: 'include', // Include cookies/credentials with every request
   };
 
   const token = getToken();

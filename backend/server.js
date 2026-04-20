@@ -59,17 +59,53 @@ try {
 
 const app = express();
 
-const corsOptions = {
-  origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',').map(o => o.trim()) : ['http://localhost:8080', 'http://localhost:3000'],
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+// CORS configuration with fallback for Render deployment
+const getAllowedOrigins = () => {
+  const defaultOrigins = [
+    'http://localhost:3000',
+    'http://localhost:8080',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:8080'
+  ];
+
+  if (process.env.CORS_ORIGIN) {
+    const envOrigins = process.env.CORS_ORIGIN.split(',').map(o => o.trim());
+    return [...envOrigins, ...defaultOrigins];
+  }
+
+  return defaultOrigins;
 };
 
-console.log('🔍 CORS_ORIGIN env var:', process.env.CORS_ORIGIN);
-console.log('✅ CORS origins parsed as:', corsOptions.origin);
+const allowedOrigins = getAllowedOrigins();
+
+const corsOptions = {
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps, curl, Postman)
+    if (!origin) {
+      return callback(null, true);
+    }
+
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.warn(`⚠️ CORS blocked request from origin: ${origin}`);
+      callback(new Error(`CORS policy: ${origin} not allowed`));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  maxAge: 86400 // 24 hours
+};
+
+console.log('🔍 CORS_ORIGIN env var:', process.env.CORS_ORIGIN || 'NOT SET');
+console.log('✅ CORS allowed origins:', allowedOrigins);
 
 app.use(cors(corsOptions));
+
+// Explicit OPTIONS handler for preflight requests
+app.options('*', cors(corsOptions));
+
 app.use(express.json());
 
 // Serve generated PDFs as static files

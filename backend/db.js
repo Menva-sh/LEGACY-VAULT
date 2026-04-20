@@ -9,11 +9,23 @@ const pool = new Pool({
   port: process.env.DB_PORT,
   ssl: {
     rejectUnauthorized: false
-  }
+  },
+  // Connection pooling optimizations for Neon
+  max: 20,                    // Maximum pool size
+  min: 2,                     // Minimum pool size
+  idleTimeoutMillis: 30000,   // Close idle clients after 30 seconds
+  connectionTimeoutMillis: 10000, // Timeout for new connections
+  application_name: 'legacy_vault_app'
+});
+
+// Handle pool errors
+pool.on('error', (err) => {
+  console.error('Unexpected error on idle client', err);
+  process.exit(-1);
 });
 
 pool.connect()
-  .then(() => console.log("Connected to PostgreSQL"))
-  .catch(err => console.error(err));
+  .then(() => console.log("Connected to PostgreSQL (Neon)"))
+  .catch(err => console.error('Connection failed:', err));
 
 module.exports = pool;
