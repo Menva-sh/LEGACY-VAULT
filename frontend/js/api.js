@@ -1,5 +1,12 @@
 // API Configuration
-const API_URL = 'https://legacy-vault-backend-150w.onrender.com';
+// Use environment variable if available, otherwise fallback to production
+const API_URL = typeof process !== 'undefined' && process.env.VITE_API_URL
+  ? process.env.VITE_API_URL
+  : (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:3000'
+    : 'https://legacy-vault-backend-150w.onrender.com');
+
+console.log(`🔗 API URL: ${API_URL}`);
 
 // Get token from localStorage
 function getToken() {
