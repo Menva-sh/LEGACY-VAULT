@@ -63,7 +63,7 @@
   <script>
     // Check if already logged in
     if (isLoggedIn()) {
-      window.location.href = '/pages/dashboard';
+      window.location.href = '/pages/dashboard.html';
     }
 
     function switchToRegister() {
@@ -87,7 +87,7 @@
         await loginUser(email, password);
         showAlert('Login successful!', 'success');
         setTimeout(() => {
-          window.location.href = '/pages/dashboard';
+          window.location.href = '/pages/dashboard.html';
         }, 1000);
       } catch (error) {
         showAlert(error.message, 'danger');
