@@ -1,53 +1,60 @@
 const express = require('express');
-const cors = require('cors');
+
+console.log('🚀 Starting ULTRA-MINIMAL diagnostic server...');
 
 const app = express();
 
-// Test CORS setup
-app.use(cors({
-  origin: '*',
-  methods: ['GET', 'POST', 'OPTIONS'],
-  credentials: true
-}));
+// Log ALL requests
+app.use((req, res, next) => {
+  console.log(`\n📨 REQUEST: ${req.method} ${req.path}`);
+  console.log(`   URL: ${req.url}`);
+  console.log(`   Headers:`, {
+    origin: req.headers.origin,
+    host: req.headers.host,
+    'content-type': req.headers['content-type']
+  });
+  next();
+});
 
-app.use(express.json());
-
-// Simple root route
+// Root route - MUST respond
 app.get('/', (req, res) => {
-  console.log('[GET /] - Root route hit');
-  res.json({ 
+  console.log('✅ Root route handler executed');
+  return res.status(200).json({ 
     status: 'OK', 
     message: 'Backend is running',
-    timestamp: new Date(),
-    environment: {
-      NODE_ENV: process.env.NODE_ENV || 'production',
-      PORT: process.env.PORT || 3000
-    }
+    timestamp: new Date().toISOString(),
+    PORT: process.env.PORT || 3000
   });
 });
 
-// Simple test route
+// Test route
 app.get('/test', (req, res) => {
-  console.log('[GET /test] - Test route hit');
-  res.json({ message: 'Test route working' });
+  console.log('✅ Test route handler executed');
+  return res.json({ message: 'Test working' });
 });
 
-// Simple login test
-app.post('/auth/login', (req, res) => {
-  console.log('[POST /auth/login] - Login route hit');
-  res.json({ message: 'Login endpoint working' });
-});
-
-// 404 handler
-app.use((req, res) => {
-  console.log(`[404] ${req.method} ${req.path} - No route found`);
-  res.status(404).json({ error: `Route not found: ${req.method} ${req.path}` });
+// Catch-all for debugging
+app.all('*', (req, res) => {
+  console.log(`⚠️  No specific route matched for: ${req.method} ${req.path}`);
+  return res.status(404).json({ 
+    error: 'Route not found',
+    requested: `${req.method} ${req.path}`,
+    availableRoutes: ['GET /', 'GET /test']
+  });
 });
 
 const PORT = process.env.PORT || 3000;
+
 app.listen(PORT, () => {
-  console.log(`\n✅ TEST SERVER running on port ${PORT}`);
-  console.log(`✅ Try: curl http://localhost:${PORT}/`);
-  console.log(`✅ Try: curl -X POST http://localhost:${PORT}/auth/login`);
-  console.log('Ready to accept requests\n');
+  console.log(`\n${'='.repeat(60)}`);
+  console.log(`✅ DIAGNOSTIC SERVER RUNNING ON PORT ${PORT}`);
+  console.log(`${'='.repeat(60)}`);
+  console.log(`Ready to accept requests at: http://localhost:${PORT}`);
+  console.log(`${'='.repeat(60)}\n`);
+});
+
+// Handle shutdown gracefully
+process.on('SIGTERM', () => {
+  console.log('\n🛑 SIGTERM received, shutting down...');
+  process.exit(0);
 });
