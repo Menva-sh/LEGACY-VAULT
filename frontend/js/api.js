@@ -4,7 +4,7 @@ const API_URL = typeof process !== 'undefined' && process.env.VITE_API_URL
   ? process.env.VITE_API_URL
   : (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
     ? 'http://localhost:3000'
-    : 'https://legacy-vault-backend-150w.onrender.com');
+    : 'https://legacy-vault-backend-l50w.onrender.com');
 
 console.log(`🔗 API URL: ${API_URL}`);
 
