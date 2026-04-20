@@ -62,9 +62,12 @@ const app = express();
 const corsOptions = {
   origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',').map(o => o.trim()) : ['http://localhost:8080', 'http://localhost:3000'],
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 };
+
+console.log('🔍 CORS_ORIGIN env var:', process.env.CORS_ORIGIN);
+console.log('✅ CORS origins parsed as:', corsOptions.origin);
 
 app.use(cors(corsOptions));
 app.use(express.json());
