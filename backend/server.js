@@ -114,7 +114,12 @@ app.use((req, res, next) => {
 });
 
 // Initialize database tables
-initializeDatabase();
+initializeDatabase()
+  .then(() => console.log('✅ Database initialization complete'))
+  .catch(err => {
+    console.error('❌ Database initialization failed:', err.message);
+    console.error('Continuing anyway - database may not be ready for queries');
+  });
 
 // Routes
 console.log('Setting up root route...');
@@ -173,9 +178,17 @@ app.use((req, res) => {
 
 // Start Dead Man's Switch scheduler
 console.log('\n=== INITIALIZING SCHEDULED JOBS ===');
-deadManswitchScheduler.start();
+try {
+  deadManswitchScheduler.start();
+  console.log('✅ Dead Man\'s Switch scheduler started');
+} catch (err) {
+  console.error('⚠️  Failed to start scheduler:', err.message);
+}
 console.log('=== SCHEDULED JOBS INITIALIZED ===\n');
 
-app.listen(3000, () => {
-  console.log('Server running on port 3000');
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`\n✅ Server running on port ${PORT}`);
+  console.log(`✅ CORS enabled for:`, allowedOrigins);
+  console.log('✅ Ready to accept requests\n');
 });
