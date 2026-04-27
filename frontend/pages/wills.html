@@ -155,7 +155,7 @@
         const token = getToken();
         
         // Fetch the specific will details
-        fetch(`http://localhost:3000/wills/${willId}`, {
+        fetch(`${API_URL}/wills/${willId}`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`
@@ -197,9 +197,9 @@
 
     function downloadWill(filePath, willTitle) {
       try {
-        // Create a download link
+        // Create a download link using API_URL
         const link = document.createElement('a');
-        link.href = `http://localhost:3000/${filePath}`;
+        link.href = `${API_URL}/${filePath}`;
         link.download = willTitle.replace(/\s+/g, '_') + '.pdf';
         document.body.appendChild(link);
         link.click();
@@ -229,7 +229,7 @@
         
         // Call the API to generate will
         const token = getToken();
-        const response = await fetch('http://localhost:3000/generate-will', {
+        const response = await fetch(`${API_URL}/generate-will`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`
