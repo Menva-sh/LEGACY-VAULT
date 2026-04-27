@@ -195,7 +195,7 @@
       }
     }
 
-    function downloadWill(filePath, willTitle) {
+    async function downloadWill(filePath, willTitle) {
       try {
         console.log('Download started for:', { filePath, willTitle });
         
@@ -203,21 +203,47 @@
         const filename = filePath.split('/').pop();
         console.log('Extracted filename:', filename);
         
-        // Create a download link using the new download endpoint
+        // Create download URL
         const downloadUrl = `${API_URL}/wills/download/${filename}`;
         console.log('Download URL:', downloadUrl);
         
-        const link = document.createElement('a');
-        link.href = downloadUrl;
-        link.download = willTitle.replace(/\s+/g, '_') + '.pdf';
-        console.log('Download attribute:', link.download);
+        // Get token for authorization
+        const token = getToken();
+        console.log('Token available:', !!token);
         
+        // Fetch the PDF with authorization header
+        showAlert('Downloading PDF...', 'info');
+        
+        const response = await fetch(downloadUrl, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        console.log('Response status:', response.status);
+        
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+          throw new Error(errorData.error || `HTTP ${response.status}`);
+        }
+        
+        // Convert response to blob
+        const blob = await response.blob();
+        console.log('Blob size:', blob.size);
+        
+        // Create a blob URL and download
+        const blobUrl = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.download = willTitle.replace(/\s+/g, '_') + '.pdf';
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+        window.URL.revokeObjectURL(blobUrl);
         
-        console.log('Download initiated');
-        showAlert('PDF downloading...', 'success');
+        console.log('Download completed');
+        showAlert('✓ PDF downloaded successfully!', 'success');
       } catch (error) {
         console.error('Download error:', error);
         showAlert('Error downloading PDF: ' + error.message, 'danger');
