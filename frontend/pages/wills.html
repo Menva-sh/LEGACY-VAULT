@@ -197,19 +197,29 @@
 
     function downloadWill(filePath, willTitle) {
       try {
+        console.log('Download started for:', { filePath, willTitle });
+        
         // Extract just the filename from the file path
         const filename = filePath.split('/').pop();
+        console.log('Extracted filename:', filename);
         
         // Create a download link using the new download endpoint
+        const downloadUrl = `${API_URL}/wills/download/${filename}`;
+        console.log('Download URL:', downloadUrl);
+        
         const link = document.createElement('a');
-        link.href = `${API_URL}/wills/download/${filename}`;
+        link.href = downloadUrl;
         link.download = willTitle.replace(/\s+/g, '_') + '.pdf';
-        link.setAttribute('target', '_blank');
+        console.log('Download attribute:', link.download);
+        
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+        
+        console.log('Download initiated');
         showAlert('PDF downloading...', 'success');
       } catch (error) {
+        console.error('Download error:', error);
         showAlert('Error downloading PDF: ' + error.message, 'danger');
       }
     }
