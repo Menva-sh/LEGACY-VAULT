@@ -187,11 +187,15 @@
         showAlert('Asset created successfully', 'success');
         closeModal('addAssetModal');
         document.getElementById('addAssetForm').reset();
+        clearFormData('addAsset');
         loadAssets();
       } catch (error) {
         showAlert('Error: ' + error.message, 'danger');
       }
     });
+
+    // Enable form auto-save
+    enableFormAutoSave('addAssetForm', 'addAsset');
 
     document.getElementById('editAssetForm').addEventListener('submit', async (e) => {
       e.preventDefault();

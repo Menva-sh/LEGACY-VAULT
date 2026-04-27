@@ -275,11 +275,15 @@
         showAlert('Will created successfully', 'success');
         closeModal('addWillModal');
         document.getElementById('addWillForm').reset();
+        clearFormData('addWill');
         loadWills();
       } catch (error) {
         showAlert('Error: ' + error.message, 'danger');
       }
     });
+
+    // Enable form auto-save
+    enableFormAutoSave('addWillForm', 'addWill');
 
     loadWills();
     loadExecutorsForSelect();

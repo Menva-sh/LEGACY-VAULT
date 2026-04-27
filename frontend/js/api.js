@@ -312,3 +312,63 @@ function redirectToLogin() {
     window.location.href = 'index.html';
   }
 }
+
+// Form Persistence Utilities
+function saveFormData(formId, storageKey) {
+  const form = document.getElementById(formId);
+  if (!form) return;
+
+  const formData = {};
+  const inputs = form.querySelectorAll('input, select, textarea');
+  
+  inputs.forEach(input => {
+    if (input.id) {
+      if (input.type === 'checkbox') {
+        formData[input.id] = input.checked;
+      } else {
+        formData[input.id] = input.value;
+      }
+    }
+  });
+
+  localStorage.setItem(`form_${storageKey}`, JSON.stringify(formData));
+}
+
+function restoreFormData(formId, storageKey) {
+  const form = document.getElementById(formId);
+  if (!form) return;
+
+  const stored = localStorage.getItem(`form_${storageKey}`);
+  if (!stored) return;
+
+  const formData = JSON.parse(stored);
+  const inputs = form.querySelectorAll('input, select, textarea');
+  
+  inputs.forEach(input => {
+    if (input.id && formData.hasOwnProperty(input.id)) {
+      if (input.type === 'checkbox') {
+        input.checked = formData[input.id];
+      } else {
+        input.value = formData[input.id];
+      }
+    }
+  });
+}
+
+function clearFormData(storageKey) {
+  localStorage.removeItem(`form_${storageKey}`);
+}
+
+function enableFormAutoSave(formId, storageKey) {
+  const form = document.getElementById(formId);
+  if (!form) return;
+
+  // Restore on page load
+  restoreFormData(formId, storageKey);
+
+  // Save on every input change
+  form.querySelectorAll('input, select, textarea').forEach(input => {
+    input.addEventListener('change', () => saveFormData(formId, storageKey));
+    input.addEventListener('input', () => saveFormData(formId, storageKey));
+  });
+}

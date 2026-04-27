@@ -154,11 +154,15 @@
         showAlert('Switch created successfully', 'success');
         closeModal('addSwitchModal');
         document.getElementById('addSwitchForm').reset();
+        clearFormData('addSwitch');
         loadSwitches();
       } catch (error) {
         showAlert('Error: ' + error.message, 'danger');
       }
     });
+
+    // Enable form auto-save
+    enableFormAutoSave('addSwitchForm', 'addSwitch');
 
     loadSwitches();
   </script>

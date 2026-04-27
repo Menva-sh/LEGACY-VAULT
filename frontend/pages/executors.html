@@ -166,11 +166,15 @@
         showAlert('Executor designated successfully', 'success');
         closeModal('addExecutorModal');
         document.getElementById('addExecutorForm').reset();
+        clearFormData('addExecutor');
         loadExecutors();
       } catch (error) {
         showAlert('Error: ' + error.message, 'danger');
       }
     });
+
+    // Enable form auto-save
+    enableFormAutoSave('addExecutorForm', 'addExecutor');
 
     loadExecutors();
   </script>
