@@ -36,7 +36,7 @@
             <span id="assetCount">--</span>
           </div>
           <p style="color: var(--text-light); margin-bottom: 15px;">Total assets stored</p>
-          <a href="/pages/assets.html" class="btn btn-primary btn-sm">View Assets</a>
+          <a href="/pages/assets" class="btn btn-primary btn-sm">View Assets</a>
         </div>
 
         <div class="card">
@@ -47,7 +47,7 @@
             <span id="executorCount">--</span>
           </div>
           <p style="color: var(--text-light); margin-bottom: 15px;">Designated executors</p>
-          <a href="/pages/executors.html" class="btn btn-success btn-sm">Manage Executors</a>
+          <a href="/pages/executors" class="btn btn-success btn-sm">Manage Executors</a>
         </div>
 
         <div class="card">
@@ -58,7 +58,7 @@
             <span id="willCount">--</span>
           </div>
           <p style="color: var(--text-light); margin-bottom: 15px;">Wills created</p>
-          <a href="/pages/wills.html" class="btn btn-warning btn-sm">Manage Wills</a>
+          <a href="/pages/wills" class="btn btn-warning btn-sm">Manage Wills</a>
         </div>
 
         <div class="card">
@@ -69,7 +69,7 @@
             <span id="switchCount">--</span>
           </div>
           <p style="color: var(--text-light); margin-bottom: 15px;">Active triggers</p>
-          <a href="/pages/switches.html" class="btn btn-danger btn-sm">View Switches</a>
+          <a href="/pages/switches" class="btn btn-danger btn-sm">View Switches</a>
         </div>
       </div>
 
@@ -123,12 +123,15 @@
       }
 
       try {
+        console.log('Loading dashboard data...');
         const [assets, executors, wills, switches] = await Promise.all([
-          getAssets(),
-          getExecutors(),
-          getWills(),
-          getSwitches(),
+          getAssets().catch(e => { console.error('Assets error:', e); return { count: 0 }; }),
+          getExecutors().catch(e => { console.error('Executors error:', e); return { count: 0 }; }),
+          getWills().catch(e => { console.error('Wills error:', e); return { count: 0 }; }),
+          getSwitches().catch(e => { console.error('Switches error:', e); return { count: 0 }; }),
         ]);
+
+        console.log('Dashboard data loaded:', { assets, executors, wills, switches });
 
         document.getElementById('assetCount').textContent = assets.count || 0;
         document.getElementById('executorCount').textContent = executors.count || 0;
