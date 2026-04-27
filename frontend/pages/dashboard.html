@@ -3,110 +3,539 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard - LEGACY VAULT</title>
+  <title>Dashboard - Legacy Vault</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    :root {
+      --berry: #933B5B;
+      --dusty-rose: #B5728A;
+      --sage: #AABAAE;
+      --warm-sand: #E3D6BF;
+      --olive-gold: #9F9679;
+      --bg-light: #FDFAF5;
+      --card-border: rgba(159, 150, 121, 0.2);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg-light);
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      color: #333;
+    }
+
+    h1, h2, h3, .stat-number, .sidebar-brand {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+    }
+
+    .dashboard-wrapper {
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: 280px;
+      background: var(--berry);
+      background: linear-gradient(135deg, var(--berry) 0%, rgba(147, 59, 91, 0.95) 100%);
+      color: white;
+      padding: 40px 24px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 4px 0 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .sidebar-brand {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 50px;
+      letter-spacing: 2px;
+    }
+
+    .sidebar-nav {
+      list-style: none;
+      flex: 1;
+    }
+
+    .sidebar-nav li {
+      margin-bottom: 24px;
+    }
+
+    .sidebar-nav a {
+      display: block;
+      color: rgba(255, 255, 255, 0.75);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 12px 16px;
+      border-radius: 8px;
+      border-left: 2px solid transparent;
+      transition: all 0.2s ease;
+    }
+
+    .sidebar-nav a:hover {
+      color: white;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .sidebar-nav a.active {
+      color: white;
+      background: rgba(255, 255, 255, 0.12);
+      border-left-color: var(--sage);
+    }
+
+    .sidebar-user {
+      padding-top: 24px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      text-align: center;
+    }
+
+    .sidebar-user-name {
+      font-size: 13px;
+      color: white;
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+
+    .sidebar-user-email {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.6);
+      margin-bottom: 16px;
+    }
+
+    .btn-logout {
+      width: 100%;
+      padding: 10px 12px;
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: white;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-logout:hover {
+      background: rgba(255, 255, 255, 0.25);
+      border-color: rgba(255, 255, 255, 0.4);
+    }
+
+    /* MAIN CONTENT */
+    .main-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 48px;
+    }
+
+    .page-header {
+      margin-bottom: 40px;
+    }
+
+    .page-header h1 {
+      font-size: 42px;
+      color: #333;
+      margin-bottom: 8px;
+    }
+
+    .page-tagline {
+      font-size: 16px;
+      color: var(--sage);
+      font-weight: 500;
+    }
+
+    /* STATS GRID */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 24px;
+      margin-bottom: 48px;
+    }
+
+    .stat-card {
+      background: white;
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 28px 24px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(147, 59, 91, 0.12);
+    }
+
+    .stat-card-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--sage);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 16px;
+    }
+
+    .stat-number {
+      font-size: 48px;
+      color: var(--berry);
+      margin-bottom: 8px;
+    }
+
+    .stat-description {
+      font-size: 14px;
+      color: #999;
+    }
+
+    /* SECTION DIVIDER */
+    .section-divider {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin: 48px 0 24px 0;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--sage);
+    }
+
+    .section-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(to right, var(--olive-gold), transparent);
+    }
+
+    /* QUICK ACTIONS */
+    .quick-actions {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      margin-bottom: 48px;
+    }
+
+    .action-btn {
+      background: white;
+      border: 2px solid var(--card-border);
+      border-radius: 8px;
+      padding: 20px 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--berry);
+    }
+
+    .action-btn:hover {
+      border-color: var(--berry);
+      background: linear-gradient(135deg, rgba(147, 59, 91, 0.05), rgba(181, 114, 138, 0.05));
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(147, 59, 91, 0.15);
+    }
+
+    .action-btn-icon {
+      font-size: 20px;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    /* ACCOUNT CARD */
+    .account-card {
+      background: white;
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 32px;
+      margin-bottom: 48px;
+    }
+
+    .account-card h2 {
+      font-size: 24px;
+      margin-bottom: 24px;
+      color: #333;
+    }
+
+    .account-info {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 32px;
+    }
+
+    .account-field {
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 16px;
+    }
+
+    .account-label {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--sage);
+      margin-bottom: 6px;
+    }
+
+    .account-value {
+      font-size: 16px;
+      font-weight: 500;
+      color: #333;
+    }
+
+    /* RECENT ACTIVITY */
+    .activity-card {
+      background: white;
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 32px;
+    }
+
+    .activity-card h2 {
+      font-size: 24px;
+      margin-bottom: 24px;
+      color: #333;
+    }
+
+    .activity-list {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .activity-item {
+      display: flex;
+      gap: 16px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .activity-item:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .activity-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--berry);
+      margin-top: 6px;
+      flex-shrink: 0;
+    }
+
+    .activity-content {
+      flex: 1;
+    }
+
+    .activity-text {
+      font-size: 14px;
+      color: #333;
+      margin-bottom: 4px;
+    }
+
+    .activity-time {
+      font-size: 12px;
+      color: var(--sage);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--sage);
+    }
+
+    .empty-state-icon {
+      font-size: 40px;
+      margin-bottom: 12px;
+    }
+
+    /* SCROLLBAR */
+    .main-content::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .main-content::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .main-content::-webkit-scrollbar-thumb {
+      background: var(--olive-gold);
+      border-radius: 4px;
+    }
+
+    .main-content::-webkit-scrollbar-thumb:hover {
+      background: var(--dusty-rose);
+    }
+
+    @media (max-width: 768px) {
+      .dashboard-wrapper {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        width: 100%;
+        padding: 20px;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .sidebar-brand {
+        margin-bottom: 0;
+        font-size: 16px;
+      }
+
+      .sidebar-nav {
+        display: flex;
+        gap: 16px;
+      }
+
+      .sidebar-user {
+        border-top: none;
+        border-left: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 0 0 0 20px;
+      }
+
+      .main-content {
+        padding: 24px;
+      }
+
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .page-header h1 {
+        font-size: 32px;
+      }
+    }
+  </style>
 </head>
 <body>
-  <div class="app-layout">
+  <div class="dashboard-wrapper">
     <!-- Sidebar -->
-    <nav class="sidebar">
-      <div class="sidebar-brand">LEGACY VAULT</div>
-      <ul class="sidebar-nav">
+    <aside class="sidebar">
+      <div class="sidebar-brand">Legacy Vault</div>
+
+      <nav class="sidebar-nav">
         <li><a href="/pages/dashboard.html" class="active">Dashboard</a></li>
         <li><a href="/pages/assets.html">Assets</a></li>
         <li><a href="/pages/executors.html">Executors</a></li>
         <li><a href="/pages/wills.html">Wills</a></li>
         <li><a href="/pages/switches.html">Switches</a></li>
-        <li><a href="/" onclick="logoutUser()">Logout</a></li>
-      </ul>
-    </nav>
+        <li><a href="/pages/settings.html" style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.1);">Settings</a></li>
+      </nav>
+
+      <div class="sidebar-user">
+        <div class="sidebar-user-name" id="sidebarUserName">Menva Sanesh</div>
+        <div class="sidebar-user-email" id="sidebarUserEmail">menva@gmail.com</div>
+        <button class="btn-logout" onclick="logoutUser()">Sign Out</button>
+      </div>
+    </aside>
 
     <!-- Main Content -->
-    <div class="main-content">
-      <h1>Welcome, <span id="userName">User</span>!</h1>
-      <p style="color: var(--text-light); margin-bottom: 30px;">Manage your digital legacy securely</p>
+    <main class="main-content">
+      <div class="page-header">
+        <h1>Welcome, <span id="userName">Menva</span>!</h1>
+        <p class="page-tagline">Digital inheritance</p>
+      </div>
 
-      <!-- Stats Grid -->
-      <div class="grid">
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title">Digital Assets</div>
-          </div>
-          <div style="font-size: 32px; font-weight: bold; color: var(--primary); margin: 20px 0;">
-            <span id="assetCount">--</span>
-          </div>
-          <p style="color: var(--text-light); margin-bottom: 15px;">Total assets stored</p>
-          <a href="/pages/assets" class="btn btn-primary btn-sm">View Assets</a>
+      <!-- Stats Row -->
+      <div class="stats-grid">
+        <div class="stat-card" onclick="window.location.href='/pages/assets.html'">
+          <div class="stat-card-label">Digital Assets</div>
+          <div class="stat-number" id="assetCount">0</div>
+          <div class="stat-description">Total items stored</div>
         </div>
 
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title">Executors</div>
-          </div>
-          <div style="font-size: 32px; font-weight: bold; color: var(--success); margin: 20px 0;">
-            <span id="executorCount">--</span>
-          </div>
-          <p style="color: var(--text-light); margin-bottom: 15px;">Designated executors</p>
-          <a href="/pages/executors" class="btn btn-success btn-sm">Manage Executors</a>
+        <div class="stat-card" onclick="window.location.href='/pages/executors.html'">
+          <div class="stat-card-label">Executors</div>
+          <div class="stat-number" id="executorCount">0</div>
+          <div class="stat-description">Designated trustees</div>
         </div>
 
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title">Digital Wills</div>
-          </div>
-          <div style="font-size: 32px; font-weight: bold; color: var(--warning); margin: 20px 0;">
-            <span id="willCount">--</span>
-          </div>
-          <p style="color: var(--text-light); margin-bottom: 15px;">Wills created</p>
-          <a href="/pages/wills" class="btn btn-warning btn-sm">Manage Wills</a>
+        <div class="stat-card" onclick="window.location.href='/pages/wills.html'">
+          <div class="stat-card-label">Digital Wills</div>
+          <div class="stat-number" id="willCount">0</div>
+          <div class="stat-description">Documents created</div>
         </div>
 
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title">Dead Man's Switches</div>
-          </div>
-          <div style="font-size: 32px; font-weight: bold; color: var(--danger); margin: 20px 0;">
-            <span id="switchCount">--</span>
-          </div>
-          <p style="color: var(--text-light); margin-bottom: 15px;">Active triggers</p>
-          <a href="/pages/switches" class="btn btn-danger btn-sm">View Switches</a>
+        <div class="stat-card" onclick="window.location.href='/pages/switches.html'">
+          <div class="stat-card-label">Dead Man's Switches</div>
+          <div class="stat-number" id="switchCount">0</div>
+          <div class="stat-description">Active triggers</div>
         </div>
       </div>
 
       <!-- Quick Actions -->
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">🚀 Quick Actions</div>
-        </div>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;">
-          <button class="btn btn-primary" onclick="goTo('/pages/assets')">➕ Add Asset</button>
-          <button class="btn btn-success" onclick="goTo('/pages/executors')">➕ Add Executor</button>
-          <button class="btn btn-warning" onclick="goTo('/pages/wills')">➕ Create Will</button>
-          <button class="btn btn-danger" onclick="goTo('/pages/switches')">➕ Setup Switch</button>
+      <div class="section-divider">Quick Actions</div>
+      <div class="quick-actions">
+        <button class="action-btn" onclick="window.location.href='/pages/assets.html'">
+          <span class="action-btn-icon">📁</span>
+          Add Asset
+        </button>
+        <button class="action-btn" onclick="window.location.href='/pages/executors.html'">
+          <span class="action-btn-icon">👤</span>
+          Add Executor
+        </button>
+        <button class="action-btn" onclick="window.location.href='/pages/wills.html'">
+          <span class="action-btn-icon">📄</span>
+          Create Will
+        </button>
+        <button class="action-btn" onclick="window.location.href='/pages/switches.html'">
+          <span class="action-btn-icon">⏰</span>
+          Setup Switch
+        </button>
+      </div>
+
+      <!-- Account Card -->
+      <div class="section-divider">Account</div>
+      <div class="account-card">
+        <h2>Your Information</h2>
+        <div class="account-info">
+          <div class="account-field">
+            <div class="account-label">Full Name</div>
+            <div class="account-value" id="userFullName">Menva Sanesh</div>
+          </div>
+          <div class="account-field">
+            <div class="account-label">Email Address</div>
+            <div class="account-value" id="userEmail">menva@gmail.com</div>
+          </div>
+          <div class="account-field">
+            <div class="account-label">Member Since</div>
+            <div class="account-value" id="userCreated">Apr 27, 2026</div>
+          </div>
+          <div class="account-field">
+            <div class="account-label">Plan</div>
+            <div class="account-value"><span style="background: var(--sage); color: white; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600;">Premium</span></div>
+          </div>
         </div>
       </div>
 
       <!-- Recent Activity -->
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">📝 Account Info</div>
+      <div class="section-divider" style="margin-top: 48px;">Recent Activity</div>
+      <div class="activity-card">
+        <h2>Latest Actions</h2>
+        <div class="activity-list" id="activityList">
+          <div class="empty-state">
+            <div class="empty-state-icon">📋</div>
+            <p>No recent activity yet. Start by adding an asset or creating a will.</p>
+          </div>
         </div>
-        <table class="table">
-          <tr>
-            <td style="font-weight: 600;">Email:</td>
-            <td id="userEmail">--</td>
-          </tr>
-          <tr>
-            <td style="font-weight: 600;">Name:</td>
-            <td id="userFullName">--</td>
-          </tr>
-          <tr>
-            <td style="font-weight: 600;">Member Since:</td>
-            <td id="userCreated">--</td>
-          </tr>
-        </table>
       </div>
-    </div>
+    </main>
   </div>
 
   <script src="/js/api.js"></script>
@@ -117,9 +546,22 @@
       const user = getCurrentUser();
 
       if (user) {
-        document.getElementById('userName').textContent = user.firstName || user.email;
+        const firstName = user.firstName || user.email.split('@')[0];
+        document.getElementById('userName').textContent = firstName;
+        document.getElementById('sidebarUserName').textContent = `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email;
+        document.getElementById('sidebarUserEmail').textContent = user.email;
         document.getElementById('userEmail').textContent = user.email;
-        document.getElementById('userFullName').textContent = `${user.firstName} ${user.lastName}`;
+        document.getElementById('userFullName').textContent = `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email;
+
+        // Format created date
+        if (user.created_at) {
+          const date = new Date(user.created_at);
+          document.getElementById('userCreated').textContent = date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+          });
+        }
       }
 
       try {
@@ -133,17 +575,85 @@
 
         console.log('Dashboard data loaded:', { assets, executors, wills, switches });
 
-        document.getElementById('assetCount').textContent = assets.count || 0;
-        document.getElementById('executorCount').textContent = executors.count || 0;
-        document.getElementById('willCount').textContent = wills.count || 0;
-        document.getElementById('switchCount').textContent = switches.count || 0;
+        document.getElementById('assetCount').textContent = assets.count || assets.length || 0;
+        document.getElementById('executorCount').textContent = executors.count || executors.length || 0;
+        document.getElementById('willCount').textContent = wills.count || wills.length || 0;
+        document.getElementById('switchCount').textContent = switches.count || switches.length || 0;
+
+        // Update recent activity
+        updateRecentActivity(user, assets, executors, wills, switches);
       } catch (error) {
         console.error('Error loading dashboard:', error);
       }
     }
 
-    function goTo(page) {
-      window.location.href = page;
+    function updateRecentActivity(user, assets, executors, wills, switches) {
+      const activityList = document.getElementById('activityList');
+      const activities = [];
+
+      if (wills && wills.length > 0) {
+        wills.forEach(will => {
+          activities.push({
+            text: `Created digital will: <strong>${will.title || 'Untitled'}</strong>`,
+            time: will.created_at ? new Date(will.created_at) : new Date()
+          });
+        });
+      }
+
+      if (executors && executors.length > 0) {
+        executors.forEach(executor => {
+          activities.push({
+            text: `Designated <strong>${executor.name || executor.email}</strong> as executor`,
+            time: executor.created_at ? new Date(executor.created_at) : new Date()
+          });
+        });
+      }
+
+      if (assets && assets.length > 0) {
+        assets.forEach(asset => {
+          activities.push({
+            text: `Added digital asset: <strong>${asset.asset_name || 'Unnamed'}</strong>`,
+            time: asset.created_at ? new Date(asset.created_at) : new Date()
+          });
+        });
+      }
+
+      // Sort by most recent
+      activities.sort((a, b) => b.time - a.time);
+
+      if (activities.length === 0) {
+        activityList.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">📋</div>
+            <p>No recent activity yet. Start by adding an asset or creating a will.</p>
+          </div>
+        `;
+      } else {
+        activityList.innerHTML = activities.slice(0, 8).map(activity => `
+          <div class="activity-item">
+            <div class="activity-dot"></div>
+            <div class="activity-content">
+              <div class="activity-text">${activity.text}</div>
+              <div class="activity-time">${formatTimeAgo(activity.time)}</div>
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+
+    function formatTimeAgo(date) {
+      const now = new Date();
+      const diffMs = now - date;
+      const diffMins = Math.floor(diffMs / 60000);
+      const diffHours = Math.floor(diffMs / 3600000);
+      const diffDays = Math.floor(diffMs / 86400000);
+
+      if (diffMins < 1) return 'Just now';
+      if (diffMins < 60) return `${diffMins}m ago`;
+      if (diffHours < 24) return `${diffHours}h ago`;
+      if (diffDays < 7) return `${diffDays}d ago`;
+
+      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     }
 
     loadDashboard();
