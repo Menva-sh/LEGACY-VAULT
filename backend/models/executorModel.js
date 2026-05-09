@@ -73,18 +73,27 @@ const updateExecutorStatus = async (executorId, userId, status) => {
 const removeExecutor = async (executorId, userId) => {
   try {
     console.log(`Removing executor: id=${executorId}, userId=${userId}`);
+    
+    // Ensure IDs are integers
+    const id = parseInt(executorId, 10);
+    const uid = parseInt(userId, 10);
+    
+    if (isNaN(id) || isNaN(uid)) {
+      throw new Error(`Invalid ID format: executorId=${executorId}, userId=${userId}`);
+    }
+    
     const query = 'DELETE FROM executors WHERE id = $1 AND user_id = $2 RETURNING id';
-    const result = await pool.query(query, [executorId, userId]);
+    const result = await pool.query(query, [id, uid]);
     console.log(`Delete result:`, result.rows);
     
     if (!result.rows || result.rows.length === 0) {
-      console.warn(`Executor not found: id=${executorId}, userId=${userId}`);
+      console.warn(`Executor not found: id=${id}, userId=${uid}`);
       return null;
     }
     
     return result.rows[0];
   } catch (err) {
-    console.error(`Error removing executor (id=${executorId}, userId=${userId}):`, err);
+    console.error(`Error removing executor (id=${executorId}, userId=${userId}):`, err.message);
     throw new Error(`Error removing executor: ${err.message}`);
   }
 };
