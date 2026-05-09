@@ -1,4 +1,6 @@
 const { addExecutor, getExecutorsByUserId, getExecutorById, updateExecutor, updateExecutorStatus, removeExecutor, executorExists } = require('../models/executorModel');
+const { sendExecutorNotification } = require('../services/emailService');
+const { getUser } = require('../models/userModel');
 
 // Add new executor
 const addNewExecutor = async (req, res) => {
@@ -19,8 +21,19 @@ const addNewExecutor = async (req, res) => {
 
     const executor = await addExecutor(userId, executorEmail, executorName || '', permissions || 'view');
 
+    // Get current user info for email
+    const user = await getUser(userId);
+    const senderName = `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.email;
+
+    // Send email notification (fire-and-forget - no await to avoid timeout)
+    sendExecutorNotification(executorEmail, executorName || 'Executor', senderName)
+      .catch(err => {
+        console.error('✗ Failed to send executor notification email:', err.message);
+        // Don't fail the API request if email fails
+      });
+
     res.status(201).json({
-      message: 'Executor designated successfully',
+      message: 'Executor designated successfully. Notification email sent.',
       executor
     });
   } catch (err) {
