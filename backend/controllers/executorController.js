@@ -138,9 +138,11 @@ const removeExecutorFromVault = async (req, res) => {
     const { executorId } = req.params;
     const userId = req.user.id;
 
+    console.log(`Controller: Removing executor ${executorId} for user ${userId}`);
     const executor = await removeExecutor(executorId, userId);
 
     if (!executor) {
+      console.warn(`Executor not found: ${executorId} for user ${userId}`);
       return res.status(404).json({ error: 'Executor not found' });
     }
 
@@ -149,8 +151,8 @@ const removeExecutorFromVault = async (req, res) => {
       executorId: executor.id
     });
   } catch (err) {
-    console.error('Remove executor error:', err);
-    res.status(500).json({ error: 'Failed to remove executor' });
+    console.error('Remove executor error:', err.message, err);
+    res.status(500).json({ error: `Failed to remove executor: ${err.message}` });
   }
 };
 

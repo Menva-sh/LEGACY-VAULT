@@ -72,10 +72,19 @@ const updateExecutorStatus = async (executorId, userId, status) => {
 // Remove executor
 const removeExecutor = async (executorId, userId) => {
   try {
+    console.log(`Removing executor: id=${executorId}, userId=${userId}`);
     const query = 'DELETE FROM executors WHERE id = $1 AND user_id = $2 RETURNING id';
     const result = await pool.query(query, [executorId, userId]);
+    console.log(`Delete result:`, result.rows);
+    
+    if (!result.rows || result.rows.length === 0) {
+      console.warn(`Executor not found: id=${executorId}, userId=${userId}`);
+      return null;
+    }
+    
     return result.rows[0];
   } catch (err) {
+    console.error(`Error removing executor (id=${executorId}, userId=${userId}):`, err);
     throw new Error(`Error removing executor: ${err.message}`);
   }
 };
