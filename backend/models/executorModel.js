@@ -146,7 +146,7 @@ const setExecutorPassword = async (executorId, hashedPassword) => {
     const query = `
       UPDATE executors
       SET password = $1, is_active = true, setup_token = NULL, token_expires_at = NULL, updated_at = NOW()
-      WHERE id = $1
+      WHERE id = $2
       RETURNING id, executor_email, executor_name, is_active
     `;
     const result = await pool.query(query, [hashedPassword, executorId]);
