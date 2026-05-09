@@ -99,6 +99,25 @@ const viewAsset = async (req, res) => {
   }
 };
 
+// Get executor access history/logs
+const getExecutorLogs = async (req, res) => {
+  try {
+    const { executorId } = req.params;
+    const { limit } = req.query;
+
+    const logs = await getAccessLogs(executorId, parseInt(limit) || 50);
+
+    res.json({
+      message: 'Access logs retrieved successfully',
+      count: logs.length,
+      logs
+    });
+  } catch (err) {
+    console.error('Get access logs error:', err);
+    res.status(500).json({ error: 'Failed to retrieve access logs' });
+  }
+};
+
 // Get wills for authenticated executor
 const getExecutorWills = async (req, res) => {
   try {
