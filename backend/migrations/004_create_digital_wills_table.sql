@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS digital_wills (
   description TEXT,
   content TEXT,
   status VARCHAR(50) DEFAULT 'draft',
-  executor_id INTEGER REFERENCES executors(id),
+  executor_id INTEGER REFERENCES executors(id) ON DELETE SET NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   effective_date TIMESTAMP
