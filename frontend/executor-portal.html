@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Set Up Your Executor Account - Legacy Vault</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons@latest/tabler-icons.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #6b2d4e 0%, #8b4a6b 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 500px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .auth-header {
+            background: #6b2d4e;
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .auth-header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .auth-header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .auth-body {
+            padding: 40px 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #2c2c2a;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #e0ddd6;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #6b2d4e;
+            box-shadow: 0 0 0 3px rgba(107, 45, 78, 0.1);
+        }
+
+        .password-strength {
+            margin-top: 6px;
+            font-size: 12px;
+            color: #888;
+        }
+
+        .strength-bar {
+            height: 4px;
+            background: #e0ddd6;
+            border-radius: 2px;
+            margin-top: 4px;
+            overflow: hidden;
+        }
+
+        .strength-bar-fill {
+            height: 100%;
+            width: 0%;
+            transition: all 0.3s;
+        }
+
+        .strength-weak { background: #dc3545; }
+        .strength-fair { background: #ffc107; }
+        .strength-good { background: #17a2b8; }
+        .strength-strong { background: #28a745; }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+            font-size: 14px;
+            border: 1px solid #f5c6cb;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+            font-size: 14px;
+            border: 1px solid #c3e6cb;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        .info-box {
+            background: #f7f4f0;
+            padding: 14px;
+            border-radius: 6px;
+            border-left: 3px solid #6b2d4e;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #555;
+            line-height: 1.5;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #6b2d4e;
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: #571c42;
+            box-shadow: 0 8px 16px rgba(107, 45, 78, 0.3);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .token-error-container {
+            text-align: center;
+            padding: 60px 30px;
+        }
+
+        .token-error-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            background: #f8d7da;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+        }
+
+        .token-error-container h2 {
+            color: #721c24;
+            margin-bottom: 10px;
+        }
+
+        .token-error-container p {
+            color: #856404;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .requirements {
+            margin-top: 20px;
+            font-size: 13px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .requirements-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 8px 0;
+        }
+
+        .requirements-item.met {
+            color: #28a745;
+        }
+
+        .requirements-item.unmet {
+            color: #dc3545;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 4px;
+            height: 4px;
+            margin-left: 4px;
+            background: currentColor;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        @media (max-width: 600px) {
+            .auth-container {
+                margin: 0 -20px;
+                border-radius: 0;
+            }
+
+            .auth-body {
+                padding: 30px 20px;
+            }
+
+            .auth-header {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div id="setup-form-container" style="display: none;">
+            <div class="auth-header">
+                <h1>Set Up Your Account</h1>
+                <p>Create a password to access your executor dashboard</p>
+            </div>
+
+            <div class="auth-body">
+                <div id="errorMessage" class="error-message"></div>
+                <div id="successMessage" class="success-message"></div>
+
+                <div class="info-box">
+                    <strong>Welcome to Legacy Vault!</strong><br>
+                    You've been designated as an executor. Set up your password now to access important documents and wills.
+                </div>
+
+                <form id="setupForm">
+                    <div class="form-group">
+                        <label for="password">New Password</label>
+                        <input 
+                            type="password" 
+                            id="password" 
+                            name="password" 
+                            placeholder="Enter a strong password"
+                            required
+                        >
+                        <div class="password-strength">
+                            <span id="strengthText">Password strength: </span>
+                            <div class="strength-bar">
+                                <div id="strengthBar" class="strength-bar-fill"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirm Password</label>
+                        <input 
+                            type="password" 
+                            id="confirmPassword" 
+                            name="confirmPassword" 
+                            placeholder="Confirm your password"
+                            required
+                        >
+                    </div>
+
+                    <div class="requirements">
+                        <div class="requirements-item unmet" id="req-length">
+                            <span>✓ At least 8 characters</span>
+                        </div>
+                        <div class="requirements-item unmet" id="req-number">
+                            <span>✓ At least 1 number</span>
+                        </div>
+                        <div class="requirements-item unmet" id="req-special">
+                            <span>✓ At least 1 special character (!@#$%)</span>
+                        </div>
+                        <div class="requirements-item unmet" id="req-match">
+                            <span>✓ Passwords match</span>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="margin-top: 30px;">
+                        <i class="ti ti-lock"></i>
+                        Set Password & Activate Account
+                    </button>
+                </form>
+
+                <p style="text-align: center; margin-top: 20px; color: #888; font-size: 12px;">
+                    Your account will be activated once you set your password.
+                </p>
+            </div>
+        </div>
+
+        <div id="token-error-container" style="display: none;">
+            <div class="token-error-container">
+                <div class="token-error-icon">⚠️</div>
+                <h2>Invalid or Expired Link</h2>
+                <p>The setup link has expired or is invalid. Setup links are valid for 7 days.</p>
+                <p>Please ask the account holder to send you a new invitation.</p>
+            </div>
+        </div>
+
+        <div id="loading-container" style="display: flex; align-items: center; justify-content: center; padding: 60px 30px;">
+            <div style="text-align: center; color: #6b2d4e;">
+                <p>Validating your setup link<span class="loading"></span></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'https://legacy-vault-backend-l50w.onrender.com';
+
+        // Password strength validation
+        const passwordInput = document.getElementById('password');
+        const confirmPasswordInput = document.getElementById('confirmPassword');
+        const strengthBar = document.getElementById('strengthBar');
+        const strengthText = document.getElementById('strengthText');
+
+        const requirements = {
+            length: { element: document.getElementById('req-length'), regex: /.{8,}/ },
+            number: { element: document.getElementById('req-number'), regex: /\d/ },
+            special: { element: document.getElementById('req-special'), regex: /[!@#$%^&*()_+\-=\[\]{};:'",.<>?/\\|`~]/ },
+            match: { element: document.getElementById('req-match'), check: () => passwordInput.value === confirmPasswordInput.value && passwordInput.value.length > 0 }
+        };
+
+        function validatePassword() {
+            const password = passwordInput.value;
+            let strength = 0;
+            let metCount = 0;
+
+            ['length', 'number', 'special'].forEach(req => {
+                const met = requirements[req].regex.test(password);
+                if (met) {
+                    strength++;
+                    metCount++;
+                    requirements[req].element.classList.add('met');
+                    requirements[req].element.classList.remove('unmet');
+                } else {
+                    requirements[req].element.classList.add('unmet');
+                    requirements[req].element.classList.remove('met');
+                }
+            });
+
+            // Check password match
+            const match = requirements.match.check();
+            if (match && password.length > 0) {
+                metCount++;
+                requirements.match.element.classList.add('met');
+                requirements.match.element.classList.remove('unmet');
+            } else {
+                requirements.match.element.classList.add('unmet');
+                requirements.match.element.classList.remove('met');
+            }
+
+            // Update strength bar
+            strengthBar.style.width = (strength / 3) * 100 + '%';
+            strengthBar.className = 'strength-bar-fill';
+
+            if (strength === 0) {
+                strengthText.textContent = 'Password strength: Weak';
+                strengthBar.classList.add('strength-weak');
+            } else if (strength === 1) {
+                strengthText.textContent = 'Password strength: Fair';
+                strengthBar.classList.add('strength-fair');
+            } else if (strength === 2) {
+                strengthText.textContent = 'Password strength: Good';
+                strengthBar.classList.add('strength-good');
+            } else {
+                strengthText.textContent = 'Password strength: Strong';
+                strengthBar.classList.add('strength-strong');
+            }
+        }
+
+        passwordInput.addEventListener('input', validatePassword);
+        confirmPasswordInput.addEventListener('input', validatePassword);
+
+        // Get setup token from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const setupToken = urlParams.get('token');
+
+        async function validateToken() {
+            if (!setupToken) {
+                showTokenError();
+                return;
+            }
+
+            try {
+                // Token validation happens on form submission
+                document.getElementById('loading-container').style.display = 'none';
+                document.getElementById('setup-form-container').style.display = 'block';
+            } catch (err) {
+                showTokenError();
+            }
+        }
+
+        function showTokenError() {
+            document.getElementById('loading-container').style.display = 'none';
+            document.getElementById('token-error-container').style.display = 'block';
+        }
+
+        // Handle form submission
+        document.getElementById('setupForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const password = passwordInput.value;
+            const confirmPassword = confirmPasswordInput.value;
+
+            // Validate
+            if (password !== confirmPassword) {
+                showError('Passwords do not match');
+                return;
+            }
+
+            if (password.length < 8) {
+                showError('Password must be at least 8 characters');
+                return;
+            }
+
+            try {
+                const btn = document.querySelector('.btn-primary');
+                btn.disabled = true;
+                btn.innerHTML = '<i class="ti ti-loader"></i> Setting up...';
+
+                const response = await fetch(`${API_URL}/executor-auth/setup`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        setupToken,
+                        password,
+                        confirmPassword
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to set password');
+                }
+
+                showSuccess('Password set successfully! Redirecting to login...');
+                setTimeout(() => {
+                    window.location.href = '/executor-login.html';
+                }, 2000);
+            } catch (err) {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="ti ti-lock"></i> Set Password & Activate Account';
+                showError(err.message);
+            }
+        });
+
+        function showError(message) {
+            const errorEl = document.getElementById('errorMessage');
+            errorEl.textContent = message;
+            errorEl.classList.add('show');
+            setTimeout(() => {
+                errorEl.classList.remove('show');
+            }, 5000);
+        }
+
+        function showSuccess(message) {
+            const successEl = document.getElementById('successMessage');
+            successEl.textContent = message;
+            successEl.classList.add('show');
+        }
+
+        // Validate token on page load
+        validateToken();
+    </script>
+</body>
+</html>

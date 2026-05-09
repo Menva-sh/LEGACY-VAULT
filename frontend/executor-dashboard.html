@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Executor Dashboard - Legacy Vault</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons@latest/tabler-icons.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background: #f7f4f0;
+            color: #2c2c2a;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-content h1 {
+            font-size: 28px;
+            color: #6b2d4e;
+            margin-bottom: 5px;
+        }
+
+        .header-content p {
+            color: #888;
+            font-size: 14px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-logout {
+            background: #f8f8f8;
+            color: #2c2c2a;
+            border: 1px solid #e0ddd6;
+        }
+
+        .btn-logout:hover {
+            background: #f0f0f0;
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #6b2d4e;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s;
+            border: 1px solid #e0ddd6;
+        }
+
+        .card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .will-card {
+            cursor: pointer;
+        }
+
+        .will-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 12px;
+        }
+
+        .will-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2c2c2a;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-status {
+            background: #e7f3ff;
+            color: #0066cc;
+        }
+
+        .will-description {
+            color: #888;
+            font-size: 14px;
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+
+        .will-meta {
+            display: flex;
+            gap: 20px;
+            font-size: 13px;
+            color: #888;
+        }
+
+        .will-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .btn-action {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .btn-view {
+            background: #6b2d4e;
+            color: white;
+        }
+
+        .btn-view:hover {
+            background: #571c42;
+        }
+
+        .btn-download {
+            background: #f0f0f0;
+            color: #2c2c2a;
+            border: 1px solid #e0ddd6;
+        }
+
+        .btn-download:hover {
+            background: #e8e8e8;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #888;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            font-size: 18px;
+            color: #2c2c2a;
+            margin-bottom: 8px;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 12px 20px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+            border: 1px solid #f5c6cb;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #888;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border: 3px solid #e0ddd6;
+            border-top-color: #6b2d4e;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #e0ddd6;
+            padding-bottom: 15px;
+        }
+
+        .modal-header h2 {
+            color: #6b2d4e;
+            font-size: 20px;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #888;
+        }
+
+        .modal-body {
+            margin-bottom: 20px;
+        }
+
+        .will-info {
+            margin-bottom: 15px;
+        }
+
+        .will-info label {
+            font-weight: 600;
+            color: #6b2d4e;
+            font-size: 13px;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .will-info-value {
+            color: #2c2c2a;
+            font-size: 14px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .header-actions {
+                width: 100%;
+            }
+
+            .will-header {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .will-actions {
+                flex-direction: column;
+            }
+
+            .btn-action {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-content">
+                <h1>Executor Dashboard</h1>
+                <p id="welcomeText">Welcome, loading...</p>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-logout" onclick="logout()">
+                    <i class="ti ti-logout"></i>
+                    Logout
+                </button>
+            </div>
+        </div>
+
+        <div id="errorMessage" class="error-message"></div>
+
+        <div class="section">
+            <h2 class="section-title">
+                <i class="ti ti-file-text"></i>
+                Assigned Wills
+            </h2>
+            <div id="willsContainer">
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    <p style="margin-top: 10px;">Loading wills...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Will Details Modal -->
+    <div id="willModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Will Details</h2>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="willDetailsBody"></div>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn btn-download" onclick="closeModal()">Close</button>
+                <button class="btn btn-view" id="downloadWillBtn">
+                    <i class="ti ti-download"></i>
+                    Download PDF
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'https://legacy-vault-backend-l50w.onrender.com';
+
+        // Check authentication
+        function checkAuth() {
+            const token = localStorage.getItem('executorToken');
+            const executorName = localStorage.getItem('executorName');
+            
+            if (!token) {
+                window.location.href = '/executor-login.html';
+                return;
+            }
+
+            document.getElementById('welcomeText').textContent = `Welcome, ${executorName}!`;
+        }
+
+        // Load wills assigned to executor
+        async function loadWills() {
+            try {
+                const token = localStorage.getItem('executorToken');
+                const executorId = localStorage.getItem('executorId');
+
+                const response = await fetch(`${API_URL}/executor-portal/wills`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.status === 401) {
+                    localStorage.removeItem('executorToken');
+                    window.location.href = '/executor-login.html';
+                    return;
+                }
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to load wills');
+                }
+
+                displayWills(data.wills || []);
+            } catch (err) {
+                showError(err.message);
+                document.getElementById('willsContainer').innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">⚠️</div>
+                        <h3>Could not load wills</h3>
+                        <p>${err.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Display wills
+        function displayWills(wills) {
+            const container = document.getElementById('willsContainer');
+
+            if (wills.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📄</div>
+                        <h3>No Wills Assigned Yet</h3>
+                        <p>You haven't been assigned any wills yet. The account holder will assign wills to you.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = wills.map(will => `
+                <div class="card will-card" onclick="viewWill(${will.id})">
+                    <div class="will-header">
+                        <div class="will-title">${escapeHtml(will.title)}</div>
+                        <span class="badge badge-status">${escapeHtml(will.status || 'draft')}</span>
+                    </div>
+                    ${will.description ? `<div class="will-description">${escapeHtml(will.description)}</div>` : ''}
+                    <div class="will-meta">
+                        ${will.user_name ? `<span><i class="ti ti-user"></i> ${escapeHtml(will.user_name)}</span>` : ''}
+                        <span><i class="ti ti-calendar"></i> ${new Date(will.created_at).toLocaleDateString()}</span>
+                    </div>
+                    <div class="will-actions">
+                        <button class="btn-action btn-view" onclick="event.stopPropagation(); viewWill(${will.id})">
+                            <i class="ti ti-eye"></i>
+                            View Details
+                        </button>
+                        ${will.file_path ? `
+                            <button class="btn-action btn-download" onclick="event.stopPropagation(); downloadWill('${will.file_path}', '${escapeHtml(will.title)}')">
+                                <i class="ti ti-download"></i>
+                                Download PDF
+                            </button>
+                        ` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // View will details
+        async function viewWill(willId) {
+            try {
+                const token = localStorage.getItem('executorToken');
+
+                const response = await fetch(`${API_URL}/wills/${willId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Could not load will details');
+                }
+
+                const data = await response.json();
+                const will = data.will;
+
+                const detailsHtml = `
+                    <div class="will-info">
+                        <label>Title</label>
+                        <div class="will-info-value">${escapeHtml(will.title)}</div>
+                    </div>
+                    <div class="will-info">
+                        <label>Status</label>
+                        <div class="will-info-value">${escapeHtml(will.status || 'draft')}</div>
+                    </div>
+                    ${will.description ? `
+                        <div class="will-info">
+                            <label>Description</label>
+                            <div class="will-info-value">${escapeHtml(will.description)}</div>
+                        </div>
+                    ` : ''}
+                    ${will.content ? `
+                        <div class="will-info">
+                            <label>Content</label>
+                            <div class="will-info-value">${escapeHtml(will.content)}</div>
+                        </div>
+                    ` : ''}
+                    <div class="will-info">
+                        <label>Created</label>
+                        <div class="will-info-value">${new Date(will.created_at).toLocaleString()}</div>
+                    </div>
+                `;
+
+                document.getElementById('willDetailsBody').innerHTML = detailsHtml;
+
+                if (will.file_path) {
+                    document.getElementById('downloadWillBtn').onclick = () => downloadWill(will.file_path, will.title);
+                    document.getElementById('downloadWillBtn').style.display = 'inline-flex';
+                } else {
+                    document.getElementById('downloadWillBtn').style.display = 'none';
+                }
+
+                document.getElementById('willModal').classList.add('show');
+            } catch (err) {
+                showError(err.message);
+            }
+        }
+
+        // Download will PDF
+        async function downloadWill(filePath, willTitle) {
+            try {
+                const token = localStorage.getItem('executorToken');
+
+                const response = await fetch(`${API_URL}/generated_wills/${filePath.split('/').pop()}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Could not download will');
+                }
+
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${willTitle}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+            } catch (err) {
+                showError(err.message);
+            }
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('willModal').classList.remove('show');
+        }
+
+        // Logout
+        function logout() {
+            localStorage.removeItem('executorToken');
+            localStorage.removeItem('executorId');
+            localStorage.removeItem('executorEmail');
+            localStorage.removeItem('executorName');
+            window.location.href = '/executor-login.html';
+        }
+
+        // Show error
+        function showError(message) {
+            const errorEl = document.getElementById('errorMessage');
+            errorEl.textContent = message;
+            errorEl.classList.add('show');
+            setTimeout(() => {
+                errorEl.classList.remove('show');
+            }, 5000);
+        }
+
+        // Escape HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('willModal').addEventListener('click', (e) => {
+            if (e.target.id === 'willModal') {
+                closeModal();
+            }
+        });
+
+        // Initialize
+        checkAuth();
+        loadWills();
+    </script>
+</body>
+</html>

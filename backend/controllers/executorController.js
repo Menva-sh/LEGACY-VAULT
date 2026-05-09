@@ -1,6 +1,7 @@
 const { addExecutor, getExecutorsByUserId, getExecutorById, updateExecutor, updateExecutorStatus, removeExecutor, executorExists } = require('../models/executorModel');
 const { sendExecutorNotification } = require('../services/emailService');
 const { getUserById } = require('../models/userModel');
+const { generateAndSetupToken } = require('./executorAuthController');
 
 // Add new executor
 const addNewExecutor = async (req, res) => {
@@ -21,13 +22,21 @@ const addNewExecutor = async (req, res) => {
 
     const executor = await addExecutor(userId, executorEmail, executorName || '', permissions || 'view');
 
+    // Generate setup token for executor
+    const setupToken = await generateAndSetupToken(executor.id);
+
     // Get current user info for email
     const user = await getUserById(userId);
     const senderName = `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.email;
 
-    // Send email notification (fire-and-forget - no await to avoid timeout)
+    // Send email notification with setup link (fire-and-forget - no await to avoid timeout)
     console.log(`📧 Queuing email notification for executor: ${executorEmail}`);
-    sendExecutorNotification(executorEmail, executorName || 'Executor', senderName)
+    sendExecutorNotification(
+      executorEmail, 
+      executorName || 'Executor', 
+      senderName,
+      setupToken  // Pass setup token to email service
+    )
       .then(() => {
         console.log(`✅ Email notification completed for: ${executorEmail}`);
       })

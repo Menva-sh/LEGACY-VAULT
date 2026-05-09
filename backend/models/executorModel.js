@@ -109,6 +109,84 @@ const executorExists = async (userId, executorEmail) => {
   }
 };
 
+// Set executor setup token (called when creating executor)
+const setSetupToken = async (executorId, setupToken, tokenExpiresAt) => {
+  try {
+    const query = `
+      UPDATE executors
+      SET setup_token = $1, token_expires_at = $2
+      WHERE id = $3
+      RETURNING id, setup_token, token_expires_at
+    `;
+    const result = await pool.query(query, [setupToken, tokenExpiresAt, executorId]);
+    return result.rows[0];
+  } catch (err) {
+    throw new Error(`Error setting setup token: ${err.message}`);
+  }
+};
+
+// Get executor by setup token
+const getExecutorBySetupToken = async (setupToken) => {
+  try {
+    const query = `
+      SELECT id, executor_email, executor_name, setup_token, token_expires_at, is_active
+      FROM executors
+      WHERE setup_token = $1
+    `;
+    const result = await pool.query(query, [setupToken]);
+    return result.rows[0];
+  } catch (err) {
+    throw new Error(`Error fetching executor by token: ${err.message}`);
+  }
+};
+
+// Set executor password (after password setup)
+const setExecutorPassword = async (executorId, hashedPassword) => {
+  try {
+    const query = `
+      UPDATE executors
+      SET password = $1, is_active = true, setup_token = NULL, token_expires_at = NULL, updated_at = NOW()
+      WHERE id = $1
+      RETURNING id, executor_email, executor_name, is_active
+    `;
+    const result = await pool.query(query, [hashedPassword, executorId]);
+    return result.rows[0];
+  } catch (err) {
+    throw new Error(`Error setting executor password: ${err.message}`);
+  }
+};
+
+// Get executor by email for login
+const getExecutorByEmail = async (executorEmail) => {
+  try {
+    const query = `
+      SELECT id, executor_email, executor_name, password, is_active, user_id
+      FROM executors
+      WHERE executor_email = $1 AND is_active = true
+    `;
+    const result = await pool.query(query, [executorEmail]);
+    return result.rows[0];
+  } catch (err) {
+    throw new Error(`Error fetching executor by email: ${err.message}`);
+  }
+};
+
+// Update executor last login
+const updateLastLogin = async (executorId) => {
+  try {
+    const query = `
+      UPDATE executors
+      SET last_login = NOW()
+      WHERE id = $1
+      RETURNING id, last_login
+    `;
+    const result = await pool.query(query, [executorId]);
+    return result.rows[0];
+  } catch (err) {
+    throw new Error(`Error updating last login: ${err.message}`);
+  }
+};
+
 module.exports = {
   addExecutor,
   getExecutorsByUserId,
@@ -116,5 +194,10 @@ module.exports = {
   updateExecutor,
   updateExecutorStatus,
   removeExecutor,
-  executorExists
+  executorExists,
+  setSetupToken,
+  getExecutorBySetupToken,
+  setExecutorPassword,
+  getExecutorByEmail,
+  updateLastLogin
 };

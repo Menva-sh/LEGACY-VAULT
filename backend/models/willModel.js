@@ -80,12 +80,36 @@ const deleteWill = async (willId, userId) => {
   }
 };
 
-// Get published wills for executor access
+// Get published wills for executor access with user info
 const getPublishedWillsByExecutor = async (executorId) => {
   try {
-    const query = 'SELECT id, user_id, title, description, content, status, executor_id, effective_date FROM digital_wills WHERE executor_id = $1 AND status = \'published\'';
+    const query = `
+      SELECT 
+        dw.id, 
+        dw.user_id, 
+        dw.title, 
+        dw.description, 
+        dw.content, 
+        dw.status, 
+        dw.executor_id, 
+        dw.effective_date,
+        dw.file_path,
+        dw.created_at,
+        u.first_name,
+        u.last_name,
+        u.email
+      FROM digital_wills dw
+      LEFT JOIN users u ON dw.user_id = u.id
+      WHERE dw.executor_id = $1 AND dw.status = 'published'
+      ORDER BY dw.created_at DESC
+    `;
     const result = await pool.query(query, [executorId]);
-    return result.rows;
+    return result.rows.map(row => ({
+      ...row,
+      user_name: row.first_name || row.last_name 
+        ? `${row.first_name || ''} ${row.last_name || ''}`.trim()
+        : row.email
+    }));
   } catch (err) {
     throw new Error(`Error fetching published wills: ${err.message}`);
   }

@@ -6,7 +6,7 @@ const { generateDigitalWill } = require('./controllers/willGeneratorController')
 const deadManswitchScheduler = require('./services/deadManswitchScheduler');
 
 // Import routes with error handling
-let authRoutes, assetRoutes, executorRoutes, willRoutes, switchRoutes, executorPortalRoutes;
+let authRoutes, assetRoutes, executorRoutes, executorAuthRoutes, willRoutes, switchRoutes, executorPortalRoutes;
 
 try {
   console.log('Importing auth routes from ./routes/authRoutes...');
@@ -31,6 +31,14 @@ try {
   console.log('✅ Executor routes imported');
 } catch (err) {
   console.error('❌ Failed to import executor routes:', err.message);
+}
+
+try {
+  console.log('Importing executor auth routes...');
+  executorAuthRoutes = require('./routes/executorAuthRoutes');
+  console.log('✅ Executor auth routes imported');
+} catch (err) {
+  console.error('❌ Failed to import executor auth routes:', err.message);
 }
 
 try {
@@ -133,6 +141,8 @@ app.get('/generate-will', verifyToken, generateDigitalWill);
 
 console.log('Loading auth routes...');
 app.use('/auth', authRoutes);
+console.log('Loading executor auth routes...');
+app.use('/executor-auth', executorAuthRoutes);
 console.log('Loading asset routes...');
 app.use('/assets', assetRoutes);
 console.log('Loading executor routes...');

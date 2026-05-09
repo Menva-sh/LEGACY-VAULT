@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Executor Login - Legacy Vault</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons@latest/tabler-icons.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #6b2d4e 0%, #8b4a6b 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 420px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .auth-header {
+            background: #6b2d4e;
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .auth-header h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .auth-header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .auth-body {
+            padding: 40px 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #2c2c2a;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #e0ddd6;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #6b2d4e;
+            box-shadow: 0 0 0 3px rgba(107, 45, 78, 0.1);
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+            font-size: 14px;
+            border: 1px solid #f5c6cb;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .info-box {
+            background: #e7f3ff;
+            padding: 12px;
+            border-radius: 6px;
+            border-left: 3px solid #0066cc;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #004d99;
+            line-height: 1.5;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #6b2d4e;
+            color: white;
+            margin-top: 20px;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: #571c42;
+            box-shadow: 0 8px 16px rgba(107, 45, 78, 0.3);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .divider {
+            text-align: center;
+            margin: 20px 0;
+            color: #ccc;
+            font-size: 12px;
+        }
+
+        .link {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 13px;
+        }
+
+        .link a {
+            color: #6b2d4e;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .link a:hover {
+            text-decoration: underline;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 4px;
+            height: 4px;
+            margin-left: 4px;
+            background: currentColor;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        @media (max-width: 600px) {
+            .auth-container {
+                margin: 0 -20px;
+                border-radius: 0;
+            }
+
+            .auth-body {
+                padding: 30px 20px;
+            }
+
+            .auth-header {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-header">
+            <h1>Executor Login</h1>
+            <p>Access your executor dashboard</p>
+        </div>
+
+        <div class="auth-body">
+            <div id="errorMessage" class="error-message"></div>
+
+            <div class="info-box">
+                <strong>Welcome back!</strong><br>
+                Log in with your executor email and password to access assigned wills and documents.
+            </div>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="email">Executor Email</label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        name="email" 
+                        placeholder="your@email.com"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        placeholder="Enter your password"
+                        required
+                    >
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="ti ti-login"></i>
+                    Login to Dashboard
+                </button>
+            </form>
+
+            <div class="divider">Don't have an account yet?</div>
+            
+            <p style="text-align: center; color: #888; font-size: 13px;">
+                Check your email for an invitation from your account holder to set up your executor account.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'https://legacy-vault-backend-l50w.onrender.com';
+
+        // Check if already logged in
+        const token = localStorage.getItem('executorToken');
+        if (token) {
+            window.location.href = '/executor-dashboard.html';
+        }
+
+        // Handle form submission
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const btn = document.querySelector('.btn-primary');
+                btn.disabled = true;
+                btn.innerHTML = '<i class="ti ti-loader"></i> Logging in...';
+
+                const response = await fetch(`${API_URL}/executor-auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Login failed');
+                }
+
+                // Save token and executor info
+                localStorage.setItem('executorToken', data.token);
+                localStorage.setItem('executorId', data.executor.id);
+                localStorage.setItem('executorEmail', data.executor.email);
+                localStorage.setItem('executorName', data.executor.name);
+
+                // Redirect to dashboard
+                window.location.href = '/executor-dashboard.html';
+            } catch (err) {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="ti ti-login"></i> Login to Dashboard';
+                showError(err.message);
+            }
+        });
+
+        function showError(message) {
+            const errorEl = document.getElementById('errorMessage');
+            errorEl.textContent = message;
+            errorEl.classList.add('show');
+            setTimeout(() => {
+                errorEl.classList.remove('show');
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

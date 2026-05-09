@@ -1,5 +1,5 @@
 const { getAccessLogs, logAccess, getExecutorByEmail, getVaultOwnerByExecutorId, getExecutorAccessibleWills, getExecutorAccessibleAssets } = require('../models/executorPortalModel');
-const { getWillById } = require('../models/willModel');
+const { getWillById, getPublishedWillsByExecutor } = require('../models/willModel');
 const { getAssetById } = require('../models/assetModel');
 
 // Executor dashboard overview (what they have access to)
@@ -99,22 +99,28 @@ const viewAsset = async (req, res) => {
   }
 };
 
-// Get executor access history/logs
-const getExecutorLogs = async (req, res) => {
+// Get wills for authenticated executor
+const getExecutorWills = async (req, res) => {
   try {
-    const { executorId } = req.params;
-    const { limit } = req.query;
+    const executorId = req.executorId; // From executor auth middleware
 
-    const logs = await getAccessLogs(executorId, parseInt(limit) || 50);
+    if (!executorId) {
+      return res.status(401).json({ error: 'Not authenticated as executor' });
+    }
 
-    res.json({
-      message: 'Access logs retrieved successfully',
-      count: logs.length,
-      logs
+    console.log(`📄 Fetching wills for executor: ${executorId}`);
+
+    const wills = await getPublishedWillsByExecutor(executorId);
+
+    console.log(`✅ Found ${wills.length} wills for executor ${executorId}`);
+
+    res.status(200).json({
+      message: 'Wills retrieved successfully',
+      wills
     });
   } catch (err) {
-    console.error('Get access logs error:', err);
-    res.status(500).json({ error: 'Failed to retrieve access logs' });
+    console.error('❌ Error fetching executor wills:', err.message);
+    res.status(500).json({ error: 'Failed to retrieve wills' });
   }
 };
 
@@ -122,5 +128,6 @@ module.exports = {
   getExecutorDashboard,
   viewWill,
   viewAsset,
-  getExecutorLogs
+  getExecutorLogs,
+  getExecutorWills
 };

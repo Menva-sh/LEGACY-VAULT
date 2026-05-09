@@ -8,14 +8,38 @@ if (!process.env.SENDGRID_API_KEY) {
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-async function sendExecutorNotification(executorEmail, executorName, userName) {
+async function sendExecutorNotification(executorEmail, executorName, userName, setupToken = null) {
   try {
     console.log(`📧 Preparing email for: ${executorEmail}`);
+    
+    // Build setup link if token provided
+    const setupLink = setupToken 
+      ? `https://legacy-vault-nine.vercel.app/executor-portal.html?token=${setupToken}`
+      : null;
+    
+    const setupButtonHtml = setupLink ? `
+      <div style="margin: 24px 0; text-align: center;">
+        <a href="${setupLink}" style="
+          display: inline-block;
+          padding: 12px 32px;
+          background: #6b2d4e;
+          color: white;
+          text-decoration: none;
+          border-radius: 6px;
+          font-weight: bold;
+        ">
+          Set Up Your Executor Account
+        </a>
+      </div>
+      <p style="font-size: 12px; color: #888780; text-align: center;">
+        Link expires in 7 days
+      </p>
+    ` : '';
     
     const msg = {
       to: executorEmail,
       from: process.env.SENDER_EMAIL || 'noreply@legacyvault.com',
-      subject: 'You Have Been Designated as an Executor',
+      subject: setupLink ? 'Set Up Your Executor Account' : 'You Have Been Designated as an Executor',
       html: `
         <html>
           <body style="font-family: system-ui, -apple-system, sans-serif; color: #2c2c2a; line-height: 1.6;">
@@ -25,6 +49,8 @@ async function sendExecutorNotification(executorEmail, executorName, userName) {
               <p>Hello <strong>${executorName}</strong>,</p>
               
               <p>You have been designated as an executor for the Legacy Vault account of <strong>${userName}</strong>.</p>
+              
+              ${setupButtonHtml}
               
               <p>As an executor, you will have access to:</p>
               <ul style="color: #666;">
@@ -36,10 +62,17 @@ async function sendExecutorNotification(executorEmail, executorName, userName) {
               
               <p>The account holder has set this up to ensure their important information is properly managed. You may be contacted if access is needed.</p>
               
-              <p style="background: #f7f4f0; padding: 16px; border-radius: 6px; border-left: 3px solid #6b2d4e;">
-                <strong>Next Steps:</strong><br>
-                If you have any questions or need more information about your role as an executor, please contact the account holder directly.
-              </p>
+              ${setupLink ? `
+                <p style="background: #f7f4f0; padding: 16px; border-radius: 6px; border-left: 3px solid #6b2d4e;">
+                  <strong>Next Steps:</strong><br>
+                  Click the button above to set up your password and access your executor account. Your setup link is valid for 7 days.
+                </p>
+              ` : `
+                <p style="background: #f7f4f0; padding: 16px; border-radius: 6px; border-left: 3px solid #6b2d4e;">
+                  <strong>Next Steps:</strong><br>
+                  If you have any questions or need more information about your role as an executor, please contact the account holder directly.
+                </p>
+              `}
               
               <p style="margin-top: 24px; color: #888780; font-size: 12px;">
                 <em>This is an automated notification from Legacy Vault. Please do not reply to this email.</em>
