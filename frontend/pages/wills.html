@@ -116,7 +116,7 @@
       <div class="modal-body">
         <div class="form-group">
           <label>Status</label>
-          <p id="viewWillStatus" style="margin-top: 6px; font-size: 13px;">-</p>
+          <p id="viewWillStatus" style="margin-top: 6px; font-size: 13px; font-weight: 500; color: #6b2d4e;">-</p>
         </div>
         <div class="form-group">
           <label>Description</label>
@@ -131,6 +131,12 @@
             <label>Generated PDF</label>
             <button class="btn-success" id="downloadPdfBtn" style="width: 100%; margin-top: 8px;">Download PDF</button>
           </div>
+        </div>
+        <div id="publishSection" style="display: none; padding-top: 16px; border-top: 0.5px solid #e0ddd6;">
+          <p style="font-size: 12px; color: #888780; margin-bottom: 12px;">
+            <strong>Note:</strong> Publishing this will makes it visible to assigned executors.
+          </p>
+          <button class="btn-success" id="publishWillBtn" onclick="publishWillNow()" style="width: 100%;">Publish Will for Executors</button>
         </div>
       </div>
     </div>
@@ -172,6 +178,8 @@
   <script src="/js/api.js"></script>
   <script>
     redirectToLogin();
+    
+    let currentWillId = null;
 
     const user = getCurrentUser();
     if (user) {
@@ -249,10 +257,19 @@
             return;
           }
 
+          currentWillId = will.id;
           document.getElementById('viewWillTitle').textContent = will.title;
           document.getElementById('viewWillStatus').textContent = will.status;
           document.getElementById('viewWillDescription').textContent = will.description || 'No description';
           document.getElementById('viewWillContent').textContent = will.content || 'No content';
+
+          // Show publish button only for draft wills
+          const publishSection = document.getElementById('publishSection');
+          if (will.status === 'draft') {
+            publishSection.style.display = 'block';
+          } else {
+            publishSection.style.display = 'none';
+          }
 
           const pdfSection = document.getElementById('viewWillPdfSection');
           if (will.file_path) {
@@ -269,6 +286,30 @@
         });
       } catch (error) {
         showAlert('Error: ' + error.message, 'danger');
+      }
+    }
+
+    async function publishWillNow() {
+      if (!currentWillId) {
+        showAlert('Error: Will ID not found', 'danger');
+        return;
+      }
+
+      try {
+        const btn = document.getElementById('publishWillBtn');
+        btn.disabled = true;
+        btn.textContent = 'Publishing...';
+
+        await publishWill(currentWillId, null);
+
+        showAlert('Will published successfully! Executors can now see this will.', 'success');
+        closeModal('viewWillModal');
+        loadWills();
+      } catch (error) {
+        showAlert('Error publishing will: ' + error.message, 'danger');
+        const btn = document.getElementById('publishWillBtn');
+        btn.disabled = false;
+        btn.textContent = 'Publish Will for Executors';
       }
     }
 
