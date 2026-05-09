@@ -457,8 +457,9 @@
                 return;
             }
 
+            const btn = document.querySelector('button[type="submit"]');
+            
             try {
-                const btn = document.querySelector('.btn-primary');
                 btn.disabled = true;
                 btn.innerHTML = '<i class="ti ti-loader"></i> Setting up...';
 
