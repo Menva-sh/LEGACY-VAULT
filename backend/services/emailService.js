@@ -1,9 +1,17 @@
 const sgMail = require('@sendgrid/mail');
 
+console.log('🔑 SendGrid API Key:', process.env.SENDGRID_API_KEY ? '✅ Present' : '❌ Missing');
+
+if (!process.env.SENDGRID_API_KEY) {
+  console.error('⚠️  WARNING: SENDGRID_API_KEY is not set in .env!');
+}
+
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 async function sendExecutorNotification(executorEmail, executorName, userName) {
   try {
+    console.log(`📧 Preparing email for: ${executorEmail}`);
+    
     const msg = {
       to: executorEmail,
       from: process.env.SENDER_EMAIL || 'noreply@legacyvault.com',
@@ -49,11 +57,19 @@ async function sendExecutorNotification(executorEmail, executorName, userName) {
       `
     };
 
-    await sgMail.send(msg);
-    console.log(`✓ Executor notification email sent to: ${executorEmail}`);
+    console.log(`📤 Sending email from: ${msg.from}`);
+    const response = await sgMail.send(msg);
+    console.log(`✅ Email sent successfully to ${executorEmail}`);
+    console.log(`📊 SendGrid Response ID:`, response[0]?.headers?.['x-message-id']);
     return { success: true, message: 'Email sent successfully' };
   } catch (error) {
-    console.error('✗ Email send error:', error);
+    console.error(`❌ Email send failed for ${executorEmail}:`);
+    console.error(`   Error: ${error.message}`);
+    console.error(`   Code: ${error.code}`);
+    if (error.response) {
+      console.error(`   Status: ${error.response.status}`);
+      console.error(`   Body:`, error.response.body);
+    }
     throw new Error(`Failed to send email: ${error.message}`);
   }
 }

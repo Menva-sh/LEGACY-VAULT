@@ -26,9 +26,13 @@ const addNewExecutor = async (req, res) => {
     const senderName = `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.email;
 
     // Send email notification (fire-and-forget - no await to avoid timeout)
+    console.log(`📧 Queuing email notification for executor: ${executorEmail}`);
     sendExecutorNotification(executorEmail, executorName || 'Executor', senderName)
+      .then(() => {
+        console.log(`✅ Email notification completed for: ${executorEmail}`);
+      })
       .catch(err => {
-        console.error('✗ Failed to send executor notification email:', err.message);
+        console.error(`❌ Failed to send executor notification email to ${executorEmail}:`, err.message);
         // Don't fail the API request if email fails
       });
 
