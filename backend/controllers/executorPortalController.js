@@ -131,6 +131,14 @@ const getExecutorWills = async (req, res) => {
 
     const wills = await getPublishedWillsByExecutor(executorId);
 
+    // Log access - get vault owner first
+    if (wills.length > 0) {
+      const vaultOwner = await getVaultOwnerByExecutorId(executorId);
+      if (vaultOwner) {
+        await logAccess(executorId, vaultOwner.id, 'wills_list_view', 'executor_portal_wills');
+      }
+    }
+
     console.log(`✅ Found ${wills.length} wills for executor ${executorId}`);
 
     res.status(200).json({
@@ -166,6 +174,12 @@ const viewExecutorWill = async (req, res) => {
     if (!will) {
       console.error(`❌ Will ${willId} not found or not assigned to executor ${executorId}`);
       return res.status(404).json({ error: 'Will not found or not assigned to you' });
+    }
+
+    // Log access
+    const vaultOwner = await getVaultOwnerByExecutorId(executorId);
+    if (vaultOwner) {
+      await logAccess(executorId, vaultOwner.id, 'will_view', `will_${willId}`);
     }
 
     console.log(`✅ Found will: ${will.title}`);
