@@ -56,17 +56,28 @@ const validateSetupToken = async (setupToken) => {
  */
 const setupExecutorPassword = async (req, res) => {
   try {
+    console.log('📥 Setup password request received');
+    console.log('📦 Request body:', req.body);
+    
     const { setupToken, password, confirmPassword } = req.body;
     
+    console.log('🔍 Extracted fields:');
+    console.log('  - setupToken:', setupToken ? setupToken.substring(0, 10) + '...' : 'MISSING');
+    console.log('  - password:', password ? '***' : 'MISSING');
+    console.log('  - confirmPassword:', confirmPassword ? '***' : 'MISSING');
+    
     if (!setupToken || !password) {
+      console.error('❌ Missing required fields');
       return res.status(400).json({ error: 'Setup token and password required' });
     }
     
     if (password !== confirmPassword) {
+      console.error('❌ Passwords do not match');
       return res.status(400).json({ error: 'Passwords do not match' });
     }
     
     if (password.length < 8) {
+      console.error('❌ Password too short');
       return res.status(400).json({ error: 'Password must be at least 8 characters' });
     }
     
@@ -93,6 +104,7 @@ const setupExecutorPassword = async (req, res) => {
     });
   } catch (err) {
     console.error('❌ Error setting password:', err.message);
+    console.error('Stack:', err.stack);
     res.status(400).json({ error: err.message });
   }
 };

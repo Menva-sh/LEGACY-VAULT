@@ -419,17 +419,24 @@
         const urlParams = new URLSearchParams(window.location.search);
         const setupToken = urlParams.get('token');
 
+        console.log('🔐 Page loaded');
+        console.log('📍 Full URL:', window.location.href);
+        console.log('🎟️ Setup token from URL:', setupToken);
+
         async function validateToken() {
             if (!setupToken) {
+                console.error('❌ No setup token found in URL');
                 showTokenError();
                 return;
             }
 
             try {
                 // Token validation happens on form submission
+                console.log('✅ Token exists, showing form');
                 document.getElementById('loading-container').style.display = 'none';
                 document.getElementById('setup-form-container').style.display = 'block';
             } catch (err) {
+                console.error('Error in validateToken:', err);
                 showTokenError();
             }
         }
@@ -463,19 +470,28 @@
                 btn.disabled = true;
                 btn.innerHTML = '<i class="ti ti-loader"></i> Setting up...';
 
+                const requestBody = {
+                    setupToken,
+                    password,
+                    confirmPassword
+                };
+
+                console.log('📤 Sending request to /executor-auth/setup');
+                console.log('📦 Request body:', requestBody);
+
                 const response = await fetch(`${API_URL}/executor-auth/setup`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({
-                        setupToken,
-                        password,
-                        confirmPassword
-                    })
+                    body: JSON.stringify(requestBody)
                 });
 
+                console.log('📥 Response status:', response.status);
+
                 const data = await response.json();
+
+                console.log('📋 Response data:', data);
 
                 if (!response.ok) {
                     throw new Error(data.error || 'Failed to set password');
@@ -486,6 +502,7 @@
                     window.location.href = '/executor-login.html';
                 }, 2000);
             } catch (err) {
+                console.error('❌ Error:', err.message);
                 btn.disabled = false;
                 btn.innerHTML = '<i class="ti ti-lock"></i> Set Password & Activate Account';
                 showError(err.message);
