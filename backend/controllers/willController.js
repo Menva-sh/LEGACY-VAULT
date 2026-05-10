@@ -1,16 +1,16 @@
-const { createWill, getWillsByUserId, getWillById, updateWill, publishWill, deleteWill, getPublishedWillsByExecutor } = require('../models/willModel');
+const { createWill, getWillsByUserId, getWillById, updateWill, publishWill, deleteWill, getPublishedWillsByExecutor, assignWillToExecutors, removeExecutorFromWill } = require('../models/willModel');
 
 // Create new will
 const createNewWill = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { title, description, content, executorId } = req.body;
+    const { title, description, content } = req.body;
 
     if (!title) {
       return res.status(400).json({ error: 'Will title is required' });
     }
 
-    const will = await createWill(userId, title, description || '', content || '', executorId || null);
+    const will = await createWill(userId, title, description || '', content || '');
 
     res.status(201).json({
       message: 'Digital will created successfully',
@@ -134,11 +134,58 @@ const removeWill = async (req, res) => {
   }
 };
 
+// Assign will to multiple executors
+const assignToExecutors = async (req, res) => {
+  try {
+    const { willId } = req.params;
+    const userId = req.user.id;
+    const { executorIds } = req.body;
+
+    if (!Array.isArray(executorIds) || executorIds.length === 0) {
+      return res.status(400).json({ error: 'At least one executor ID is required' });
+    }
+
+    const result = await assignWillToExecutors(willId, userId, executorIds);
+
+    res.json({
+      message: 'Will assigned to executors successfully',
+      result
+    });
+  } catch (err) {
+    console.error('Assign to executors error:', err);
+    res.status(500).json({ error: 'Failed to assign will to executors', details: err.message });
+  }
+};
+
+// Remove executor from will
+const removeFromExecutor = async (req, res) => {
+  try {
+    const { willId, executorId } = req.params;
+    const userId = req.user.id;
+
+    const result = await removeExecutorFromWill(willId, userId, parseInt(executorId));
+
+    if (!result) {
+      return res.status(404).json({ error: 'Assignment not found' });
+    }
+
+    res.json({
+      message: 'Executor removed from will successfully',
+      result
+    });
+  } catch (err) {
+    console.error('Remove from executor error:', err);
+    res.status(500).json({ error: 'Failed to remove executor from will', details: err.message });
+  }
+};
+
 module.exports = {
   createNewWill,
   getAllWills,
   getWill,
   updateWillContent,
   publishTheWill,
-  removeWill
+  removeWill,
+  assignToExecutors,
+  removeFromExecutor
 };

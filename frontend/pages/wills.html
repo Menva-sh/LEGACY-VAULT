@@ -119,8 +119,10 @@
           <p id="viewWillStatus" style="margin-top: 6px; font-size: 13px; font-weight: 500; color: #6b2d4e;">-</p>
         </div>
         <div class="form-group">
-          <label>Assigned Executor</label>
-          <p id="viewWillExecutor" style="margin-top: 6px; font-size: 13px; color: #888;">-</p>
+          <label>Assigned Executors</label>
+          <div id="viewWillExecutors" style="margin-top: 6px;">
+            <p style="font-size: 13px; color: #888;">No executors assigned</p>
+          </div>
         </div>
         <div class="form-group">
           <label>Description</label>
@@ -135,6 +137,15 @@
             <label>Generated PDF</label>
             <button class="btn-success" id="downloadPdfBtn" style="width: 100%; margin-top: 8px;">Download PDF</button>
           </div>
+        </div>
+        <div id="assignExecutorSection" style="display: none; padding-top: 16px; border-top: 0.5px solid #e0ddd6;">
+          <div class="form-group">
+            <label>Select Executors to Assign</label>
+            <div id="executorCheckboxes" style="margin-top: 8px; max-height: 150px; overflow-y: auto;">
+              <!-- Populated dynamically -->
+            </div>
+          </div>
+          <button class="btn-success" onclick="assignAndPublish()" style="width: 100%; margin-top: 12px;">Assign & Publish Will</button>
         </div>
         <div id="publishSection" style="display: none; padding-top: 16px; border-top: 0.5px solid #e0ddd6;">
           <p style="font-size: 12px; color: #888780; margin-bottom: 12px;">
@@ -206,22 +217,29 @@
           return;
         }
 
-        container.innerHTML = '<div class="items-grid">' + data.wills.map(will => `
-          <div class="item-card">
-            <div class="item-info">
-              <div class="item-title">${will.title}</div>
-              <div class="item-meta">Status: ${will.status}</div>
-              ${will.executor_name ? `<div class="item-meta">Executor: ${will.executor_name}</div>` : '<div class="item-meta" style="color: #c0a6b8;">Not assigned to executor</div>'}
-              ${will.file_path ? `<div class="item-meta">Generated PDF</div>` : ''}
-              <div class="item-desc">${will.description || 'No description'}</div>
+        container.innerHTML = '<div class="items-grid">' + data.wills.map(will => {
+          const executorText = will.assigned_executors && will.assigned_executors.length > 0
+            ? will.assigned_executors.map(e => e.name).join(', ')
+            : 'Not assigned';
+          return `
+            <div class="item-card">
+              <div class="item-info">
+                <div class="item-title">${will.title}</div>
+                <div class="item-meta">Status: ${will.status}</div>
+                <div class="item-meta" style="${will.assigned_executors && will.assigned_executors.length > 0 ? 'color: #6b2d4e;' : 'color: #c0a6b8;'}">
+                  Executor${will.assigned_executors && will.assigned_executors.length !== 1 ? 's' : ''}: ${executorText}
+                </div>
+                ${will.file_path ? `<div class="item-meta">Generated PDF</div>` : ''}
+                <div class="item-desc">${will.description || 'No description'}</div>
+              </div>
+              <div class="item-actions">
+                ${will.file_path ? `<button class="btn-success" onclick="downloadWill('${will.file_path}', '${will.title}')">Download</button>` : ''}
+                <button class="btn-secondary" onclick="viewWill(${will.id})">View</button>
+                <button class="btn-danger" onclick="confirmDelete(${will.id})">Delete</button>
+              </div>
             </div>
-            <div class="item-actions">
-              ${will.file_path ? `<button class="btn-success" onclick="downloadWill('${will.file_path}', '${will.title}')">Download</button>` : ''}
-              <button class="btn-secondary" onclick="viewWill(${will.id})">View</button>
-              <button class="btn-danger" onclick="confirmDelete(${will.id})">Delete</button>
-            </div>
-          </div>
-        `).join('') + '</div>';
+          `;
+        }).join('') + '</div>';
       } catch (error) {
         showAlert('Error loading wills: ' + error.message, 'danger');
       }
@@ -268,18 +286,31 @@
           document.getElementById('viewWillDescription').textContent = will.description || 'No description';
           document.getElementById('viewWillContent').textContent = will.content || 'No content';
 
-          // Show executor info
-          const executorInfo = will.executor_name && will.executor_email 
-            ? `${will.executor_name} (${will.executor_email})`
-            : 'Not assigned';
-          document.getElementById('viewWillExecutor').textContent = executorInfo;
-
-          // Show publish button only for draft wills
-          const publishSection = document.getElementById('publishSection');
-          if (will.status === 'draft') {
-            publishSection.style.display = 'block';
+          // Show assigned executors (multiple)
+          const executorsContainer = document.getElementById('viewWillExecutors');
+          if (will.assigned_executors && will.assigned_executors.length > 0) {
+            executorsContainer.innerHTML = will.assigned_executors
+              .map(exec => `<p style="font-size: 13px; color: #666; margin-bottom: 4px;">✓ ${exec.name} (${exec.email})</p>`)
+              .join('');
           } else {
+            executorsContainer.innerHTML = '<p style="font-size: 13px; color: #888;">No executors assigned</p>';
+          }
+
+          // Load all available executors for selection (only for draft)
+          if (will.status === 'draft') {
+            loadAvailableExecutors(will.assigned_executors || []);
+          }
+
+          // Show publish/assign button only for draft wills
+          const assignSection = document.getElementById('assignExecutorSection');
+          const publishSection = document.getElementById('publishSection');
+          
+          if (will.status === 'draft') {
+            assignSection.style.display = 'block';
             publishSection.style.display = 'none';
+          } else {
+            assignSection.style.display = 'none';
+            publishSection.style.display = 'block';
           }
 
           const pdfSection = document.getElementById('viewWillPdfSection');
@@ -321,6 +352,74 @@
         const btn = document.getElementById('publishWillBtn');
         btn.disabled = false;
         btn.textContent = 'Publish Will for Executors';
+      }
+    }
+
+    async function loadAvailableExecutors(assignedExecutors = []) {
+      try {
+        const data = await getExecutors();
+        const checkboxContainer = document.getElementById('executorCheckboxes');
+        const assignedIds = assignedExecutors.map(e => e.id);
+
+        if (!data.executors || data.executors.length === 0) {
+          checkboxContainer.innerHTML = '<p style="font-size: 12px; color: #888;">No executors available. Create executors first.</p>';
+          return;
+        }
+
+        checkboxContainer.innerHTML = data.executors.map(executor => `
+          <div style="margin-bottom: 8px;">
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px;">
+              <input 
+                type="checkbox" 
+                class="executor-checkbox" 
+                value="${executor.id}"
+                ${assignedIds.includes(executor.id) ? 'checked' : ''}
+                style="cursor: pointer;"
+              >
+              <span>${executor.executor_name} (${executor.executor_email})</span>
+            </label>
+          </div>
+        `).join('');
+      } catch (error) {
+        console.error('Error loading executors:', error);
+        document.getElementById('executorCheckboxes').innerHTML = '<p style="font-size: 12px; color: #c9513b;">Error loading executors</p>';
+      }
+    }
+
+    async function assignAndPublish() {
+      if (!currentWillId) {
+        showAlert('Error: Will ID not found', 'danger');
+        return;
+      }
+
+      try {
+        // Get selected executor IDs
+        const checkboxes = document.querySelectorAll('.executor-checkbox:checked');
+        const selectedExecutorIds = Array.from(checkboxes).map(cb => parseInt(cb.value));
+
+        if (selectedExecutorIds.length === 0) {
+          showAlert('Please select at least one executor', 'warning');
+          return;
+        }
+
+        const btn = event.target;
+        btn.disabled = true;
+        btn.textContent = 'Assigning & Publishing...';
+
+        // Assign executors to will
+        await assignExecutorsToWill(currentWillId, selectedExecutorIds);
+
+        // Publish the will
+        await publishWill(currentWillId, null);
+
+        showAlert('Will assigned to executors and published successfully!', 'success');
+        closeModal('viewWillModal');
+        loadWills();
+      } catch (error) {
+        showAlert('Error: ' + error.message, 'danger');
+        const btn = event.target;
+        btn.disabled = false;
+        btn.textContent = 'Assign & Publish Will';
       }
     }
 

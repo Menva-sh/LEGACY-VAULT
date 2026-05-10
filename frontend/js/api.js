@@ -227,6 +227,16 @@ async function publishWill(willId, effectiveDate) {
   });
 }
 
+async function assignExecutorsToWill(willId, executorIds) {
+  return apiRequest(`/wills/${willId}/assign-executors`, 'POST', {
+    executorIds,
+  });
+}
+
+async function removeExecutorFromWill(willId, executorId) {
+  return apiRequest(`/wills/${willId}/executors/${executorId}`, 'DELETE');
+}
+
 async function deleteWill(willId) {
   return apiRequest(`/wills/${willId}`, 'DELETE');
 }

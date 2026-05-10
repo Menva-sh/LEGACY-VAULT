@@ -2,7 +2,7 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const { verifyToken } = require('../middleware/authMiddleware');
-const { createNewWill, getAllWills, getWill, updateWillContent, publishTheWill, removeWill } = require('../controllers/willController');
+const { createNewWill, getAllWills, getWill, updateWillContent, publishTheWill, removeWill, assignToExecutors, removeFromExecutor } = require('../controllers/willController');
 const { generateDigitalWill } = require('../controllers/willGeneratorController');
 
 const router = express.Router();
@@ -64,6 +64,12 @@ router.put('/:willId', updateWillContent);
 
 // PATCH /wills/:willId/publish - Publish will
 router.patch('/:willId/publish', publishTheWill);
+
+// POST /wills/:willId/assign-executors - Assign will to multiple executors
+router.post('/:willId/assign-executors', assignToExecutors);
+
+// DELETE /wills/:willId/executors/:executorId - Remove executor from will
+router.delete('/:willId/executors/:executorId', removeFromExecutor);
 
 // DELETE /wills/:willId - Delete will
 router.delete('/:willId', removeWill);
