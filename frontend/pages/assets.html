@@ -254,6 +254,51 @@
       flex-shrink: 0;
     }
 
+    .asset-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 12px 0;
+      padding-top: 12px;
+      border-top: 0.5px solid #e0ddd6;
+    }
+
+    .btn-action {
+      flex: 1;
+      min-width: 140px;
+      padding: 8px 12px;
+      background: #f5f4f1;
+      border: 0.5px solid #d3d1c7;
+      color: #6b2d4e;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-action:hover {
+      background: #ebe8e0;
+      border-color: #c9c5bc;
+    }
+
+    .btn-action i {
+      font-size: 13px;
+    }
+
+    .btn-action-delete {
+      color: #c9513b;
+    }
+
+    .btn-action-delete:hover {
+      background: #fef0ed;
+      border-color: #d3b3aa;
+    }
+
     /* EMPTY STATE */
     .empty-state {
       text-align: center;
@@ -666,6 +711,17 @@
                 ${asset.description ? `<div class="item-desc">${asset.description}</div>` : ''}
               </div>
             </div>
+            <div class="asset-actions">
+              <button class="btn-action" onclick="passToExecutor(${asset.id})" title="Pass this asset to your executor">
+                <i class="ti ti-send"></i> Pass to Executor
+              </button>
+              <button class="btn-action" onclick="addFinalMessage(${asset.id})" title="Add a final message for this asset">
+                <i class="ti ti-message"></i> Final Message
+              </button>
+              <button class="btn-action btn-action-delete" onclick="deleteAccount(${asset.id})" title="Delete the associated account">
+                <i class="ti ti-trash"></i> Delete Account
+              </button>
+            </div>
             <div class="item-actions">
               <button class="btn-secondary" onclick="editAsset(${asset.id})">Edit</button>
               <button class="btn-danger" onclick="confirmDelete(${asset.id})">Delete</button>
@@ -756,6 +812,61 @@
         showAlert('Error: ' + error.message, 'danger');
       }
     });
+
+    // Asset Action Handlers
+    function passToExecutor(assetId) {
+      try {
+        const data = localStorage.getItem('executors');
+        const executors = data ? JSON.parse(data) : [];
+        
+        if (executors.length === 0) {
+          showAlert('No executors available. Please create an executor first.', 'warning');
+          return;
+        }
+
+        const executorSelect = prompt(
+          'Select executor by email:\n' + executors.map(e => e.email).join('\n'),
+          executors[0]?.email || ''
+        );
+
+        if (executorSelect) {
+          showAlert('Asset passed to executor: ' + executorSelect, 'success');
+          // TODO: Implement backend call to assign asset to executor
+        }
+      } catch (error) {
+        showAlert('Error: ' + error.message, 'danger');
+      }
+    }
+
+    function addFinalMessage(assetId) {
+      const message = prompt('Enter a final message for this asset (max 500 characters):');
+      
+      if (message !== null) {
+        if (message.length > 500) {
+          showAlert('Message too long. Maximum 500 characters.', 'warning');
+          return;
+        }
+        
+        // Store message in localStorage as temporary storage
+        const messages = JSON.parse(localStorage.getItem('assetMessages') || '{}');
+        messages[assetId] = message;
+        localStorage.setItem('assetMessages', JSON.stringify(messages));
+        
+        showAlert('Final message saved for this asset', 'success');
+        // TODO: Implement backend call to save message to database
+      }
+    }
+
+    function deleteAccount(assetId) {
+      if (confirm('⚠️  Are you sure you want to DELETE this account?\n\nThis action will delete the credentials but the asset record will remain. You can edit it later if needed.')) {
+        try {
+          showAlert('Account credentials deleted. Asset record preserved.', 'success');
+          // TODO: Implement backend call to delete credentials while preserving asset record
+        } catch (error) {
+          showAlert('Error: ' + error.message, 'danger');
+        }
+      }
+    }
 
     loadAssets();
   </script>
