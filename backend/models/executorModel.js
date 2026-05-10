@@ -3,14 +3,30 @@ const pool = require('../db');
 // Add executor to a user's vault
 const addExecutor = async (userId, executorEmail, executorName, permissions = 'view') => {
   try {
+    console.log(`\n📊 DATABASE: Creating executor`);
+    console.log(`   userId: ${userId}`);
+    console.log(`   executorEmail: ${executorEmail}`);
+    console.log(`   executorName: ${executorName}`);
+    console.log(`   permissions: ${permissions}`);
+    
     const query = `
       INSERT INTO executors (user_id, executor_email, executor_name, permissions, status, is_active, created_at)
       VALUES ($1, $2, $3, $4, 'pending', false, NOW())
       RETURNING id, user_id, executor_email, executor_name, permissions, is_active, status, created_at
     `;
+    
+    console.log(`📋 Executing INSERT query with params: [${userId}, '${executorEmail}', '${executorName}', '${permissions}']`);
+    
     const result = await pool.query(query, [userId, executorEmail, executorName, permissions]);
+    
+    console.log(`✅ INSERT successful`);
+    console.log(`   Returned rows: ${result.rows.length}`);
+    console.log(`   Result: ${JSON.stringify(result.rows[0])}`);
+    
     return result.rows[0];
   } catch (err) {
+    console.error(`❌ Error adding executor: ${err.message}`);
+    console.error(`   Full error:`, err);
     throw new Error(`Error adding executor: ${err.message}`);
   }
 };
@@ -112,9 +128,21 @@ const executorExists = async (userId, executorEmail) => {
 // Set executor setup token (called when creating executor)
 const setSetupToken = async (executorId, setupToken, tokenExpiresAt) => {
   try {
-    console.log(`📝 Setting setup token for executor ${executorId}`);
+    console.log(`\n📝 Setting setup token for executor ${executorId}`);
     console.log(`   Token: ${setupToken.substring(0, 15)}...`);
     console.log(`   Expires at: ${tokenExpiresAt}`);
+    
+    // First verify the executor exists
+    const checkExecutor = await pool.query(
+      'SELECT id, executor_email FROM executors WHERE id = $1',
+      [executorId]
+    );
+    
+    if (checkExecutor.rows.length === 0) {
+      throw new Error(`Executor ${executorId} not found in database`);
+    }
+    
+    console.log(`   ✅ Executor exists: ${checkExecutor.rows[0].executor_email}`);
     
     const query = `
       UPDATE executors
@@ -122,17 +150,27 @@ const setSetupToken = async (executorId, setupToken, tokenExpiresAt) => {
       WHERE id = $3
       RETURNING id, setup_token, token_expires_at
     `;
+    
+    console.log(`   🔄 Executing UPDATE query...`);
     const result = await pool.query(query, [setupToken, tokenExpiresAt, executorId]);
     
+    console.log(`   📊 Update result rows: ${result.rows.length}`);
+    
     if (!result.rows[0]) {
-      throw new Error(`Executor ${executorId} not found - cannot set token`);
+      throw new Error(`UPDATE returned no rows for executor ${executorId}`);
     }
     
-    console.log(`✅ Token saved successfully for executor ${executorId}`);
+    console.log(`   ✅ Token saved successfully for executor ${executorId}`);
+    console.log(`      Returned setup_token: ${result.rows[0].setup_token ? '✅ SAVED' : '❌ NULL'}`);
+    console.log(`      Returned expires_at: ${result.rows[0].token_expires_at}\n`);
+    
     return result.rows[0];
   } catch (err) {
     console.error(`❌ Error setting setup token: ${err.message}`);
+    console.error(`   Stack: ${err.stack}`);
     throw new Error(`Error setting setup token: ${err.message}`);
+  }
+};
   }
 };
 
