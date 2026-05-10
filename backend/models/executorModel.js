@@ -171,8 +171,6 @@ const setSetupToken = async (executorId, setupToken, tokenExpiresAt) => {
     throw new Error(`Error setting setup token: ${err.message}`);
   }
 };
-  }
-};
 
 // Get executor by setup token
 const getExecutorBySetupToken = async (setupToken) => {
