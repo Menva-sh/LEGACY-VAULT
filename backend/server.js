@@ -152,7 +152,7 @@ app.use('/wills', willRoutes);
 console.log('Loading switch routes...');
 app.use('/switches', switchRoutes);
 console.log('Loading portal routes...');
-app.use('/portal', executorPortalRoutes);
+app.use('/executor-portal', executorPortalRoutes);
 console.log('All routes loaded successfully');
 
 app.get('/test', (req, res) => {
