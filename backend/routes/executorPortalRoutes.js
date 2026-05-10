@@ -4,6 +4,16 @@ const { verifyExecutorToken } = require('../controllers/executorAuthController')
 
 const router = express.Router();
 
+// ⚠️ IMPORTANT: Authenticated routes MUST come first (before parameterized routes)
+// Otherwise /:executorId/wills/:willId will match /wills/:willId
+
+// Authenticated executor portal routes (requires executor JWT token)
+// GET /executor-portal/wills - Get all wills assigned to executor
+router.get('/wills', verifyExecutorToken, getExecutorWills);
+
+// GET /executor-portal/wills/:willId - Get specific will for authenticated executor
+router.get('/wills/:willId', verifyExecutorToken, viewExecutorWill);
+
 // Executor portal routes (no authentication needed - external access)
 // In production, implement token-based access or email verification
 
@@ -18,12 +28,5 @@ router.get('/:executorId/assets/:assetId', viewAsset);
 
 // GET /executor-portal/:executorId/logs - View access history
 router.get('/:executorId/logs', getExecutorLogs);
-
-// Authenticated executor portal routes (requires executor JWT token)
-// GET /executor-portal/wills - Get all wills assigned to executor
-router.get('/wills', verifyExecutorToken, getExecutorWills);
-
-// GET /executor-portal/wills/:willId - Get specific will for authenticated executor
-router.get('/wills/:willId', verifyExecutorToken, viewExecutorWill);
 
 module.exports = router;
