@@ -139,7 +139,10 @@ const setSetupToken = async (executorId, setupToken, tokenExpiresAt) => {
 // Get executor by setup token
 const getExecutorBySetupToken = async (setupToken) => {
   try {
-    console.log(`🔍 Database query for token: ${setupToken.substring(0, 15)}...`);
+    console.log(`\n🔍 DATABASE QUERY FOR TOKEN`);
+    console.log(`   Full token: ${setupToken}`);
+    console.log(`   Length: ${setupToken.length}`);
+    console.log(`   Type: ${typeof setupToken}`);
     
     const query = `
       SELECT id, executor_email, executor_name, setup_token, token_expires_at, is_active
@@ -149,13 +152,29 @@ const getExecutorBySetupToken = async (setupToken) => {
     const result = await pool.query(query, [setupToken]);
     
     if (!result.rows[0]) {
-      console.log(`❌ No executor found with this token`);
-      console.log(`   Searching all executors with non-null setup_token...`);
-      const allTokens = await pool.query(`SELECT id, executor_email, setup_token FROM executors WHERE setup_token IS NOT NULL`);
-      console.log(`   Found ${allTokens.rows.length} executors with tokens in database`);
-      allTokens.rows.forEach(row => {
-        console.log(`     - Executor ${row.id}: ${row.setup_token.substring(0, 15)}...`);
-      });
+      console.log(`❌ No executor found with this exact token`);
+      console.log(`\n📋 TOKENS IN DATABASE:`);
+      const allTokens = await pool.query(`
+        SELECT id, executor_email, setup_token, token_expires_at, is_active
+        FROM executors 
+        WHERE setup_token IS NOT NULL
+        ORDER BY created_at DESC
+      `);
+      
+      if (allTokens.rows.length === 0) {
+        console.log(`   ⚠️  NO TOKENS FOUND IN DATABASE AT ALL`);
+      } else {
+        console.log(`   Found ${allTokens.rows.length} executors with setup tokens:`);
+        allTokens.rows.forEach(row => {
+          console.log(`   ---`);
+          console.log(`   ID: ${row.id}`);
+          console.log(`   Email: ${row.executor_email}`);
+          console.log(`   Token: ${row.setup_token}`);
+          console.log(`   Expires: ${row.token_expires_at}`);
+          console.log(`   Active: ${row.is_active}`);
+          console.log(`   Match: ${row.setup_token === setupToken ? '✅ YES' : '❌ NO'}`);
+        });
+      }
     } else {
       console.log(`✅ Found executor: ${result.rows[0].executor_email}`);
     }
