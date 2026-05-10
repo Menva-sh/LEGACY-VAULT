@@ -143,10 +143,48 @@ const getExecutorWills = async (req, res) => {
   }
 };
 
+// Get single will for authenticated executor
+const viewExecutorWill = async (req, res) => {
+  try {
+    const executorId = req.executorId; // From executor auth middleware
+    const { willId } = req.params;
+
+    if (!executorId) {
+      return res.status(401).json({ error: 'Not authenticated as executor' });
+    }
+
+    if (!willId) {
+      return res.status(400).json({ error: 'Will ID is required' });
+    }
+
+    console.log(`📖 Fetching will ${willId} for executor ${executorId}`);
+
+    // Get the will - verify it's assigned to this executor
+    const wills = await getPublishedWillsByExecutor(executorId);
+    const will = wills.find(w => w.id === parseInt(willId));
+
+    if (!will) {
+      console.error(`❌ Will ${willId} not found or not assigned to executor ${executorId}`);
+      return res.status(404).json({ error: 'Will not found or not assigned to you' });
+    }
+
+    console.log(`✅ Found will: ${will.title}`);
+
+    res.status(200).json({
+      message: 'Will retrieved successfully',
+      will
+    });
+  } catch (err) {
+    console.error('❌ Error fetching executor will:', err.message);
+    res.status(500).json({ error: 'Failed to retrieve will' });
+  }
+};
+
 module.exports = {
   getExecutorDashboard,
   viewWill,
   viewAsset,
   getExecutorLogs,
-  getExecutorWills
+  getExecutorWills,
+  viewExecutorWill
 };

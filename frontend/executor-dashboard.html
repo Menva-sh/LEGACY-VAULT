@@ -488,7 +488,7 @@
             try {
                 const token = localStorage.getItem('executorToken');
 
-                const response = await fetch(`${API_URL}/wills/${willId}`, {
+                const response = await fetch(`${API_URL}/executor-portal/wills/${willId}`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
