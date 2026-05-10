@@ -18,7 +18,16 @@ const createWill = async (userId, title, description, content, executorId = null
 // Get all wills for user
 const getWillsByUserId = async (userId) => {
   try {
-    const query = 'SELECT id, user_id, title, description, status, executor_id, created_at, effective_date, file_path FROM digital_wills WHERE user_id = $1 ORDER BY created_at DESC';
+    const query = `
+      SELECT 
+        dw.id, dw.user_id, dw.title, dw.description, dw.status, dw.executor_id, 
+        dw.created_at, dw.effective_date, dw.file_path,
+        e.executor_email, e.executor_name
+      FROM digital_wills dw
+      LEFT JOIN executors e ON dw.executor_id = e.id
+      WHERE dw.user_id = $1 
+      ORDER BY dw.created_at DESC
+    `;
     const result = await pool.query(query, [userId]);
     return result.rows;
   } catch (err) {
@@ -29,7 +38,15 @@ const getWillsByUserId = async (userId) => {
 // Get single will
 const getWillById = async (willId, userId) => {
   try {
-    const query = 'SELECT id, user_id, title, description, content, status, executor_id, created_at, effective_date, file_path FROM digital_wills WHERE id = $1 AND user_id = $2';
+    const query = `
+      SELECT 
+        dw.id, dw.user_id, dw.title, dw.description, dw.content, dw.status, dw.executor_id, 
+        dw.created_at, dw.effective_date, dw.file_path,
+        e.executor_email, e.executor_name
+      FROM digital_wills dw
+      LEFT JOIN executors e ON dw.executor_id = e.id
+      WHERE dw.id = $1 AND dw.user_id = $2
+    `;
     const result = await pool.query(query, [willId, userId]);
     return result.rows[0];
   } catch (err) {
@@ -120,7 +137,7 @@ const saveGeneratedWill = async (userId, title, description, content, filePath, 
   try {
     const query = `
       INSERT INTO digital_wills (user_id, title, description, content, file_path, status, executor_id, created_at)
-      VALUES ($1, $2, $3, $4, $5, 'drafted', $6, NOW())
+      VALUES ($1, $2, $3, $4, $5, 'draft', $6, NOW())
       RETURNING id, user_id, title, description, content, file_path, status, created_at
     `;
     const result = await pool.query(query, [userId, title, description, content, filePath, executorId]);

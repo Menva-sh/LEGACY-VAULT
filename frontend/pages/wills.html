@@ -119,6 +119,10 @@
           <p id="viewWillStatus" style="margin-top: 6px; font-size: 13px; font-weight: 500; color: #6b2d4e;">-</p>
         </div>
         <div class="form-group">
+          <label>Assigned Executor</label>
+          <p id="viewWillExecutor" style="margin-top: 6px; font-size: 13px; color: #888;">-</p>
+        </div>
+        <div class="form-group">
           <label>Description</label>
           <p id="viewWillDescription" style="margin-top: 6px; font-size: 13px; white-space: pre-wrap;">-</p>
         </div>
@@ -207,6 +211,7 @@
             <div class="item-info">
               <div class="item-title">${will.title}</div>
               <div class="item-meta">Status: ${will.status}</div>
+              ${will.executor_name ? `<div class="item-meta">Executor: ${will.executor_name}</div>` : '<div class="item-meta" style="color: #c0a6b8;">Not assigned to executor</div>'}
               ${will.file_path ? `<div class="item-meta">Generated PDF</div>` : ''}
               <div class="item-desc">${will.description || 'No description'}</div>
             </div>
@@ -262,6 +267,12 @@
           document.getElementById('viewWillStatus').textContent = will.status;
           document.getElementById('viewWillDescription').textContent = will.description || 'No description';
           document.getElementById('viewWillContent').textContent = will.content || 'No content';
+
+          // Show executor info
+          const executorInfo = will.executor_name && will.executor_email 
+            ? `${will.executor_name} (${will.executor_email})`
+            : 'Not assigned';
+          document.getElementById('viewWillExecutor').textContent = executorInfo;
 
           // Show publish button only for draft wills
           const publishSection = document.getElementById('publishSection');
