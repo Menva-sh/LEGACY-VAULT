@@ -112,6 +112,10 @@ const executorExists = async (userId, executorEmail) => {
 // Set executor setup token (called when creating executor)
 const setSetupToken = async (executorId, setupToken, tokenExpiresAt) => {
   try {
+    console.log(`📝 Setting setup token for executor ${executorId}`);
+    console.log(`   Token: ${setupToken.substring(0, 15)}...`);
+    console.log(`   Expires at: ${tokenExpiresAt}`);
+    
     const query = `
       UPDATE executors
       SET setup_token = $1, token_expires_at = $2
@@ -119,8 +123,15 @@ const setSetupToken = async (executorId, setupToken, tokenExpiresAt) => {
       RETURNING id, setup_token, token_expires_at
     `;
     const result = await pool.query(query, [setupToken, tokenExpiresAt, executorId]);
+    
+    if (!result.rows[0]) {
+      throw new Error(`Executor ${executorId} not found - cannot set token`);
+    }
+    
+    console.log(`✅ Token saved successfully for executor ${executorId}`);
     return result.rows[0];
   } catch (err) {
+    console.error(`❌ Error setting setup token: ${err.message}`);
     throw new Error(`Error setting setup token: ${err.message}`);
   }
 };
@@ -128,14 +139,30 @@ const setSetupToken = async (executorId, setupToken, tokenExpiresAt) => {
 // Get executor by setup token
 const getExecutorBySetupToken = async (setupToken) => {
   try {
+    console.log(`🔍 Database query for token: ${setupToken.substring(0, 15)}...`);
+    
     const query = `
       SELECT id, executor_email, executor_name, setup_token, token_expires_at, is_active
       FROM executors
       WHERE setup_token = $1
     `;
     const result = await pool.query(query, [setupToken]);
+    
+    if (!result.rows[0]) {
+      console.log(`❌ No executor found with this token`);
+      console.log(`   Searching all executors with non-null setup_token...`);
+      const allTokens = await pool.query(`SELECT id, executor_email, setup_token FROM executors WHERE setup_token IS NOT NULL`);
+      console.log(`   Found ${allTokens.rows.length} executors with tokens in database`);
+      allTokens.rows.forEach(row => {
+        console.log(`     - Executor ${row.id}: ${row.setup_token.substring(0, 15)}...`);
+      });
+    } else {
+      console.log(`✅ Found executor: ${result.rows[0].executor_email}`);
+    }
+    
     return result.rows[0];
   } catch (err) {
+    console.error(`❌ Error fetching executor by token: ${err.message}`);
     throw new Error(`Error fetching executor by token: ${err.message}`);
   }
 };

@@ -9,6 +9,11 @@ const addNewExecutor = async (req, res) => {
     const userId = req.user.id;
     const { executorEmail, executorName, permissions } = req.body;
 
+    console.log(`\n📝 CREATING NEW EXECUTOR`);
+    console.log(`   User: ${userId}`);
+    console.log(`   Email: ${executorEmail}`);
+    console.log(`   Name: ${executorName}`)
+
     // Validation
     if (!executorEmail) {
       return res.status(400).json({ error: 'Executor email is required' });
@@ -21,9 +26,11 @@ const addNewExecutor = async (req, res) => {
     }
 
     const executor = await addExecutor(userId, executorEmail, executorName || '', permissions || 'view');
+    console.log(`✅ Executor created: ID=${executor.id}, Email=${executor.executor_email}`);
 
     // Generate setup token for executor
     const setupToken = await generateAndSetupToken(executor.id);
+    console.log(`🎟️  Setup token generated and saved to database`);
 
     // Get current user info for email
     const user = await getUserById(userId);

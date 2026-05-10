@@ -16,10 +16,15 @@ const generateAndSetupToken = async (executorId) => {
   try {
     const { token, expiresAt } = generateSetupToken();
     
-    console.log(`🔐 Generating setup token for executor ${executorId}`);
-    await setSetupToken(executorId, token, expiresAt);
+    console.log(`\n🔐 GENERATING SETUP TOKEN`);
+    console.log(`   Executor ID: ${executorId}`);
+    console.log(`   Token: ${token.substring(0, 15)}...`);
+    console.log(`   Expires: ${expiresAt}`);
     
-    console.log(`✅ Setup token created, expires: ${expiresAt}`);
+    const result = await setSetupToken(executorId, token, expiresAt);
+    
+    console.log(`✅ Setup token created and saved`);
+    console.log(`   Returned: ${JSON.stringify(result)}\n`);
     return token;
   } catch (err) {
     console.error('❌ Error generating setup token:', err.message);
