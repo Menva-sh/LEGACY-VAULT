@@ -480,40 +480,41 @@
       <div class="modal-body">
         <form id="addAssetForm">
           <div class="form-group">
-            <label>Asset Name</label>
-            <input type="text" id="assetName" placeholder="e.g., My Photos" required>
-          </div>
-          <div class="form-group">
             <label>Asset Type</label>
-            <select id="assetType" required>
+            <select id="assetType" required onchange="updateAssetOptions()">
               <option value="">Select Type</option>
-              <option value="photos">Photos</option>
-              <option value="documents">Documents</option>
-              <option value="cryptocurrency">Cryptocurrency</option>
-              <option value="bank_account">Bank Account</option>
               <option value="social_media">Social Media</option>
+              <option value="bank_account">Bank Account</option>
+              <option value="cryptocurrency">Cryptocurrency</option>
+              <option value="email">Email</option>
+              <option value="documents">Documents</option>
               <option value="other">Other</option>
             </select>
           </div>
-          <div class="form-group">
-            <label>Description</label>
-            <textarea id="assetDescription" placeholder="Enter description..."></textarea>
+
+          <div class="form-group" id="assetServiceGroup" style="display: none;">
+            <label>Service/Platform</label>
+            <select id="assetService" required>
+              <option value="">Select Service</option>
+            </select>
           </div>
+
           <div class="form-group">
-            <label>File Path/Location</label>
-            <input type="text" id="assetPath" placeholder="e.g., /storage/photos/">
+            <label>Email or Username</label>
+            <input type="text" id="assetEmail" placeholder="your@email.com or username" required>
           </div>
+
           <div class="form-group">
-            <label>File Size (bytes)</label>
-            <input type="number" id="assetSize" placeholder="0">
+            <label>Password</label>
+            <input type="password" id="assetPassword" placeholder="Enter password" required>
           </div>
+
           <div class="form-group">
-            <label>
-              <input type="checkbox" id="assetEncrypted">
-              Encrypted
-            </label>
+            <label>Description (Optional)</label>
+            <textarea id="assetDescription" placeholder="Add any additional notes..."></textarea>
           </div>
-          <button type="submit" class="btn-primary" style="width: 100%; margin-top: 8px;">Create Asset</button>
+
+          <button type="submit" class="btn-primary" style="width: 100%; margin-top: 8px;">Add Asset</button>
         </form>
       </div>
     </div>
@@ -530,16 +531,20 @@
         <form id="editAssetForm">
           <input type="hidden" id="editAssetId">
           <div class="form-group">
-            <label>Asset Name</label>
-            <input type="text" id="editAssetName" placeholder="e.g., My Photos" required>
+            <label>Service/Platform</label>
+            <input type="text" id="editAssetName" readonly style="background: #f5f5f5;">
+          </div>
+          <div class="form-group">
+            <label>Email or Username</label>
+            <input type="text" id="editAssetEmail" placeholder="your@email.com or username" required>
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="editAssetPassword" placeholder="Enter password" required>
           </div>
           <div class="form-group">
             <label>Description</label>
             <textarea id="editAssetDescription" placeholder="Enter description..."></textarea>
-          </div>
-          <div class="form-group">
-            <label>File Path/Location</label>
-            <input type="text" id="editAssetPath" placeholder="e.g., /storage/photos/">
           </div>
           <button type="submit" class="btn-primary" style="width: 100%; margin-top: 8px;">Update Asset</button>
         </form>
@@ -557,6 +562,59 @@
       document.getElementById('sidebarUserEmail').textContent = user.email;
     }
 
+    // Asset service options by type
+    const assetServices = {
+      social_media: [
+        { value: 'instagram', label: 'Instagram', icon: 'ti-brand-instagram' },
+        { value: 'facebook', label: 'Facebook', icon: 'ti-brand-facebook' },
+        { value: 'twitter', label: 'Twitter', icon: 'ti-brand-twitter' },
+        { value: 'linkedin', label: 'LinkedIn', icon: 'ti-brand-linkedin' },
+        { value: 'snapchat', label: 'Snapchat', icon: 'ti-brand-snapchat' },
+        { value: 'tiktok', label: 'TikTok', icon: 'ti-brand-tiktok' },
+        { value: 'youtube', label: 'YouTube', icon: 'ti-brand-youtube' },
+        { value: 'pinterest', label: 'Pinterest', icon: 'ti-brand-pinterest' },
+        { value: 'reddit', label: 'Reddit', icon: 'ti-brand-reddit' }
+      ],
+      bank_account: [
+        { value: 'checking', label: 'Checking Account', icon: 'ti-building-bank' },
+        { value: 'savings', label: 'Savings Account', icon: 'ti-piggy-bank' },
+        { value: 'investment', label: 'Investment Account', icon: 'ti-chart-line' }
+      ],
+      cryptocurrency: [
+        { value: 'bitcoin', label: 'Bitcoin', icon: 'ti-coin' },
+        { value: 'ethereum', label: 'Ethereum', icon: 'ti-coin' },
+        { value: 'wallet', label: 'Crypto Wallet', icon: 'ti-wallet' }
+      ],
+      email: [
+        { value: 'gmail', label: 'Gmail', icon: 'ti-mail' },
+        { value: 'outlook', label: 'Outlook', icon: 'ti-mail' },
+        { value: 'yahoo', label: 'Yahoo', icon: 'ti-mail' },
+        { value: 'other', label: 'Other Email', icon: 'ti-mail' }
+      ]
+    };
+
+    // Update asset options based on type
+    function updateAssetOptions() {
+      const type = document.getElementById('assetType').value;
+      const serviceGroup = document.getElementById('assetServiceGroup');
+      const serviceSelect = document.getElementById('assetService');
+
+      if (assetServices[type]) {
+        serviceGroup.style.display = 'block';
+        serviceSelect.innerHTML = '<option value="">Select Service</option>';
+        assetServices[type].forEach(service => {
+          const option = document.createElement('option');
+          option.value = service.value;
+          option.textContent = service.label;
+          option.dataset.icon = service.icon;
+          serviceSelect.appendChild(option);
+        });
+      } else {
+        serviceGroup.style.display = 'none';
+        serviceSelect.value = '';
+      }
+    }
+
     async function loadAssets() {
       try {
         const data = await getAssets();
@@ -572,13 +630,41 @@
           return;
         }
 
+        // Get icon for asset
+        function getAssetIcon(asset) {
+          const type = asset.asset_type;
+          const service = asset.asset_name;
+
+          for (let [typeKey, services] of Object.entries(assetServices)) {
+            if (typeKey === type) {
+              const found = services.find(s => s.value === service);
+              if (found) return found.icon;
+            }
+          }
+
+          // Fallback icons
+          const iconMap = {
+            'social_media': 'ti-brand-instagram',
+            'bank_account': 'ti-building-bank',
+            'cryptocurrency': 'ti-coin',
+            'email': 'ti-mail',
+            'documents': 'ti-file',
+            'other': 'ti-lock'
+          };
+          return iconMap[type] || 'ti-lock';
+        }
+
         container.innerHTML = '<div class="items-grid">' + data.assets.map(asset => `
           <div class="item-card">
-            <div class="item-info">
-              <div class="item-title">${asset.asset_name}</div>
-              <div class="item-meta">Type: ${asset.asset_type}</div>
-              <div class="item-desc">${asset.description || 'No description'}</div>
-              <div class="item-meta">${asset.is_encrypted ? 'Encrypted' : ''} | Size: ${(asset.file_size / 1024).toFixed(2)} KB</div>
+            <div style="display: flex; gap: 15px; width: 100%; align-items: start;">
+              <div style="font-size: 32px; color: #6b2d4e; flex-shrink: 0;">
+                <i class="ti ${getAssetIcon(asset)}"></i>
+              </div>
+              <div class="item-info" style="flex: 1;">
+                <div class="item-title">${asset.asset_name}</div>
+                <div class="item-meta">${asset.email || 'No email'}</div>
+                ${asset.description ? `<div class="item-desc">${asset.description}</div>` : ''}
+              </div>
             </div>
             <div class="item-actions">
               <button class="btn-secondary" onclick="editAsset(${asset.id})">Edit</button>
@@ -610,8 +696,9 @@
         
         document.getElementById('editAssetId').value = asset.id;
         document.getElementById('editAssetName').value = asset.asset_name;
+        document.getElementById('editAssetEmail').value = asset.email || '';
+        document.getElementById('editAssetPassword').value = asset.password || '';
         document.getElementById('editAssetDescription').value = asset.description || '';
-        document.getElementById('editAssetPath').value = asset.file_path || '';
         
         openModal('editAssetModal');
       } catch (error) {
@@ -623,19 +710,23 @@
       e.preventDefault();
 
       try {
+        const serviceName = document.getElementById('assetService');
+        const selectedOption = serviceName.options[serviceName.selectedIndex];
+        const assetLabel = selectedOption ? selectedOption.textContent : document.getElementById('assetType').value;
+
         await createAsset(
-          document.getElementById('assetName').value,
+          assetLabel,
           document.getElementById('assetType').value,
           document.getElementById('assetDescription').value,
-          document.getElementById('assetPath').value,
-          parseInt(document.getElementById('assetSize').value) || 0,
-          document.getElementById('assetEncrypted').checked
+          document.getElementById('assetEmail').value,
+          document.getElementById('assetPassword').value
         );
 
         showAlert('Asset created successfully', 'success');
         closeModal('addAssetModal');
         document.getElementById('addAssetForm').reset();
         clearFormData('addAsset');
+        updateAssetOptions();
         loadAssets();
       } catch (error) {
         showAlert('Error: ' + error.message, 'danger');
@@ -652,6 +743,8 @@
         await updateAsset(
           assetId,
           document.getElementById('editAssetName').value,
+          document.getElementById('editAssetEmail').value,
+          document.getElementById('editAssetPassword').value,
           document.getElementById('editAssetDescription').value
         );
 

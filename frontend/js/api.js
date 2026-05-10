@@ -127,14 +127,13 @@ function getCurrentUser() {
 
 // Asset Functions
 
-async function createAsset(assetName, assetType, description, filePath, fileSize, isEncrypted) {
+async function createAsset(assetName, assetType, description, email, password) {
   return apiRequest('/assets', 'POST', {
     assetName,
     assetType,
     description,
-    filePath,
-    fileSize,
-    isEncrypted,
+    email,
+    password,
   });
 }
 
@@ -146,9 +145,11 @@ async function getAsset(assetId) {
   return apiRequest(`/assets/${assetId}`);
 }
 
-async function updateAsset(assetId, assetName, description) {
+async function updateAsset(assetId, assetName, email, password, description) {
   return apiRequest(`/assets/${assetId}`, 'PUT', {
     assetName,
+    email,
+    password,
     description,
   });
 }

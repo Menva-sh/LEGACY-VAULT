@@ -4,10 +4,10 @@ const { createAsset, getAssetsByUserId, getAssetById, updateAsset, deleteAsset, 
 const uploadAsset = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { assetName, assetType, description, filePath, fileSize, isEncrypted } = req.body;
+    const { assetName, assetType, description, email, password } = req.body;
 
-    console.log('Asset upload - User ID from token:', userId);
-    console.log('Request body:', { assetName, assetType, description, filePath, fileSize, isEncrypted });
+    console.log('Asset creation - User ID:', userId);
+    console.log('Request body:', { assetName, assetType, description, email });
 
     // Validation
     if (!assetName || !assetType) {
@@ -15,12 +15,17 @@ const uploadAsset = async (req, res) => {
       return res.status(400).json({ error: 'Asset name and type are required' });
     }
 
+    if (!email) {
+      console.error('Validation failed: Missing email');
+      return res.status(400).json({ error: 'Email is required' });
+    }
+
     if (!userId) {
       console.error('No user ID in request');
       return res.status(401).json({ error: 'User not authenticated' });
     }
 
-    const asset = await createAsset(userId, assetName, assetType, description || '', filePath || '', fileSize || 0, isEncrypted || false);
+    const asset = await createAsset(userId, assetName, assetType, description || '', email, password || '');
 
     console.log('Asset created successfully:', asset);
 
@@ -80,13 +85,13 @@ const updateAssetMetadata = async (req, res) => {
   try {
     const { assetId } = req.params;
     const userId = req.user.id;
-    const { assetName, description } = req.body;
+    const { assetName, email, password, description } = req.body;
 
-    if (!assetName) {
-      return res.status(400).json({ error: 'Asset name is required' });
+    if (!assetName || !email) {
+      return res.status(400).json({ error: 'Asset name and email are required' });
     }
 
-    const asset = await updateAsset(assetId, userId, assetName, description || '');
+    const asset = await updateAsset(assetId, userId, assetName, email, password || '', description || '');
 
     if (!asset) {
       return res.status(404).json({ error: 'Asset not found' });
