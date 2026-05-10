@@ -819,18 +819,25 @@
         const data = localStorage.getItem('executors');
         const executors = data ? JSON.parse(data) : [];
         
-        if (executors.length === 0) {
-          showAlert('No executors available. Please create an executor first.', 'warning');
-          return;
+        // Show executor list if available, otherwise allow manual entry
+        let executorEmail;
+        
+        if (executors.length > 0) {
+          executorEmail = prompt(
+            'Select executor by email:\n' + executors.map(e => e.email).join('\n'),
+            executors[0]?.email || ''
+          );
+        } else {
+          executorEmail = prompt('Enter executor email address:');
         }
 
-        const executorSelect = prompt(
-          'Select executor by email:\n' + executors.map(e => e.email).join('\n'),
-          executors[0]?.email || ''
-        );
-
-        if (executorSelect) {
-          showAlert('Asset passed to executor: ' + executorSelect, 'success');
+        if (executorEmail) {
+          // Store asset assignment in localStorage
+          const assignments = JSON.parse(localStorage.getItem('assetAssignments') || '{}');
+          assignments[assetId] = executorEmail;
+          localStorage.setItem('assetAssignments', JSON.stringify(assignments));
+          
+          showAlert('Asset assigned to executor: ' + executorEmail, 'success');
           // TODO: Implement backend call to assign asset to executor
         }
       } catch (error) {
@@ -847,7 +854,7 @@
           return;
         }
         
-        // Store message in localStorage as temporary storage
+        // Store message in localStorage
         const messages = JSON.parse(localStorage.getItem('assetMessages') || '{}');
         messages[assetId] = message;
         localStorage.setItem('assetMessages', JSON.stringify(messages));
