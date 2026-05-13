@@ -473,7 +473,7 @@
                             View Details
                         </button>
                         ${will.file_path ? `
-                            <button class="btn-action btn-download" onclick="event.stopPropagation(); downloadWill('${will.file_path}', '${escapeHtml(will.title)}')">
+                            <button class="btn-action btn-download" onclick="event.stopPropagation(); downloadWill(${will.id}, '${escapeHtml(will.title)}')">
                                 <i class="ti ti-download"></i>
                                 Download PDF
                             </button>
@@ -531,7 +531,7 @@
                 document.getElementById('willDetailsBody').innerHTML = detailsHtml;
 
                 if (will.file_path) {
-                    document.getElementById('downloadWillBtn').onclick = () => downloadWill(will.file_path, will.title);
+                    document.getElementById('downloadWillBtn').onclick = () => downloadWill(will.id, will.title);
                     document.getElementById('downloadWillBtn').style.display = 'inline-flex';
                 } else {
                     document.getElementById('downloadWillBtn').style.display = 'none';
@@ -544,18 +544,19 @@
         }
 
         // Download will PDF
-        async function downloadWill(filePath, willTitle) {
+        async function downloadWill(willId, willTitle) {
             try {
                 const token = localStorage.getItem('executorToken');
 
-                const response = await fetch(`${API_URL}/generated_wills/${filePath.split('/').pop()}`, {
+                const response = await fetch(`${API_URL}/executor-portal/wills/${willId}/download`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
                 });
 
                 if (!response.ok) {
-                    throw new Error('Could not download will');
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Could not download will');
                 }
 
                 const blob = await response.blob();

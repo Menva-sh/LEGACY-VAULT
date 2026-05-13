@@ -4,6 +4,7 @@ const path = require('path');
 const { verifyToken } = require('../middleware/authMiddleware');
 const { createNewWill, getAllWills, getWill, updateWillContent, publishTheWill, removeWill, assignToExecutors, removeFromExecutor } = require('../controllers/willController');
 const { generateDigitalWill } = require('../controllers/willGeneratorController');
+const { generateProfessionalWill, downloadGeneratedWill } = require('../controllers/willPdfController');
 
 const router = express.Router();
 
@@ -55,6 +56,9 @@ router.get('/download/:filename', (req, res) => {
     res.status(500).json({ error: 'Failed to download file' });
   }
 });
+
+// POST /wills/generate-professional - Generate professional PDF using ReportLab
+router.post('/generate-professional', generateProfessionalWill);
 
 // GET /wills/:willId - Get single will
 router.get('/:willId', getWill);

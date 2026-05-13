@@ -194,11 +194,89 @@ const viewExecutorWill = async (req, res) => {
   }
 };
 
+// Download will PDF for authenticated executor
+const downloadExecutorWill = async (req, res) => {
+  try {
+    const executorId = req.executorId; // From executor auth middleware
+    const { willId } = req.params;
+
+    if (!executorId) {
+      return res.status(401).json({ error: 'Not authenticated as executor' });
+    }
+
+    if (!willId) {
+      return res.status(400).json({ error: 'Will ID is required' });
+    }
+
+    console.log(`📥 Downloading will ${willId} for executor ${executorId}`);
+
+    // Verify will is assigned to this executor
+    const wills = await getPublishedWillsByExecutor(executorId);
+    const will = wills.find(w => w.id === parseInt(willId));
+
+    if (!will) {
+      console.error(`❌ Will ${willId} not found or not assigned to executor ${executorId}`);
+      return res.status(403).json({ error: 'Will not found or not assigned to you' });
+    }
+
+    // Check if file path exists
+    if (!will.file_path) {
+      console.error(`❌ Will ${willId} has no file path`);
+      return res.status(400).json({ error: 'Will PDF not available' });
+    }
+
+    // Construct full file path
+    const fs = require('fs');
+    const path = require('path');
+    const filename = path.basename(will.file_path);
+    const filepath = path.join(__dirname, '../generated_wills', filename);
+
+    console.log(`📂 Looking for file: ${filepath}`);
+
+    // Verify file exists
+    if (!fs.existsSync(filepath)) {
+      console.error(`❌ File not found: ${filepath}`);
+      return res.status(404).json({ error: 'Will file not found' });
+    }
+
+    // Log access
+    const vaultOwner = await getVaultOwnerByExecutorId(executorId);
+    if (vaultOwner) {
+      await logAccess(executorId, vaultOwner.id, 'will_download', `will_${willId}`);
+    }
+
+    console.log(`✅ Sending file: ${filename}`);
+
+    // Send file with proper headers
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+
+    const fileStream = require('fs').createReadStream(filepath);
+
+    fileStream.on('error', (err) => {
+      console.error('File stream error:', err);
+      if (!res.headersSent) {
+        res.status(500).json({ error: 'Error reading file' });
+      }
+    });
+
+    fileStream.pipe(res);
+
+  } catch (err) {
+    console.error('❌ Error downloading will:', err.message);
+    res.status(500).json({ error: 'Failed to download will' });
+  }
+};
+
 module.exports = {
   getExecutorDashboard,
   viewWill,
   viewAsset,
   getExecutorLogs,
   getExecutorWills,
-  viewExecutorWill
+  viewExecutorWill,
+  downloadExecutorWill
 };

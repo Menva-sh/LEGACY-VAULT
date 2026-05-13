@@ -1,5 +1,5 @@
 const express = require('express');
-const { getExecutorDashboard, viewWill, viewAsset, getExecutorLogs, getExecutorWills, viewExecutorWill } = require('../controllers/executorPortalController');
+const { getExecutorDashboard, viewWill, viewAsset, getExecutorLogs, getExecutorWills, viewExecutorWill, downloadExecutorWill } = require('../controllers/executorPortalController');
 const { verifyExecutorToken } = require('../controllers/executorAuthController');
 
 const router = express.Router();
@@ -13,6 +13,9 @@ router.get('/wills', verifyExecutorToken, getExecutorWills);
 
 // GET /executor-portal/wills/:willId - Get specific will for authenticated executor
 router.get('/wills/:willId', verifyExecutorToken, viewExecutorWill);
+
+// GET /executor-portal/wills/:willId/download - Download will PDF for authenticated executor
+router.get('/wills/:willId/download', verifyExecutorToken, downloadExecutorWill);
 
 // Executor portal routes (no authentication needed - external access)
 // In production, implement token-based access or email verification
