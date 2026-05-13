@@ -117,7 +117,7 @@ const generateProfessionalWill = async (req, res) => {
 
 /**
  * Generate PDF using Node.js with professional styling
- * Uses PDFKit with professional layout and branding
+ * Uses PDFKit with professional layout and branding - Exactly 2 pages
  */
 async function generatePdfViasPython(userData) {
   const PDFDocument = require('pdfkit');
@@ -147,6 +147,17 @@ async function generatePdfViasPython(userData) {
       const pageHeight = 841.89; // A4 height in points
       const margin = 40;
       const contentWidth = pageWidth - (margin * 2);
+      const borderColor = '#d4c5c5';
+      const bgColor = '#fdf8f5';
+
+      // Draw page background and border
+      const drawPageBackground = () => {
+        // Background
+        doc.rect(0, 0, pageWidth, pageHeight).fill(bgColor);
+        
+        // Border (1pt frame)
+        doc.rect(margin - 5, margin - 5, contentWidth + 10, pageHeight - (margin * 2) + 10).stroke(borderColor);
+      };
 
       // Helper functions
       const drawHeader = (title, subtitle) => {
@@ -167,7 +178,6 @@ async function generatePdfViasPython(userData) {
         
         // Instrument number (right aligned)
         const today = new Date();
-        const instrumentNo = `will_${userData.id}_${today.toISOString().split('T')[0]}`;
         doc.fontSize(7).fillColor('#c4889e').font('Helvetica');
         doc.text(`INSTRUMENT NO. will_${userData.id}_${today.toISOString().split('T')[0]}`, margin, 20, { align: 'right', width: contentWidth });
         doc.text(`EXECUTED: ${today.toLocaleDateString()} · CONFIDENTIAL`, margin, 30, { align: 'right', width: contentWidth });
@@ -208,12 +218,13 @@ async function generatePdfViasPython(userData) {
       // PAGE 1 — MAIN DOCUMENT
       // ═══════════════════════════════════════════════════════════
 
+      drawPageBackground();
       let currentY = drawHeader('LAST WILL AND TESTAMENT', 'OF DIGITAL ASSETS AND ELECTRONIC PROPERTY');
 
       // Preamble
       const preambleText = `KNOW ALL MEN BY THESE PRESENTS: I, ${userData.full_name}, User Identification Number #${userData.id}, domiciled and registered with Legacy Vault, being of sound and disposing mind and memory, and not acting under duress, menace, fraud, or undue influence of any person, do hereby make, publish, and declare this my Last Will and Testament of Digital Assets, hereby revoking all former digital wills, codicils, and testamentary dispositions of digital property heretofore made by me.`;
       
-      currentY = drawBoxedContent(preambleText, currentY, 70);
+      currentY = drawBoxedContent(preambleText, currentY, 65);
 
       // ARTICLE I — IDENTIFICATION
       currentY = drawArticleTitle('I', 'IDENTIFICATION OF THE TESTATOR', currentY);
@@ -223,235 +234,174 @@ async function generatePdfViasPython(userData) {
       doc.text('FULL LEGAL NAME', margin, currentY);
       doc.text('DATE OF BIRTH / REGISTRATION', pageWidth / 2, currentY);
 
-      doc.fontSize(11).fillColor('#1a0810').font('Helvetica-Bold');
+      doc.fontSize(10).fillColor('#1a0810').font('Helvetica-Bold');
       doc.text(userData.full_name, margin, currentY + 8);
       const dob = userData.date_of_birth || new Date().toISOString().split('T')[0];
       doc.text(dob, pageWidth / 2, currentY + 8);
 
-      currentY += 35;
+      currentY += 30;
 
       doc.fontSize(6.5).fillColor('#999790').font('Helvetica');
       doc.text('EMAIL ADDRESS', margin, currentY);
       doc.text('USER IDENTIFICATION', pageWidth / 2, currentY);
 
-      doc.fontSize(11).fillColor('#1a0810').font('Helvetica-Bold');
+      doc.fontSize(10).fillColor('#1a0810').font('Helvetica-Bold');
       doc.text(userData.email, margin, currentY + 8);
       doc.text(`Legacy Vault ID #${userData.id}`, pageWidth / 2, currentY + 8);
 
-      currentY += 40;
+      currentY += 35;
 
-      // ARTICLE II — DIGITAL ASSETS
+      // ARTICLE II — DIGITAL ASSETS (Compact)
       currentY = drawArticleTitle('II', 'SCHEDULE OF DIGITAL ASSETS', currentY);
 
-      const assetsIntroText = 'I give, bequeath, and devise the following digital assets, being the whole of my electronic estate, as specifically enumerated herein. Each asset shall pass to the designated Executor(s) in accordance with the permissions granted under Article III:';
-      doc.fontSize(8.5).fillColor('#4a4846').font('Helvetica-Oblique');
-      const assetsIntroHeight = doc.heightOfString(assetsIntroText, { width: contentWidth });
-      doc.text(assetsIntroText, margin, currentY, { width: contentWidth });
-      currentY += assetsIntroHeight + 15;
+      doc.fontSize(8).fillColor('#4a4846').font('Helvetica-Oblique');
+      doc.text('Digital assets bequeathed as enumerated:', margin, currentY);
+      currentY += 12;
 
-      // Asset cards
+      // Compact asset cards
       if (userData.assets && userData.assets.length > 0) {
-        userData.assets.forEach((asset, index) => {
-          const romanNums = ['I', 'II', 'III', 'IV', 'V'];
+        userData.assets.slice(0, 2).forEach((asset, index) => {
+          const romanNums = ['I', 'II'];
           
           // Box
-          doc.rect(margin, currentY, contentWidth, 50).stroke('#dedad4');
-          doc.rect(margin, currentY, 6, 50).fill('#6b2d4e');
+          doc.rect(margin, currentY, contentWidth, 38).stroke('#dedad4');
+          doc.rect(margin, currentY, 6, 38).fill('#6b2d4e');
           
           // Roman numeral
-          doc.fontSize(12).fillColor('#ffffff').font('Helvetica-Bold');
-          doc.text(romanNums[index] || String(index + 1), margin + 2, currentY + 2);
+          doc.fontSize(11).fillColor('#ffffff').font('Helvetica-Bold');
+          doc.text(romanNums[index], margin + 2, currentY + 2);
           
           // Asset name
-          doc.fontSize(11).fillColor('#1a0810').font('Helvetica-Bold');
-          doc.text(asset.name, margin + 20, currentY + 8);
+          doc.fontSize(10).fillColor('#1a0810').font('Helvetica-Bold');
+          doc.text(asset.name, margin + 20, currentY + 5);
           
-          // Type badge
-          doc.rect(margin + 20, currentY + 20, 80, 12).fill('#f0f0f0');
-          doc.fontSize(7).fillColor('#666').font('Helvetica');
-          doc.text(asset.type, margin + 22, currentY + 22);
-          
-          // Description
-          doc.fontSize(9).fillColor('#4a4846').font('Helvetica');
-          doc.text(asset.description, margin + 20, currentY + 33);
+          // Type and description on one line
+          doc.fontSize(8).fillColor('#4a4846').font('Helvetica');
+          doc.text(`${asset.type} • ${asset.description}`, margin + 20, currentY + 18);
           
           // Location (right side)
           doc.fontSize(7).fillColor('#999790').font('Helvetica');
-          doc.text(`Location: ${asset.location}`, pageWidth - margin - 120, currentY + 8);
+          doc.text(`Loc: ${asset.location}`, pageWidth - margin - 120, currentY + 8);
           
-          // Date (right side)
-          const createdDate = asset.created_at ? new Date(asset.created_at).toLocaleDateString() : 'N/A';
-          doc.text(`Recorded: ${createdDate}`, pageWidth - margin - 120, currentY + 20);
-          
-          currentY += 60;
-          
-          // Check if we need to go to next page
-          if (currentY > pageHeight - 150) {
-            doc.addPage();
-            currentY = margin;
-          }
+          currentY += 43;
         });
       }
 
       currentY += 5;
 
-      // ARTICLE III — EXECUTORS
-      if (currentY > pageHeight - 200) {
-        doc.addPage();
-        currentY = margin;
-      }
+      // ARTICLE III — EXECUTORS (Compact)
+      currentY = drawArticleTitle('III', 'APPOINTED EXECUTORS', currentY);
 
-      currentY = drawArticleTitle('III', 'APPOINTMENT OF PERSONAL EXECUTORS', currentY);
-
-      const executorsIntroText = 'I hereby nominate, constitute, and appoint the following named individuals as Personal Executors of my digital estate. Each Executor shall serve in a fiduciary capacity and shall have only such authority as is expressly granted herein:';
-      doc.fontSize(8.5).fillColor('#4a4846').font('Helvetica-Oblique');
-      const executorsIntroHeight = doc.heightOfString(executorsIntroText, { width: contentWidth });
-      doc.text(executorsIntroText, margin, currentY, { width: contentWidth });
-      currentY += executorsIntroHeight + 15;
-
-      // Executor cards
+      // Executor cards - compact
       if (userData.executors && userData.executors.length > 0) {
-        userData.executors.forEach((executor, index) => {
-          const romanNums = ['I', 'II', 'III'];
+        userData.executors.slice(0, 2).forEach((executor, index) => {
+          const romanNums = ['I', 'II'];
           
           // Box
-          doc.rect(margin, currentY, contentWidth, 55).stroke('#dedad4');
-          doc.rect(margin, currentY, 6, 55).fill('#c08fa8');
+          doc.rect(margin, currentY, contentWidth, 35).stroke('#dedad4');
+          doc.rect(margin, currentY, 6, 35).fill('#c08fa8');
           
           // Roman numeral
-          doc.fontSize(12).fillColor('#ffffff').font('Helvetica-Bold');
-          doc.text(romanNums[index] || String(index + 1), margin + 2, currentY + 2);
+          doc.fontSize(11).fillColor('#ffffff').font('Helvetica-Bold');
+          doc.text(romanNums[index], margin + 2, currentY + 2);
           
-          // Executor name
-          doc.fontSize(11).fillColor('#1a0810').font('Helvetica-Bold');
-          doc.text(executor.name.toUpperCase(), margin + 20, currentY + 8);
+          // Executor name and email
+          doc.fontSize(10).fillColor('#1a0810').font('Helvetica-Bold');
+          doc.text(executor.name.toUpperCase(), margin + 20, currentY + 3);
           
-          // Email
-          doc.fontSize(9).fillColor('#4a4846').font('Helvetica');
-          doc.text(executor.email, margin + 20, currentY + 25);
+          doc.fontSize(8).fillColor('#4a4846').font('Helvetica');
+          doc.text(executor.email, margin + 20, currentY + 16);
           
-          // Permission (right side)
-          doc.fontSize(7).fillColor('#999790').font('Helvetica');
-          doc.text(`PERMISSION`, pageWidth - margin - 140, currentY + 8);
-          doc.fontSize(9).fillColor('#4a4846').font('Helvetica-Bold');
-          doc.text(executor.permission || 'N/A', pageWidth - margin - 140, currentY + 17);
+          // Status labels (right side)
+          doc.fontSize(6.5).fillColor('#999790').font('Helvetica');
+          doc.text(`${executor.permission} • ${executor.status}`, pageWidth - margin - 150, currentY + 8);
           
-          // Status (right side)
-          doc.fontSize(7).fillColor('#999790').font('Helvetica');
-          doc.text(`STATUS`, pageWidth - margin - 70, currentY + 8);
-          doc.fontSize(9).fillColor('#4a4846').font('Helvetica-Bold');
-          doc.text(executor.status || 'N/A', pageWidth - margin - 70, currentY + 17);
-          
-          // Access (right side)
-          doc.fontSize(7).fillColor('#999790').font('Helvetica');
-          doc.text(`ACCESS`, pageWidth - margin - 140, currentY + 33);
-          doc.fontSize(9).fillColor('#4a4846').font('Helvetica-Bold');
-          doc.text(executor.access_granted ? 'Granted' : 'Pending', pageWidth - margin - 140, currentY + 42);
-          
-          currentY += 65;
-          
-          // Check if we need to go to next page
-          if (currentY > pageHeight - 150) {
-            doc.addPage();
-            currentY = margin;
-          }
+          currentY += 40;
         });
       }
-
-      // ARTICLE IV — DISCLAIMER
-      currentY += 5;
-      if (currentY > pageHeight - 200) {
-        doc.addPage();
-        currentY = margin;
-      }
-
-      currentY = drawArticleTitle('IV', 'GOVERNING TERMS AND LEGAL DISCLAIMER', currentY);
-
-      const disclaimer = 'This instrument has been generated by LEGACY VAULT and constitutes a formal record of the Testator\'s digital estate. This document is intended to supplement — and not replace — a legally executed will under the laws of the applicable jurisdiction. The Testator is strongly advised to seek independent legal counsel to give this instrument full binding legal effect. This record shall be reviewed and updated periodically to reflect any change in the Testator\'s digital estate or personal circumstances. Legacy Vault accepts no liability for the legal validity of this instrument in any jurisdiction.';
-
-      currentY = drawBoxedContent(disclaimer, currentY, 80);
 
       // ═══════════════════════════════════════════════════════════
       // PAGE 2 — SIGNATURE AND EXECUTION PAGE
       // ═══════════════════════════════════════════════════════════
 
       doc.addPage();
+      drawPageBackground();
       currentY = drawHeader('SIGNATURE AND EXECUTION PAGE', `Last Will and Testament of ${userData.full_name}`);
 
       // IN WITNESS WHEREOF section
       const witnessText = `IN WITNESS WHEREOF, I, ${userData.full_name}, the Testator named in this Last Will and Testament of Digital Assets, have hereunto set my hand and seal to this, my Last Will and Testament, on this 9th day of May, in the year Two Thousand and Twenty-Six, declaring and publishing this as my Last Will and Testament of Digital Assets, in the presence of the witnesses whose signatures appear below, each of whom signed in my presence and in the presence of each other.`;
 
-      doc.fontSize(9).fillColor('#4a4846').font('Helvetica');
+      doc.fontSize(8.5).fillColor('#4a4846').font('Helvetica');
       doc.text(witnessText, margin, currentY, { width: contentWidth });
-      currentY += 80;
+      currentY += 70;
 
       // TESTATOR section
-      doc.fontSize(11).fillColor('#6b2d4e').font('Helvetica-Bold');
+      doc.fontSize(10).fillColor('#6b2d4e').font('Helvetica-Bold');
       doc.text('TESTATOR', margin, currentY);
-      currentY += 15;
+      currentY += 12;
 
-      doc.fontSize(9).fillColor('#4a4846').font('Helvetica');
+      doc.fontSize(8).fillColor('#4a4846').font('Helvetica');
       const testatorDeclaration = `I, ${userData.full_name}, sign my name to this instrument 9th day of May, 2026, and being first duly sworn, declare to the undersigned authority that I sign and execute this instrument as my Last Will and that I sign it willingly.`;
       doc.text(testatorDeclaration, margin, currentY, { width: contentWidth });
-      currentY += 65;
+      currentY += 50;
 
       // Signature line
       doc.moveTo(margin, currentY).lineTo(margin + 150, currentY).stroke('#999790');
-      doc.fontSize(7).fillColor('#999790').font('Helvetica');
+      doc.fontSize(6.5).fillColor('#999790').font('Helvetica');
       doc.text('SIGNATURE OF TESTATOR', margin, currentY + 5);
 
-      doc.moveTo(pageWidth / 2, currentY).lineTo(pageWidth / 2 + 150, currentY).stroke('#999790');
-      doc.text('DATE', pageWidth / 2, currentY + 5);
+      doc.moveTo(pageWidth / 2 + 10, currentY).lineTo(pageWidth / 2 + 150, currentY).stroke('#999790');
+      doc.text('DATE', pageWidth / 2 + 10, currentY + 5);
 
       currentY += 35;
 
       // ATTESTATION OF WITNESSES section
-      doc.fontSize(11).fillColor('#6b2d4e').font('Helvetica-Bold');
+      doc.fontSize(10).fillColor('#6b2d4e').font('Helvetica-Bold');
       doc.text('ATTESTATION OF WITNESSES', margin, currentY);
-      currentY += 15;
+      currentY += 12;
 
-      doc.fontSize(8.5).fillColor('#4a4846').font('Helvetica');
+      doc.fontSize(8).fillColor('#4a4846').font('Helvetica');
       const attestationText = 'We, the undersigned witnesses, each do hereby declare that the Testator signed and executed this instrument as the Last Will and Testament of Digital Assets in the presence of us, both present at the same time; and that we, in the Testator\'s presence, at their request, and in the presence of each other, have subscribed our names hereto as witnesses hereof; and that to the best of our knowledge the Testator was at the time of signing of sound and disposing mind and memory.';
       doc.text(attestationText, margin, currentY, { width: contentWidth });
-      currentY += 60;
+      currentY += 55;
 
-      // Witness signature lines
+      // Witness signature lines - 2 columns
       // Witness 1
-      doc.fontSize(7).fillColor('#999790').font('Helvetica-Bold');
+      doc.fontSize(6.5).fillColor('#999790').font('Helvetica-Bold');
       doc.text('WITNESS NO. 1 — SIGNATURE', margin, currentY);
       doc.moveTo(margin, currentY + 15).lineTo(margin + 140, currentY + 15).stroke('#999790');
 
-      doc.text('WITNESS NO. 1 — FULL NAME (PRINT)', pageWidth / 2, currentY);
-      doc.moveTo(pageWidth / 2, currentY + 15).lineTo(pageWidth / 2 + 140, currentY + 15).stroke('#999790');
+      doc.text('WITNESS NO. 1 — FULL NAME (PRINT)', pageWidth / 2 + 10, currentY);
+      doc.moveTo(pageWidth / 2 + 10, currentY + 15).lineTo(pageWidth / 2 + 150, currentY + 15).stroke('#999790');
 
-      currentY += 40;
+      currentY += 35;
 
       // Witness 2
       doc.text('WITNESS NO. 2 — SIGNATURE', margin, currentY);
       doc.moveTo(margin, currentY + 15).lineTo(margin + 140, currentY + 15).stroke('#999790');
 
-      doc.text('WITNESS NO. 2 — FULL NAME (PRINT)', pageWidth / 2, currentY);
-      doc.moveTo(pageWidth / 2, currentY + 15).lineTo(pageWidth / 2 + 140, currentY + 15).stroke('#999790');
+      doc.text('WITNESS NO. 2 — FULL NAME (PRINT)', pageWidth / 2 + 10, currentY);
+      doc.moveTo(pageWidth / 2 + 10, currentY + 15).lineTo(pageWidth / 2 + 150, currentY + 15).stroke('#999790');
 
-      currentY += 50;
+      currentY += 40;
 
       // NOTARIAL ACKNOWLEDGEMENT section
-      doc.fontSize(11).fillColor('#6b2d4e').font('Helvetica-Bold');
+      doc.fontSize(10).fillColor('#6b2d4e').font('Helvetica-Bold');
       doc.text('NOTARIAL ACKNOWLEDGEMENT / OFFICIAL SEAL', margin, currentY);
-      currentY += 20;
+      currentY += 12;
 
-      doc.fontSize(8.5).fillColor('#4a4846').font('Helvetica');
+      doc.fontSize(8).fillColor('#4a4846').font('Helvetica');
       doc.text('State / Jurisdiction of _________________ County / District of _________________', margin, currentY);
-      currentY += 20;
+      currentY += 15;
 
       const notaryText = `Subscribed, sworn to and acknowledged before me by ${userData.full_name}, the Testator, and subscribed and sworn to before me by ___________________, ___________________ and __________________ witnesses, this _______ day of __________________, 20_______.`;
-      doc.text(notaryText, margin, currentY, { width: contentWidth });
+      doc.text(notaryText, margin, currentY, { width: contentWidth - 100 });
 
       // Notary seal placeholder circle
-      doc.circle(pageWidth - margin - 60, currentY + 40, 40);
+      doc.circle(pageWidth - margin - 50, currentY + 25, 35);
       doc.stroke('#f4c0d1');
-      doc.fontSize(7).fillColor('#f4c0d1').font('Helvetica-Bold');
-      doc.text('OFFICIAL\nNOTARY\nSEAL', pageWidth - margin - 65, currentY + 35, { align: 'center', width: 60 });
+      doc.fontSize(6).fillColor('#f4c0d1').font('Helvetica-Bold');
+      doc.text('OFFICIAL\nNOTARY\nSEAL', pageWidth - margin - 55, currentY + 18, { align: 'center', width: 70 });
 
       // Finalize document
       doc.end();
