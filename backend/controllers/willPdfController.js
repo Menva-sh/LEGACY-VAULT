@@ -81,13 +81,17 @@ const generateProfessionalWill = async (req, res) => {
 
     // Save will record to database
     const relativeFilePath = `generated_wills/${filename}`;
-    const will = await saveGeneratedWill(userId, {
-      title: `Digital Will and Testament of ${userData.full_name}`,
-      description: `Professional digital will for ${userData.full_name} with ${mappedAssets.length} asset(s) and ${mappedExecutors.length} executor(s)`,
-      content: 'Generated using ReportLab professional template',
-      file_path: relativeFilePath,
-      status: 'draft'
-    });
+    const willTitle = `Digital Will - ${userData.full_name}`;
+    const willDescription = `Professional digital will with ${mappedAssets.length} asset(s) and ${mappedExecutors.length} executor(s)`;
+    const willContent = 'Generated using PDFKit professional template';
+    
+    const will = await saveGeneratedWill(
+      userId, 
+      willTitle, 
+      willDescription, 
+      willContent, 
+      relativeFilePath
+    );
 
     console.log(`✅ PDF generated and saved: ${filename}`);
 
