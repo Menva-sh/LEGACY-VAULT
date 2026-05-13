@@ -245,7 +245,7 @@ async function generatePdfViasPython(userData) {
 
       const assetsIntroText = 'I give, bequeath, and devise the following digital assets, being the whole of my electronic estate, as specifically enumerated herein. Each asset shall pass to the designated Executor(s) in accordance with the permissions granted under Article III:';
       doc.fontSize(8.5).fillColor('#4a4846').font('Helvetica-Oblique');
-      const assetsIntroHeight = doc.heightAtSize(8.5).heightOfString(assetsIntroText, { width: contentWidth });
+      const assetsIntroHeight = doc.heightOfString(assetsIntroText, { width: contentWidth });
       doc.text(assetsIntroText, margin, currentY, { width: contentWidth });
       currentY += assetsIntroHeight + 15;
 
@@ -305,7 +305,7 @@ async function generatePdfViasPython(userData) {
 
       const executorsIntroText = 'I hereby nominate, constitute, and appoint the following named individuals as Personal Executors of my digital estate. Each Executor shall serve in a fiduciary capacity and shall have only such authority as is expressly granted herein:';
       doc.fontSize(8.5).fillColor('#4a4846').font('Helvetica-Oblique');
-      const executorsIntroHeight = doc.heightAtSize(8.5).heightOfString(executorsIntroText, { width: contentWidth });
+      const executorsIntroHeight = doc.heightOfString(executorsIntroText, { width: contentWidth });
       doc.text(executorsIntroText, margin, currentY, { width: contentWidth });
       currentY += executorsIntroHeight + 15;
 
