@@ -3,6 +3,7 @@ const cors = require('cors');
 const initializeDatabase = require('./initDb');
 const { verifyToken } = require('./middleware/authMiddleware');
 const { generateDigitalWill } = require('./controllers/willGeneratorController');
+const { generateProfessionalWill } = require('./controllers/willPdfController');
 const deadManswitchScheduler = require('./services/deadManswitchScheduler');
 
 // Import routes with error handling
@@ -135,9 +136,9 @@ app.get('/', (req, res) => {
   res.json({ status: 'OK', message: 'Backend is running', timestamp: new Date() });
 });
 
-// GET /generate-will - Generate digital will PDF
+// GET /generate-will - Generate professional digital will PDF using ReportLab
 console.log('Setting up digital will generator...');
-app.get('/generate-will', verifyToken, generateDigitalWill);
+app.get('/generate-will', verifyToken, generateProfessionalWill);
 
 console.log('Loading auth routes...');
 app.use('/auth', authRoutes);

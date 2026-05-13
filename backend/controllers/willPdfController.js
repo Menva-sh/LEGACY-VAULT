@@ -6,6 +6,7 @@
 const { spawn } = require('child_process');
 const path = require('path');
 const fs = require('fs').promises;
+const fsSync = require('fs');
 const { getUserById } = require('../models/userModel');
 const { getAssetsByUserId } = require('../models/assetModel');
 const { getExecutorsByUserId } = require('../models/executorModel');
@@ -13,7 +14,7 @@ const { saveGeneratedWill } = require('../models/willModel');
 
 /**
  * Generate Digital Will PDF - ReportLab version
- * Calls Python service to generate professional PDF
+ * Calls Python service to generate professional PDF and saves to database
  */
 const generateProfessionalWill = async (req, res) => {
   try {
@@ -67,26 +68,43 @@ const generateProfessionalWill = async (req, res) => {
     // Generate PDF via Python
     const pdfBuffer = await generatePdfViasPython(userData);
 
-    // Save will to database
+    // Save PDF to disk
     const timestamp = new Date().toISOString().split('T')[0];
     const filename = `Digital_Will_${userId}_${timestamp}.pdf`;
-    const filepath = `/generated_wills/${filename}`;
+    const filepath = path.join(__dirname, '../generated_wills', filename);
 
+    // Ensure directory exists
+    await fs.mkdir(path.dirname(filepath), { recursive: true });
+
+    // Write PDF to disk
+    await fs.writeFile(filepath, pdfBuffer);
+    console.log(`✅ PDF saved to disk: ${filepath}`);
+
+    // Save will record to database
+    const relativeFilePath = `generated_wills/${filename}`;
     const will = await saveGeneratedWill(userId, {
       title: `Digital Will and Testament of ${userData.full_name}`,
-      description: `Digital Will for ${userData.full_name}`,
+      description: `Professional digital will for ${userData.full_name} with ${mappedAssets.length} asset(s) and ${mappedExecutors.length} executor(s)`,
       content: 'Generated using ReportLab professional template',
-      file_path: filepath,
+      file_path: relativeFilePath,
       status: 'draft'
     });
 
     console.log(`✅ PDF generated and saved: ${filename}`);
 
-    // Send PDF to client
-    res.contentType('application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-    res.setHeader('Content-Length', pdfBuffer.length);
-    res.send(pdfBuffer);
+    // Return JSON response (matching old endpoint behavior)
+    res.status(200).json({
+      message: 'Digital will PDF generated successfully',
+      will: {
+        id: will.id,
+        title: will.title,
+        description: will.description,
+        status: will.status,
+        file_path: will.file_path,
+        created_at: will.created_at,
+        download_url: `/${filename}`
+      }
+    });
 
   } catch (err) {
     console.error('❌ Error generating PDF:', err.message);
