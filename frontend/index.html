@@ -79,23 +79,26 @@ nav{
   padding:8rem 4rem 4rem;
   gap:4rem;
   position:relative;
-  overflow:hidden;
+  overflow:visible;
 }
 .hero::before{
   content:'';
-  position:absolute;top:-200px;right:-100px;
-  width:700px;height:700px;
-  background:radial-gradient(circle,rgba(155,74,110,0.08) 0%,transparent 70%);
+  position:absolute;top:50%;right:-150px;
+  transform:translateY(-50%);
+  width:800px;height:800px;
+  background:radial-gradient(circle,rgba(155,74,110,0.15) 0%,transparent 60%);
   pointer-events:none;
+  z-index:0;
 }
 .hero::after{
   content:'';
-  position:absolute;bottom:-100px;left:-100px;
-  width:500px;height:500px;
-  background:radial-gradient(circle,rgba(92,29,59,0.06) 0%,transparent 70%);
+  position:absolute;bottom:-50px;left:-100px;
+  width:600px;height:600px;
+  background:radial-gradient(circle,rgba(245,232,239,0.4) 0%,transparent 70%);
   pointer-events:none;
+  z-index:0;
 }
-.hero-left{z-index:1;animation:fadeSlideUp 0.9s ease both}
+.hero-left{z-index:1;animation:fadeSlideUp 0.9s ease both;position:relative;}
 .hero-badge{
   display:inline-flex;align-items:center;gap:0.5rem;
   background:var(--plum-pale);
@@ -204,44 +207,54 @@ nav{
   position:relative;
   z-index:1;
   animation:fadeSlideIn 1s 0.2s ease both;
+  display:flex;
+  align-items:center;
+  justify-content:center;
 }
 .hero-img-wrap{
   position:relative;
   display:flex;
   align-items:center;
   justify-content:center;
-  height:500px;
-  background:linear-gradient(135deg,var(--plum-pale),var(--cream2));
-  border-radius:20px;
-  overflow:hidden;
-  box-shadow:0 20px 60px rgba(92,29,59,0.15);
+  width:500px;height:500px;
+  background:radial-gradient(circle,var(--white),var(--cream2));
+  border-radius:50%;
+  overflow:visible;
+  box-shadow:0 20px 80px rgba(92,29,59,0.2);
+}
+.hero-illustration{
+  width:280px;height:320px;
+  position:relative;
+  z-index:2;
 }
 .hero-img-wrap img{
-  width:100%;max-width:580px;
+  width:100%;height:100%;
   object-fit:contain;
-  filter:drop-shadow(0 20px 60px rgba(92,29,59,0.15));
-  animation:float 6s ease-in-out infinite;
+  filter:drop-shadow(0 10px 40px rgba(92,29,59,0.1));
 }
-/* Floating UI cards */
+/* Floating UI cards for illustration */
 .float-card{
   position:absolute;
   background:var(--white);
-  border-radius:14px;
-  padding:0.7rem 1.1rem;
-  box-shadow:0 8px 30px rgba(92,29,59,0.12);
-  display:flex;align-items:center;gap:0.6rem;
-  font-size:0.8rem;font-weight:500;
+  border-radius:12px;
+  padding:0.65rem 0.95rem;
+  box-shadow:0 8px 32px rgba(92,29,59,0.15);
+  display:flex;align-items:center;gap:0.5rem;
+  font-size:0.75rem;font-weight:500;
   color:var(--text);
   white-space:nowrap;
-  border:1px solid rgba(92,29,59,0.06);
+  border:1px solid rgba(92,29,59,0.08);
+  z-index:3;
 }
 .float-card-dot{
   width:8px;height:8px;border-radius:50%;flex-shrink:0;
 }
-.card-1{top:8%;left:-8%;animation:floatCard1 5s ease-in-out infinite}
-.card-2{top:28%;right:-5%;animation:floatCard2 6s 1s ease-in-out infinite}
-.card-3{bottom:28%;left:-6%;animation:floatCard3 5.5s 0.5s ease-in-out infinite}
-.card-4{bottom:10%;right:5%;animation:floatCard4 6.5s 1.5s ease-in-out infinite}
+.card-1{top:-50px;left:-60px;animation:floatCard1 5s ease-in-out infinite;background:rgba(255,255,255,0.95)}
+.card-2{top:-20px;right:-40px;animation:floatCard2 6s 1s ease-in-out infinite;background:rgba(255,255,255,0.95)}
+.card-3{top:120px;right:-70px;animation:floatCard3 5.5s 0.5s ease-in-out infinite}
+.card-4{bottom:80px;right:-50px;animation:floatCard4 6.5s 1.5s ease-in-out infinite}
+.card-5{bottom:50px;left:-60px;animation:floatCard1 5s ease-in-out infinite}
+.card-6{top:150px;left:-70px;animation:floatCard2 6s 1s ease-in-out infinite}
 
 /* TRUSTED BY */
 .trusted{
@@ -756,22 +769,56 @@ footer{
 
   <div class="hero-right">
     <div class="hero-img-wrap">
+      <div class="hero-illustration">
+        <svg viewBox="0 0 280 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Woman figure -->
+          <circle cx="140" cy="80" r="28" fill="#8B5A6B"/>
+          <!-- Hair -->
+          <path d="M112 80C112 60 125 45 140 45C155 45 168 60 168 80L168 95C168 105 160 115 150 120L130 120C120 115 112 105 112 95Z" fill="#6B4A5B"/>
+          <!-- Body -->
+          <path d="M115 125L125 220L155 220L165 125C165 125 155 120 140 120C125 120 115 125 115 125Z" fill="#8B5A6B"/>
+          <!-- Arms -->
+          <ellipse cx="110" cy="140" rx="8" ry="25" fill="#8B5A6B" transform="rotate(-25 110 140)"/>
+          <ellipse cx="170" cy="140" rx="8" ry="25" fill="#8B5A6B" transform="rotate(25 170 140)"/>
+          <!-- Hands -->
+          <circle cx="100" cy="150" r="6" fill="#A67B8A"/>
+          <circle cx="180" cy="150" r="6" fill="#A67B8A"/>
+          <!-- Decorative elements -->
+          <path d="M85 180C75 170 60 175 55 185" stroke="#C4A5B0" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <path d="M225 200C235 190 250 200 260 210" stroke="#C4A5B0" stroke-width="2" fill="none" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <!-- Floating cards from image 4 -->
       <div class="float-card card-1">
-        <div class="float-card-dot" style="background:#16a34a"></div>
-        <span>Vault Secured</span>
+        <span>📌 Jobs</span>
       </div>
       <div class="float-card card-2">
-        <div class="float-card-dot" style="background:#3b82f6"></div>
-        <span>3 Executors</span>
+        <div class="float-card-dot" style="background:#5c1d3b"></div>
+        <span style="font-weight:600">LEGACY VAULT</span>
       </div>
       <div class="float-card card-3">
         <div class="float-card-dot" style="background:#f59e0b"></div>
-        <span>Check-in Due</span>
+        <span>Will generated<br>May 3, Signed</span>
       </div>
       <div class="float-card card-4">
-        <div class="float-card-dot" style="background:#6b2d4e"></div>
-        <span>Will Updated</span>
+        <div class="float-card-dot" style="background:#3b82f6"></div>
+        <span>2 executors<br>notified</span>
       </div>
+      <div class="float-card card-5">
+        <div class="float-card-dot" style="background:#16a34a"></div>
+        <span><strong>2,400+</strong><br>Families protected</span>
+      </div>
+      <div class="float-card card-6">
+        <div class="float-card-dot" style="background:#06b6d4"></div>
+        <span>Encrypted<br>Security</span>
+      </div>
+    </div>
+    <div style="position:absolute;bottom:-80px;left:50%;transform:translateX(-50%);text-align:center;z-index:2">
+      <div style="background:var(--white);border-radius:12px;padding:0.8rem 1.5rem;box-shadow:0 8px 32px rgba(92,29,59,0.15);display:inline-block;margin-bottom:0.5rem">
+        <div style="font-size:1rem;font-weight:600;color:var(--plum)">99.9%</div>
+        <div style="font-size:0.75rem;color:var(--text2)">Uptime guaranteed</div>
+      </div>
+      <a href="#how" style="display:inline-block;color:var(--plum);font-size:0.85rem;font-weight:500;text-decoration:none">How It Works</a>
     </div>
   </div>
 </section>
