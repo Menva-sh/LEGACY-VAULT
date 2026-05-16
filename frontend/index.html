@@ -69,6 +69,24 @@ nav{
   text-decoration:none;
 }
 .nav-cta:hover{background:var(--plum2)!important;transform:translateY(-1px)}
+.nav-btn-user{
+  color:var(--plum)!important;
+  border:1.5px solid var(--plum);
+  padding:0.5rem 1.2rem;
+  border-radius:6px;
+  font-weight:500!important;
+  transition:all 0.2s;
+}
+.nav-btn-user:hover{background:var(--plum-pale);transform:translateY(-1px)}
+.nav-btn-executor{
+  color:var(--cream)!important;
+  background:var(--plum2);
+  padding:0.5rem 1.2rem;
+  border-radius:6px;
+  font-weight:500!important;
+  transition:all 0.2s;
+}
+.nav-btn-executor:hover{background:var(--plum);transform:translateY(-1px)}
 
 /* HERO */
 .hero{
@@ -739,7 +757,8 @@ footer{
     <a href="#security">Security</a>
     <a href="#pricing">Pricing</a>
     <a href="#faq">FAQ</a>
-    <a href="/pages/login.html" style="color:var(--plum)">Login</a>
+    <a href="/pages/login.html" class="nav-btn-user">User Login</a>
+    <a href="/pages/register.html" class="nav-btn-executor">Executor Access</a>
     <a href="/pages/register.html" class="nav-cta">Get started</a>
   </div>
 </nav>
@@ -747,10 +766,6 @@ footer{
 <!-- HERO -->
 <section class="hero">
   <div class="hero-left">
-    <div class="hero-badge">
-      <span class="hero-badge-dot"></span>
-      Trusted by 2,400+ families
-    </div>
     <h1 class="hero-title">
       Protect Your<br><em>Digital Legacy.</em>
     </h1>
@@ -767,15 +782,6 @@ footer{
       <a href="#how" class="btn-secondary">
         How It Works →
       </a>
-    </div>
-    <div class="hero-trust">
-      <div class="hero-trust-avatars">
-        <div class="avatar">M</div>
-        <div class="avatar">S</div>
-        <div class="avatar">A</div>
-        <div class="avatar">R</div>
-      </div>
-      <span class="hero-trust-text"><strong>2,400+ families</strong> trust Legacy Vault</span>
     </div>
   </div>
 
@@ -836,22 +842,22 @@ footer{
   </div>
   <div class="features-grid">
     <div class="feature-card">
-      <div class="feature-icon">🔐</div>
+      <div class="feature-icon">◆</div>
       <h3 class="feature-title">Digital Vault</h3>
       <p class="feature-desc">Store passwords, crypto keys, account credentials, and sensitive documents all in one secure place.</p>
     </div>
     <div class="feature-card">
-      <div class="feature-icon">📋</div>
+      <div class="feature-icon">■</div>
       <h3 class="feature-title">Digital Will</h3>
       <p class="feature-desc">Write legally-guided instructions for your digital assets and distribution to beneficiaries.</p>
     </div>
     <div class="feature-card">
-      <div class="feature-icon">👤</div>
+      <div class="feature-icon">●</div>
       <h3 class="feature-title">Executor Access</h3>
       <p class="feature-desc">Designate trusted people to manage your digital legacy when needed with full audit trails.</p>
     </div>
     <div class="feature-card">
-      <div class="feature-icon">⏰</div>
+      <div class="feature-icon">★</div>
       <h3 class="feature-title">Dead Man's Switch</h3>
       <p class="feature-desc">Customizable check-in system that automatically alerts executors if you're inactive.</p>
     </div>
