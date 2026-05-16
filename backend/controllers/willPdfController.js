@@ -333,75 +333,76 @@ async function generatePdfViasPython(userData) {
 
       doc.fontSize(8.5).fillColor('#4a4846').font('Helvetica');
       doc.text(witnessText, margin, currentY, { width: contentWidth });
-      currentY += 70;
+      currentY += 65;
 
       // TESTATOR section
       doc.fontSize(10).fillColor('#6b2d4e').font('Helvetica-Bold');
       doc.text('TESTATOR', margin, currentY);
-      currentY += 12;
+      currentY += 10;
 
       doc.fontSize(8).fillColor('#4a4846').font('Helvetica');
       const testatorDeclaration = `I, ${userData.full_name}, sign my name to this instrument 9th day of May, 2026, and being first duly sworn, declare to the undersigned authority that I sign and execute this instrument as my Last Will and that I sign it willingly.`;
       doc.text(testatorDeclaration, margin, currentY, { width: contentWidth });
-      currentY += 50;
+      currentY += 45;
 
       // Signature line
       doc.moveTo(margin, currentY).lineTo(margin + 150, currentY).stroke('#999790');
       doc.fontSize(6.5).fillColor('#999790').font('Helvetica');
-      doc.text('SIGNATURE OF TESTATOR', margin, currentY + 5);
+      doc.text('SIGNATURE OF TESTATOR', margin, currentY + 3);
 
       doc.moveTo(pageWidth / 2 + 10, currentY).lineTo(pageWidth / 2 + 150, currentY).stroke('#999790');
-      doc.text('DATE', pageWidth / 2 + 10, currentY + 5);
+      doc.text('DATE', pageWidth / 2 + 10, currentY + 3);
 
-      currentY += 35;
+      currentY += 30;
 
       // ATTESTATION OF WITNESSES section
       doc.fontSize(10).fillColor('#6b2d4e').font('Helvetica-Bold');
       doc.text('ATTESTATION OF WITNESSES', margin, currentY);
-      currentY += 12;
+      currentY += 10;
 
       doc.fontSize(8).fillColor('#4a4846').font('Helvetica');
-      const attestationText = 'We, the undersigned witnesses, each do hereby declare that the Testator signed and executed this instrument as the Last Will and Testament of Digital Assets in the presence of us, both present at the same time; and that we, in the Testator\'s presence, at their request, and in the presence of each other, have subscribed our names hereto as witnesses hereof; and that to the best of our knowledge the Testator was at the time of signing of sound and disposing mind and memory.';
+      const attestationText = 'We, the undersigned witnesses, declare that the Testator signed and executed this instrument as the Last Will and Testament of Digital Assets in our presence, both present at the same time; and that in the Testator\'s presence, at their request, and in the presence of each other, we have subscribed our names hereto as witnesses hereof; and that to the best of our knowledge the Testator was at the time of signing of sound and disposing mind.';
       doc.text(attestationText, margin, currentY, { width: contentWidth });
-      currentY += 55;
+      currentY += 50;
 
-      // Witness signature lines - 2 columns
-      // Witness 1
+      // Witness signature lines - 2 columns, more compact
       doc.fontSize(6.5).fillColor('#999790').font('Helvetica-Bold');
       doc.text('WITNESS NO. 1 — SIGNATURE', margin, currentY);
-      doc.moveTo(margin, currentY + 15).lineTo(margin + 140, currentY + 15).stroke('#999790');
+      doc.moveTo(margin, currentY + 12).lineTo(margin + 120, currentY + 12).stroke('#999790');
 
-      doc.text('WITNESS NO. 1 — FULL NAME (PRINT)', pageWidth / 2 + 10, currentY);
-      doc.moveTo(pageWidth / 2 + 10, currentY + 15).lineTo(pageWidth / 2 + 150, currentY + 15).stroke('#999790');
+      doc.text('WITNESS NO. 1 — PRINT NAME', pageWidth / 2 + 10, currentY);
+      doc.moveTo(pageWidth / 2 + 10, currentY + 12).lineTo(pageWidth / 2 + 150, currentY + 12).stroke('#999790');
 
-      currentY += 35;
+      currentY += 25;
 
       // Witness 2
       doc.text('WITNESS NO. 2 — SIGNATURE', margin, currentY);
-      doc.moveTo(margin, currentY + 15).lineTo(margin + 140, currentY + 15).stroke('#999790');
+      doc.moveTo(margin, currentY + 12).lineTo(margin + 120, currentY + 12).stroke('#999790');
 
-      doc.text('WITNESS NO. 2 — FULL NAME (PRINT)', pageWidth / 2 + 10, currentY);
-      doc.moveTo(pageWidth / 2 + 10, currentY + 15).lineTo(pageWidth / 2 + 150, currentY + 15).stroke('#999790');
+      doc.text('WITNESS NO. 2 — PRINT NAME', pageWidth / 2 + 10, currentY);
+      doc.moveTo(pageWidth / 2 + 10, currentY + 12).lineTo(pageWidth / 2 + 150, currentY + 12).stroke('#999790');
 
-      currentY += 40;
+      currentY += 35;
 
       // NOTARIAL ACKNOWLEDGEMENT section
       doc.fontSize(10).fillColor('#6b2d4e').font('Helvetica-Bold');
       doc.text('NOTARIAL ACKNOWLEDGEMENT / OFFICIAL SEAL', margin, currentY);
-      currentY += 12;
+      currentY += 10;
 
       doc.fontSize(8).fillColor('#4a4846').font('Helvetica');
       doc.text('State / Jurisdiction of _________________ County / District of _________________', margin, currentY);
-      currentY += 15;
+      currentY += 13;
 
       const notaryText = `Subscribed, sworn to and acknowledged before me by ${userData.full_name}, the Testator, and subscribed and sworn to before me by ___________________, ___________________ and __________________ witnesses, this _______ day of __________________, 20_______.`;
-      doc.text(notaryText, margin, currentY, { width: contentWidth - 100 });
+      doc.text(notaryText, margin, currentY, { width: pageWidth - margin - 120 });
 
-      // Notary seal placeholder circle
-      doc.circle(pageWidth - margin - 50, currentY + 25, 35);
+      // Notary seal placeholder circle - properly centered
+      const sealX = pageWidth - margin - 45;
+      const sealY = currentY + 20;
+      doc.circle(sealX, sealY, 30);
       doc.stroke('#f4c0d1');
       doc.fontSize(6).fillColor('#f4c0d1').font('Helvetica-Bold');
-      doc.text('OFFICIAL\nNOTARY\nSEAL', pageWidth - margin - 55, currentY + 18, { align: 'center', width: 70 });
+      doc.text('OFFICIAL\nNOTARY\nSEAL', sealX - 20, sealY - 12, { align: 'center', width: 40 });
 
       // Finalize document
       doc.end();
