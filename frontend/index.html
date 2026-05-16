@@ -414,22 +414,16 @@ nav{
 }
 .security-visual{
   position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
 }
-.security-shield{
-  width:320px;height:380px;
-  margin:0 auto;
-  position:relative;
-}
-.shield-bg{
-  width:100%;height:100%;
-  background:linear-gradient(145deg,var(--plum-pale),var(--cream2));
-  border-radius:50% 50% 50% 50% / 60% 60% 40% 40%;
-  display:flex;align-items:center;justify-content:center;
-  box-shadow:0 20px 60px rgba(92,29,59,0.12);
-}
-.shield-icon{
-  font-size:5rem;
-  animation:shieldPulse 3s ease-in-out infinite;
+.security-image{
+  max-width:100%;
+  width:400px;
+  height:auto;
+  object-fit:contain;
+  filter:drop-shadow(0 10px 40px rgba(92,29,59,0.1));
 }
 .security-content h2{
   font-family:'Cormorant Garamond',serif;
@@ -897,11 +891,7 @@ footer{
 <!-- SECURITY -->
 <section id="security" class="security">
   <div class="security-visual">
-    <div class="security-shield">
-      <div class="shield-bg">
-        <div class="shield-icon">🛡️</div>
-      </div>
-    </div>
+    <img src="https://res.cloudinary.com/dqlidrojg/image/upload/v1778950318/Gemini_Generated_Image_laszm0laszm0lasz_1_xdt6zl.png" alt="Security Illustration" class="security-image" />
   </div>
   <div class="security-content">
     <h2>Your data is <em>yours alone</em></h2>
