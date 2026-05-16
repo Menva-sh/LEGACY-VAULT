@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Account - Legacy Vault</title>
+    <title>Executor Login - Legacy Vault</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
@@ -59,8 +59,8 @@
         }
         .nav-logo-icon svg{width:18px;height:18px;fill:var(--cream)}
         
-        /* Register Container */
-        .register-container{
+        /* Login Container */
+        .login-container{
           position:relative;
           z-index:1;
           min-height:100vh;
@@ -70,25 +70,26 @@
           padding:8rem 2rem 2rem;
         }
         
-        .register-box{
+        .login-box{
           background:var(--white);
           border-radius:24px;
           padding:3rem;
           box-shadow:0 20px 60px rgba(92,29,59,0.15);
-          max-width:450px;
+          max-width:400px;
           width:100%;
+          border-top:3px solid var(--plum2);
         }
         
-        .register-box h1{
+        .login-box h1{
           font-family:'Cormorant Garamond',serif;
           font-size:2rem;
           font-weight:600;
-          color:var(--plum);
+          color:var(--plum2);
           margin-bottom:0.5rem;
           text-align:center;
         }
         
-        .register-box .subtitle{
+        .login-box .subtitle{
           font-size:0.85rem;
           color:var(--text2);
           text-align:center;
@@ -96,8 +97,23 @@
           font-style:italic;
         }
         
+        .executor-badge{
+          display:inline-block;
+          background:var(--plum-pale);
+          color:var(--plum2);
+          padding:0.4rem 1rem;
+          border-radius:20px;
+          font-size:0.7rem;
+          font-weight:600;
+          letter-spacing:0.08em;
+          text-transform:uppercase;
+          margin:0 auto 1.5rem;
+          width:fit-content;
+          text-align:center;
+        }
+        
         .form-group{
-          margin-bottom:1.25rem;
+          margin-bottom:1.5rem;
         }
         
         .form-group label{
@@ -122,24 +138,14 @@
         
         .form-group input:focus{
           outline:none;
-          border-color:var(--plum);
-          box-shadow:0 0 0 3px rgba(92,29,59,0.1);
+          border-color:var(--plum2);
+          box-shadow:0 0 0 3px rgba(122,45,82,0.1);
         }
         
-        .form-row{
-          display:grid;
-          grid-template-columns:1fr 1fr;
-          gap:1rem;
-        }
-        
-        .form-row .form-group{
-          margin-bottom:0;
-        }
-        
-        .register-btn{
+        .login-btn{
           width:100%;
           padding:0.875rem;
-          background:var(--plum);
+          background:var(--plum2);
           color:var(--cream);
           border:none;
           border-radius:8px;
@@ -147,32 +153,31 @@
           font-weight:600;
           cursor:pointer;
           transition:all 0.25s ease;
-          box-shadow:0 4px 20px rgba(92,29,59,0.25);
-          margin-top:1rem;
+          box-shadow:0 4px 20px rgba(122,45,82,0.25);
         }
         
-        .register-btn:hover{
-          background:var(--plum2);
+        .login-btn:hover{
+          background:var(--plum);
           transform:translateY(-2px);
-          box-shadow:0 8px 30px rgba(92,29,59,0.35);
+          box-shadow:0 8px 30px rgba(122,45,82,0.35);
         }
         
-        .login-link{
+        .signup-link{
           text-align:center;
           margin-top:1.5rem;
           font-size:0.85rem;
           color:var(--text2);
         }
         
-        .login-link a{
-          color:var(--plum);
+        .signup-link a{
+          color:var(--plum2);
           text-decoration:none;
           font-weight:600;
           transition:color 0.2s;
         }
         
-        .login-link a:hover{
-          color:var(--plum2);
+        .signup-link a:hover{
+          color:var(--plum);
         }
         
         .back-link{
@@ -180,7 +185,7 @@
           align-items:center;
           gap:0.5rem;
           text-decoration:none;
-          color:var(--plum);
+          color:var(--plum2);
           font-weight:500;
           position:absolute;
           top:1.25rem;
@@ -189,14 +194,13 @@
         }
         
         .back-link:hover{
-          color:var(--plum2);
+          color:var(--plum);
         }
         
         @media(max-width:900px){
           nav{padding:1rem 1.5rem}
-          .register-container{padding:6rem 1.5rem 2rem}
-          .register-box{padding:2rem}
-          .form-row{grid-template-columns:1fr}
+          .login-container{padding:6rem 1.5rem 2rem}
+          .login-box{padding:2rem}
           .back-link{right:1.5rem}
         }
     </style>
@@ -219,24 +223,14 @@
   <a href="/" class="back-link">← Back</a>
 </nav>
 
-<!-- REGISTER CONTAINER -->
-<div class="register-container">
-  <div class="register-box">
-    <h1>Create Your Account</h1>
-    <p class="subtitle">Start protecting your digital legacy</p>
+<!-- LOGIN CONTAINER -->
+<div class="login-container">
+  <div class="login-box">
+    <div class="executor-badge">● Executor Portal</div>
+    <h1>Executor Access</h1>
+    <p class="subtitle">Manage digital legacies</p>
     
-    <form id="registerForm">
-      <div class="form-row">
-        <div class="form-group">
-          <label>First Name</label>
-          <input type="text" id="firstName" placeholder="John" required>
-        </div>
-        <div class="form-group">
-          <label>Last Name</label>
-          <input type="text" id="lastName" placeholder="Doe" required>
-        </div>
-      </div>
-      
+    <form id="executorLoginForm">
       <div class="form-group">
         <label>Email Address</label>
         <input type="email" id="email" placeholder="your@email.com" required>
@@ -247,41 +241,27 @@
         <input type="password" id="password" placeholder="••••••••" required>
       </div>
       
-      <div class="form-group">
-        <label>Confirm Password</label>
-        <input type="password" id="confirmPassword" placeholder="••••••••" required>
-      </div>
-      
-      <button type="submit" class="register-btn">Create Account</button>
+      <button type="submit" class="login-btn">Sign In</button>
     </form>
     
-    <p class="login-link">
-      Already have an account? <a href="/pages/user-login.html">Sign in</a>
+    <p class="signup-link">
+      Need an invitation? <a href="/">Contact support</a>
     </p>
   </div>
 </div>
 
 <script>
-document.getElementById('registerForm').addEventListener('submit', function(e) {
+document.getElementById('executorLoginForm').addEventListener('submit', function(e) {
   e.preventDefault();
-  
-  const firstName = document.getElementById('firstName').value;
-  const lastName = document.getElementById('lastName').value;
   const email = document.getElementById('email').value;
   const password = document.getElementById('password').value;
-  const confirmPassword = document.getElementById('confirmPassword').value;
-  
-  if (password !== confirmPassword) {
-    alert('Passwords do not match!');
-    return;
-  }
   
   // Here you would normally send this to your backend
-  console.log('Registration:', { firstName, lastName, email });
+  console.log('Executor login attempt:', { email, password });
   
   // For demo, show success
-  alert('Account created successfully! Redirecting...');
-  // window.location.href = '/pages/dashboard.html';
+  alert('Executor login successful! Redirecting to portal...');
+  // window.location.href = '/pages/executor-portal.html';
 });
 </script>
 
