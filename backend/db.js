@@ -18,10 +18,10 @@ const pool = new Pool({
   application_name: 'legacy_vault_app'
 });
 
-// Handle pool errors
+// Handle pool errors gracefully without crashing
 pool.on('error', (err) => {
-  console.error('Unexpected error on idle client', err);
-  process.exit(-1);
+  console.error('⚠️ Connection pool error:', err.message);
+  // Don't crash the app - the pool will handle reconnection automatically
 });
 
 pool.connect()

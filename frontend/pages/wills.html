@@ -98,7 +98,7 @@
         <div class="page-header">
           <h1 class="page-title">Digital Wills</h1>
           <div class="header-actions">
-            <button class="btn-success" onclick="generateDigitalWill()">Generate PDF</button>
+            <button class="btn-primary" onclick="generateDigitalWill()">Draft Will</button>
             <button class="btn-primary" onclick="openModal('addWillModal')">Create Will</button>
           </div>
         </div>
@@ -212,7 +212,7 @@
           container.innerHTML = `
             <div class="empty-state">
               <div class="empty-icon"><i class="ti ti-file-off"></i></div>
-              <div class="empty-text">No wills created yet. Click "Generate PDF" to create one.</div>
+              <div class="empty-text">No wills created yet. Click "Draft Will" to create one.</div>
             </div>
           `;
           return;
