@@ -261,8 +261,9 @@
   </div>
 </div>
 
+<script src="../js/api.js"></script>
 <script>
-document.getElementById('registerForm').addEventListener('submit', function(e) {
+document.getElementById('registerForm').addEventListener('submit', async function(e) {
   e.preventDefault();
   
   const firstName = document.getElementById('firstName').value;
@@ -276,12 +277,19 @@ document.getElementById('registerForm').addEventListener('submit', function(e) {
     return;
   }
   
-  // Here you would normally send this to your backend
-  console.log('Registration:', { firstName, lastName, email });
+  if (password.length < 6) {
+    alert('Password must be at least 6 characters long');
+    return;
+  }
   
-  // For demo, show success
-  alert('Account created successfully! Redirecting...');
-  // window.location.href = '/pages/dashboard.html';
+  try {
+    const result = await registerUser(email, password, firstName, lastName);
+    alert('Account created successfully! Redirecting to dashboard...');
+    window.location.href = '/pages/dashboard.html';
+  } catch (error) {
+    alert('Registration failed: ' + error.message);
+    console.error('Registration error:', error);
+  }
 });
 </script>
 

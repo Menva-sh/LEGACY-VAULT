@@ -233,18 +233,26 @@
   </div>
 </div>
 
+<script src="../js/api.js"></script>
 <script>
-document.getElementById('userLoginForm').addEventListener('submit', function(e) {
+document.getElementById('userLoginForm').addEventListener('submit', async function(e) {
   e.preventDefault();
   const email = document.getElementById('email').value;
   const password = document.getElementById('password').value;
   
-  // Here you would normally send this to your backend
-  console.log('Login attempt:', { email, password });
+  if (!email || !password) {
+    alert('Please enter both email and password');
+    return;
+  }
   
-  // For demo, show success
-  alert('Login successful! Redirecting to dashboard...');
-  // window.location.href = '/pages/dashboard.html';
+  try {
+    const result = await loginUser(email, password);
+    alert('Login successful! Redirecting to dashboard...');
+    window.location.href = '/pages/dashboard.html';
+  } catch (error) {
+    alert('Login failed: ' + error.message);
+    console.error('Login error:', error);
+  }
 });
 </script>
 

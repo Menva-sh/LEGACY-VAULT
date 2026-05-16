@@ -125,6 +125,21 @@ function getCurrentUser() {
   return user ? JSON.parse(user) : null;
 }
 
+// Executor Authentication
+async function executorLogin(email, password) {
+  const response = await apiRequest('/executor-auth/login', 'POST', {
+    email,
+    password,
+  });
+
+  if (response.token) {
+    setToken(response.token);
+    localStorage.setItem('executor', JSON.stringify(response.executor));
+  }
+
+  return response;
+}
+
 // Asset Functions
 
 async function createAsset(assetName, assetType, description, email, password) {

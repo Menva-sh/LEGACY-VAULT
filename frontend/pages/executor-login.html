@@ -250,18 +250,26 @@
   </div>
 </div>
 
+<script src="../js/api.js"></script>
 <script>
-document.getElementById('executorLoginForm').addEventListener('submit', function(e) {
+document.getElementById('executorLoginForm').addEventListener('submit', async function(e) {
   e.preventDefault();
   const email = document.getElementById('email').value;
   const password = document.getElementById('password').value;
   
-  // Here you would normally send this to your backend
-  console.log('Executor login attempt:', { email, password });
+  if (!email || !password) {
+    alert('Please enter both email and password');
+    return;
+  }
   
-  // For demo, show success
-  alert('Executor login successful! Redirecting to portal...');
-  // window.location.href = '/pages/executor-portal.html';
+  try {
+    const result = await executorLogin(email, password);
+    alert('Executor login successful! Redirecting to portal...');
+    window.location.href = '/pages/executor-portal.html';
+  } catch (error) {
+    alert('Executor login failed: ' + error.message);
+    console.error('Executor login error:', error);
+  }
 });
 </script>
 
