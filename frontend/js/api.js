@@ -320,7 +320,7 @@ function isLoggedIn() {
 
 function redirectToLogin() {
   if (!isLoggedIn()) {
-    window.location.href = 'index.html';
+    window.location.href = '/';
   }
 }
 

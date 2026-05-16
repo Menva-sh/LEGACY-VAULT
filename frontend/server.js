@@ -49,7 +49,13 @@ app.get('/', (req, res) => {
 
 // Pages route: /pages/dashboard -> pages/dashboard.html
 app.get('/pages/:page', (req, res) => {
-  const page = req.params.page;
+  let page = req.params.page;
+  
+  // Remove .html extension if provided
+  if (page.endsWith('.html')) {
+    page = page.slice(0, -5);
+  }
+  
   const filePath = path.join(__dirname, 'pages', `${page}.html`);
   
   // Check if file exists
