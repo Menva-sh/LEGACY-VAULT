@@ -245,16 +245,22 @@ nav{
   white-space:nowrap;
   border:1px solid rgba(92,29,59,0.08);
   z-index:3;
+  transition:all 0.3s ease;cursor:pointer;
+}
+.float-card:hover{
+  transform:scale(1.08)!important;
+  box-shadow:0 12px 40px rgba(92,29,59,0.25);
+  border-color:rgba(92,29,59,0.2);
 }
 .float-card-dot{
   width:8px;height:8px;border-radius:50%;flex-shrink:0;
 }
-.card-1{top:-50px;left:-60px;animation:floatCard1 5s ease-in-out infinite;background:rgba(255,255,255,0.95)}
-.card-2{top:-20px;right:-40px;animation:floatCard2 6s 1s ease-in-out infinite;background:rgba(255,255,255,0.95)}
-.card-3{top:120px;right:-70px;animation:floatCard3 5.5s 0.5s ease-in-out infinite}
-.card-4{bottom:80px;right:-50px;animation:floatCard4 6.5s 1.5s ease-in-out infinite}
-.card-5{bottom:50px;left:-60px;animation:floatCard1 5s ease-in-out infinite}
-.card-6{top:150px;left:-70px;animation:floatCard2 6s 1s ease-in-out infinite}
+.card-1{top:-50px;left:-60px;animation:floatCard1 5s ease-in-out infinite,fadeInUp 0.8s 0.2s ease-out both;background:rgba(255,255,255,0.95)}
+.card-2{top:-20px;right:-40px;animation:floatCard2 6s 1s ease-in-out infinite,fadeInUp 0.8s 0.4s ease-out both;background:rgba(255,255,255,0.95)}
+.card-3{top:120px;right:-70px;animation:floatCard3 5.5s 0.5s ease-in-out infinite,fadeInUp 0.8s 0.6s ease-out both}
+.card-4{bottom:80px;right:-50px;animation:floatCard4 6.5s 1.5s ease-in-out infinite,fadeInUp 0.8s 0.8s ease-out both}
+.card-5{bottom:50px;left:-60px;animation:floatCard1 5s ease-in-out infinite,fadeInUp 0.8s 1s ease-out both}
+.card-6{top:150px;left:-70px;animation:floatCard2 6s 1s ease-in-out infinite,fadeInUp 0.8s 1.2s ease-out both}
 
 /* TRUSTED BY */
 .trusted{
@@ -650,19 +656,31 @@ footer{
 }
 @keyframes floatCard1{
   0%,100%{transform:translateY(0) rotate(-2deg)}
-  50%{transform:translateY(-8px) rotate(-1deg)}
+  25%{transform:translateY(-12px) rotate(-1deg)}
+  50%{transform:translateY(-16px) rotate(-2deg)}
+  75%{transform:translateY(-8px) rotate(-1deg)}
 }
 @keyframes floatCard2{
   0%,100%{transform:translateY(0) rotate(1deg)}
-  50%{transform:translateY(-10px) rotate(2deg)}
+  25%{transform:translateY(-14px) rotate(2deg)}
+  50%{transform:translateY(-18px) rotate(1deg)}
+  75%{transform:translateY(-10px) rotate(2deg)}
 }
 @keyframes floatCard3{
   0%,100%{transform:translateY(0) rotate(1deg)}
-  50%{transform:translateY(-6px) rotate(0deg)}
+  25%{transform:translateY(-10px) rotate(0deg)}
+  50%{transform:translateY(-14px) rotate(1deg)}
+  75%{transform:translateY(-6px) rotate(0deg)}
 }
 @keyframes floatCard4{
   0%,100%{transform:translateY(0) rotate(-1deg)}
-  50%{transform:translateY(-9px) rotate(-2deg)}
+  25%{transform:translateY(-13px) rotate(-2deg)}
+  50%{transform:translateY(-17px) rotate(-1deg)}
+  75%{transform:translateY(-9px) rotate(-2deg)}
+}
+@keyframes fadeInUp{
+  from{opacity:0;transform:translateY(20px)}
+  to{opacity:1;transform:translateY(0)}
 }
 @keyframes pulse{
   0%,100%{opacity:1}
