@@ -156,6 +156,41 @@ console.log('Loading portal routes...');
 app.use('/executor-portal', executorPortalRoutes);
 console.log('All routes loaded successfully');
 
+// Health check endpoint
+app.get('/health', async (req, res) => {
+  try {
+    const pool = require('./db');
+    const startTime = Date.now();
+    
+    // Test database connection
+    const result = await pool.query('SELECT 1 as health');
+    const responseTime = Date.now() - startTime;
+    
+    // Get pool stats
+    const poolStats = {
+      idleCount: pool.idleCount,
+      totalCount: pool.totalCount,
+      waitingCount: pool.waitingCount || 0
+    };
+    
+    res.json({
+      status: 'OK',
+      database: 'Connected',
+      responseTime: `${responseTime}ms`,
+      poolStats,
+      timestamp: new Date()
+    });
+  } catch (err) {
+    console.error('Health check error:', err);
+    res.status(503).json({
+      status: 'ERROR',
+      database: 'Disconnected',
+      error: err.message,
+      timestamp: new Date()
+    });
+  }
+});
+
 app.get('/test', (req, res) => {
   res.json({ message: 'Test route working', status: 'OK' });
 });
