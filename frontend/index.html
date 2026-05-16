@@ -223,9 +223,9 @@ nav{
   box-shadow:0 20px 80px rgba(92,29,59,0.2);
 }
 .hero-illustration{
-  width:280px;height:320px;
-  position:relative;
-  z-index:2;
+  width:100%;height:100%;
+  object-fit:contain;
+  filter:drop-shadow(0 10px 40px rgba(92,29,59,0.1));
 }
 .hero-img-wrap img{
   width:100%;height:100%;
@@ -769,25 +769,7 @@ footer{
 
   <div class="hero-right">
     <div class="hero-img-wrap">
-      <div class="hero-illustration">
-        <svg viewBox="0 0 280 320" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <!-- Woman figure -->
-          <circle cx="140" cy="80" r="28" fill="#8B5A6B"/>
-          <!-- Hair -->
-          <path d="M112 80C112 60 125 45 140 45C155 45 168 60 168 80L168 95C168 105 160 115 150 120L130 120C120 115 112 105 112 95Z" fill="#6B4A5B"/>
-          <!-- Body -->
-          <path d="M115 125L125 220L155 220L165 125C165 125 155 120 140 120C125 120 115 125 115 125Z" fill="#8B5A6B"/>
-          <!-- Arms -->
-          <ellipse cx="110" cy="140" rx="8" ry="25" fill="#8B5A6B" transform="rotate(-25 110 140)"/>
-          <ellipse cx="170" cy="140" rx="8" ry="25" fill="#8B5A6B" transform="rotate(25 170 140)"/>
-          <!-- Hands -->
-          <circle cx="100" cy="150" r="6" fill="#A67B8A"/>
-          <circle cx="180" cy="150" r="6" fill="#A67B8A"/>
-          <!-- Decorative elements -->
-          <path d="M85 180C75 170 60 175 55 185" stroke="#C4A5B0" stroke-width="2" fill="none" stroke-linecap="round"/>
-          <path d="M225 200C235 190 250 200 260 210" stroke="#C4A5B0" stroke-width="2" fill="none" stroke-linecap="round"/>
-        </svg>
-      </div>
+      <img src="images/image.png" alt="Digital Legacy Protection" class="hero-illustration" />
       <!-- Floating cards from image 4 -->
       <div class="float-card card-1">
         <span>📌 Jobs</span>
