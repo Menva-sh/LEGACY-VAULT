@@ -1,134 +1,1070 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LEGACY VAULT - Secure Digital Legacy</title>
-  <link rel="stylesheet" href="css/styles.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Legacy Vault — Protecting Life Beyond Login</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --cream:#faf6f0;
+  --cream2:#f3ede3;
+  --plum:#5c1d3b;
+  --plum2:#7a2d52;
+  --plum-light:#9b4a6e;
+  --plum-pale:#f5e8ef;
+  --muted:#b8a4b0;
+  --text:#2e1a24;
+  --text2:#6b4f5e;
+  --white:#fff;
+  --shadow:rgba(92,29,59,0.12);
+}
+html{scroll-behavior:smooth}
+body{
+  font-family:'DM Sans',sans-serif;
+  background:var(--cream);
+  color:var(--text);
+  overflow-x:hidden;
+}
+
+/* NAV */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:1.25rem 4rem;
+  background:rgba(250,246,240,0.85);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid rgba(92,29,59,0.08);
+  transition:all 0.3s ease;
+}
+.nav-logo{
+  display:flex;align-items:center;gap:0.6rem;
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.35rem;font-weight:600;
+  color:var(--plum);letter-spacing:0.04em;text-decoration:none;
+}
+.nav-logo-icon{
+  width:32px;height:32px;
+  background:var(--plum);
+  border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+}
+.nav-logo-icon svg{width:18px;height:18px;fill:var(--cream)}
+.nav-links{display:flex;align-items:center;gap:2.5rem}
+.nav-links a{
+  font-size:0.875rem;font-weight:400;
+  color:var(--text2);text-decoration:none;
+  transition:color 0.2s;letter-spacing:0.01em;
+}
+.nav-links a:hover{color:var(--plum)}
+.nav-cta{
+  background:var(--plum);
+  color:var(--cream)!important;
+  padding:0.6rem 1.4rem;
+  border-radius:100px;
+  font-weight:500!important;
+  transition:background 0.2s, transform 0.2s!important;
+  text-decoration:none;
+}
+.nav-cta:hover{background:var(--plum2)!important;transform:translateY(-1px)}
+
+/* HERO */
+.hero{
+  min-height:100vh;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  align-items:center;
+  padding:8rem 4rem 4rem;
+  gap:4rem;
+  position:relative;
+  overflow:hidden;
+}
+.hero::before{
+  content:'';
+  position:absolute;top:-200px;right:-100px;
+  width:700px;height:700px;
+  background:radial-gradient(circle,rgba(155,74,110,0.08) 0%,transparent 70%);
+  pointer-events:none;
+}
+.hero::after{
+  content:'';
+  position:absolute;bottom:-100px;left:-100px;
+  width:500px;height:500px;
+  background:radial-gradient(circle,rgba(92,29,59,0.06) 0%,transparent 70%);
+  pointer-events:none;
+}
+.hero-left{z-index:1;animation:fadeSlideUp 0.9s ease both}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:0.5rem;
+  background:var(--plum-pale);
+  color:var(--plum);
+  padding:0.4rem 1rem;
+  border-radius:100px;
+  font-size:0.75rem;font-weight:500;
+  letter-spacing:0.08em;text-transform:uppercase;
+  margin-bottom:1.75rem;
+}
+.hero-badge-dot{
+  width:6px;height:6px;border-radius:50%;
+  background:var(--plum);
+  animation:pulse 2s infinite;
+}
+.hero-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(3rem,5vw,4.5rem);
+  font-weight:600;
+  line-height:1.08;
+  color:var(--text);
+  margin-bottom:1.25rem;
+  letter-spacing:-0.01em;
+}
+.hero-title em{
+  font-style:italic;color:var(--plum);
+}
+.hero-brand{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1rem;font-weight:600;
+  letter-spacing:0.25em;text-transform:uppercase;
+  color:var(--plum);
+  margin-bottom:1.5rem;
+  display:block;
+  opacity:0.7;
+}
+.hero-tagline{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.5rem;font-weight:400;font-style:italic;
+  color:var(--plum-light);
+  margin-bottom:1.25rem;
+}
+.hero-desc{
+  font-size:1rem;line-height:1.75;
+  color:var(--text2);
+  max-width:480px;
+  margin-bottom:2.5rem;
+  font-weight:300;
+}
+.hero-actions{display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+.btn-primary{
+  background:var(--plum);
+  color:var(--cream);
+  padding:0.875rem 2rem;
+  border-radius:100px;
+  font-size:0.9rem;font-weight:500;
+  text-decoration:none;
+  transition:all 0.25s ease;
+  display:inline-flex;align-items:center;gap:0.5rem;
+  letter-spacing:0.01em;
+  box-shadow:0 4px 20px rgba(92,29,59,0.25);
+  border:none;
+  cursor:pointer;
+}
+.btn-primary:hover{
+  background:var(--plum2);
+  transform:translateY(-2px);
+  box-shadow:0 8px 30px rgba(92,29,59,0.35);
+}
+.btn-secondary{
+  color:var(--plum);
+  padding:0.875rem 1.5rem;
+  border-radius:100px;
+  font-size:0.9rem;font-weight:500;
+  text-decoration:none;
+  transition:all 0.2s;
+  display:inline-flex;align-items:center;gap:0.5rem;
+  border:1.5px solid rgba(92,29,59,0.2);
+  background:transparent;
+  cursor:pointer;
+}
+.btn-secondary:hover{
+  background:var(--plum-pale);
+  border-color:var(--plum);
+}
+.hero-trust{
+  margin-top:2.5rem;
+  display:flex;align-items:center;gap:1.25rem;
+}
+.hero-trust-avatars{display:flex;}
+.avatar{
+  width:36px;height:36px;border-radius:50%;
+  border:2.5px solid var(--cream);
+  background:var(--plum-pale);
+  margin-left:-10px;
+  overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+  font-size:0.75rem;font-weight:600;color:var(--plum);
+}
+.avatar:first-child{margin-left:0}
+.hero-trust-text{font-size:0.8rem;color:var(--text2)}
+.hero-trust-text strong{color:var(--plum);font-weight:600}
+
+/* HERO RIGHT — illustration */
+.hero-right{
+  position:relative;
+  z-index:1;
+  animation:fadeSlideIn 1s 0.2s ease both;
+}
+.hero-img-wrap{
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  height:500px;
+  background:linear-gradient(135deg,var(--plum-pale),var(--cream2));
+  border-radius:20px;
+  overflow:hidden;
+  box-shadow:0 20px 60px rgba(92,29,59,0.15);
+}
+.hero-img-wrap img{
+  width:100%;max-width:580px;
+  object-fit:contain;
+  filter:drop-shadow(0 20px 60px rgba(92,29,59,0.15));
+  animation:float 6s ease-in-out infinite;
+}
+/* Floating UI cards */
+.float-card{
+  position:absolute;
+  background:var(--white);
+  border-radius:14px;
+  padding:0.7rem 1.1rem;
+  box-shadow:0 8px 30px rgba(92,29,59,0.12);
+  display:flex;align-items:center;gap:0.6rem;
+  font-size:0.8rem;font-weight:500;
+  color:var(--text);
+  white-space:nowrap;
+  border:1px solid rgba(92,29,59,0.06);
+}
+.float-card-dot{
+  width:8px;height:8px;border-radius:50%;flex-shrink:0;
+}
+.card-1{top:8%;left:-8%;animation:floatCard1 5s ease-in-out infinite}
+.card-2{top:28%;right:-5%;animation:floatCard2 6s 1s ease-in-out infinite}
+.card-3{bottom:28%;left:-6%;animation:floatCard3 5.5s 0.5s ease-in-out infinite}
+.card-4{bottom:10%;right:5%;animation:floatCard4 6.5s 1.5s ease-in-out infinite}
+
+/* TRUSTED BY */
+.trusted{
+  padding:3rem 4rem;
+  text-align:center;
+  border-top:1px solid rgba(92,29,59,0.08);
+  border-bottom:1px solid rgba(92,29,59,0.08);
+  background:var(--cream2);
+}
+.trusted-label{
+  font-size:0.75rem;letter-spacing:0.12em;text-transform:uppercase;
+  color:var(--muted);font-weight:500;margin-bottom:1.5rem;
+}
+.trusted-logos{
+  display:flex;align-items:center;justify-content:center;gap:3rem;flex-wrap:wrap;
+}
+.trusted-logos span{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.1rem;font-weight:600;
+  color:var(--muted);
+  opacity:0.7;letter-spacing:0.05em;
+}
+
+/* FEATURES */
+.features{padding:7rem 4rem}
+.section-header{text-align:center;margin-bottom:4rem}
+.section-eyebrow{
+  display:inline-block;
+  font-size:0.72rem;letter-spacing:0.15em;text-transform:uppercase;
+  color:var(--plum);font-weight:600;
+  margin-bottom:1rem;
+  padding:0.35rem 1rem;
+  background:var(--plum-pale);
+  border-radius:100px;
+}
+.section-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(2.2rem,3.5vw,3rem);
+  font-weight:600;
+  line-height:1.15;
+  color:var(--text);
+  max-width:580px;margin:0 auto;
+}
+.section-title em{font-style:italic;color:var(--plum)}
+.features-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:2rem;
+  max-width:1100px;margin:0 auto;
+}
+.feature-card{
+  background:var(--white);
+  border-radius:24px;
+  padding:2.25rem;
+  border:1px solid rgba(92,29,59,0.07);
+  transition:all 0.3s ease;
+  position:relative;overflow:hidden;
+}
+.feature-card::before{
+  content:'';position:absolute;top:0;right:0;
+  width:120px;height:120px;
+  background:radial-gradient(circle at top right,var(--plum-pale),transparent 70%);
+  opacity:0;
+  transition:opacity 0.3s;
+}
+.feature-card:hover{
+  transform:translateY(-4px);
+  box-shadow:0 20px 60px rgba(92,29,59,0.1);
+  border-color:rgba(92,29,59,0.15);
+}
+.feature-card:hover::before{opacity:1}
+.feature-icon{
+  width:52px;height:52px;
+  background:var(--plum-pale);
+  border-radius:14px;
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:1.25rem;
+  font-size:1.8rem;
+}
+.feature-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.4rem;font-weight:600;
+  color:var(--text);margin-bottom:0.6rem;
+}
+.feature-desc{
+  font-size:0.88rem;line-height:1.75;
+  color:var(--text2);font-weight:300;
+}
+
+/* HOW IT WORKS */
+.how{
+  padding:7rem 4rem;
+  background:var(--cream2);
+}
+.steps{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:1.5rem;
+  max-width:1100px;margin:0 auto;
+  position:relative;
+}
+.steps::before{
+  content:'';position:absolute;
+  top:2.5rem;left:calc(12.5% + 2rem);
+  right:calc(12.5% + 2rem);
+  height:1.5px;
+  background:linear-gradient(90deg,var(--plum-pale),var(--plum),var(--plum-pale));
+  opacity:0.4;
+}
+.step{
+  text-align:center;
+  position:relative;
+}
+.step-number{
+  width:5rem;height:5rem;
+  border-radius:50%;
+  background:var(--white);
+  border:2px solid rgba(92,29,59,0.15);
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 1.25rem;
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.5rem;font-weight:600;
+  color:var(--plum);
+  position:relative;z-index:1;
+  transition:all 0.3s;
+}
+.step:hover .step-number{
+  background:var(--plum);
+  color:var(--cream);
+  border-color:var(--plum);
+  transform:scale(1.08);
+}
+.step-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.15rem;font-weight:600;
+  color:var(--text);margin-bottom:0.5rem;
+}
+.step-desc{
+  font-size:0.82rem;line-height:1.7;
+  color:var(--text2);font-weight:300;
+}
+
+/* SECURITY */
+.security{
+  padding:7rem 4rem;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:6rem;
+  align-items:center;
+  max-width:1200px;margin:0 auto;
+}
+.security-visual{
+  position:relative;
+}
+.security-shield{
+  width:320px;height:380px;
+  margin:0 auto;
+  position:relative;
+}
+.shield-bg{
+  width:100%;height:100%;
+  background:linear-gradient(145deg,var(--plum-pale),var(--cream2));
+  border-radius:50% 50% 50% 50% / 60% 60% 40% 40%;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 20px 60px rgba(92,29,59,0.12);
+}
+.shield-icon{
+  font-size:5rem;
+  animation:shieldPulse 3s ease-in-out infinite;
+}
+.security-content h2{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(2rem,3vw,2.8rem);
+  font-weight:600;line-height:1.15;
+  color:var(--text);margin-bottom:1.25rem;
+}
+.security-content h2 em{font-style:italic;color:var(--plum)}
+.security-content p{
+  font-size:0.95rem;line-height:1.8;
+  color:var(--text2);font-weight:300;
+  margin-bottom:2rem;
+}
+.security-badges{display:flex;flex-wrap:wrap;gap:0.75rem}
+.sec-badge{
+  display:flex;align-items:center;gap:0.5rem;
+  background:var(--plum-pale);
+  padding:0.5rem 1rem;border-radius:100px;
+  font-size:0.78rem;font-weight:500;color:var(--plum);
+}
+
+/* PRICING */
+.pricing{
+  padding:7rem 4rem;
+  background:var(--cream2);
+}
+.pricing-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:1.5rem;
+  max-width:1000px;margin:0 auto;
+}
+.pricing-card{
+  background:var(--white);
+  border-radius:24px;
+  padding:2rem;
+  border:1.5px solid rgba(92,29,59,0.08);
+  transition:all 0.3s;
+}
+.pricing-card.featured{
+  background:var(--plum);
+  border-color:var(--plum);
+  transform:scale(1.04);
+  box-shadow:0 24px 60px rgba(92,29,59,0.3);
+}
+.pricing-card:hover:not(.featured){transform:translateY(-4px);box-shadow:0 16px 40px rgba(92,29,59,0.08)}
+.pricing-label{
+  font-size:0.72rem;letter-spacing:0.12em;text-transform:uppercase;
+  font-weight:600;margin-bottom:1rem;
+  color:var(--plum);
+}
+.pricing-card.featured .pricing-label{color:rgba(250,246,240,0.7)}
+.pricing-price{
+  font-family:'Cormorant Garamond',serif;
+  font-size:2.75rem;font-weight:600;
+  color:var(--text);margin-bottom:0.25rem;
+  line-height:1;
+}
+.pricing-card.featured .pricing-price{color:var(--cream)}
+.pricing-price span{font-size:1rem;font-weight:400}
+.pricing-period{font-size:0.8rem;color:var(--text2);margin-bottom:1.5rem}
+.pricing-card.featured .pricing-period{color:rgba(250,246,240,0.6)}
+.pricing-divider{
+  height:1px;
+  background:rgba(92,29,59,0.08);
+  margin:1.25rem 0;
+}
+.pricing-card.featured .pricing-divider{background:rgba(250,246,240,0.15)}
+.pricing-features{list-style:none;margin-bottom:1.75rem}
+.pricing-features li{
+  font-size:0.83rem;line-height:1.6;
+  color:var(--text2);
+  padding:0.35rem 0;
+  display:flex;align-items:center;gap:0.5rem;
+}
+.pricing-card.featured .pricing-features li{color:rgba(250,246,240,0.85)}
+.check-icon{
+  width:16px;height:16px;flex-shrink:0;
+  color:var(--plum);
+}
+.pricing-card.featured .check-icon{color:var(--cream)}
+.pricing-btn{
+  display:block;width:100%;text-align:center;
+  padding:0.75rem;border-radius:100px;
+  font-size:0.875rem;font-weight:500;
+  text-decoration:none;transition:all 0.2s;
+  background:var(--plum-pale);color:var(--plum);
+  border:none;cursor:pointer;
+}
+.pricing-card.featured .pricing-btn{
+  background:rgba(250,246,240,0.15);color:var(--cream);
+  border:1.5px solid rgba(250,246,240,0.3);
+}
+.pricing-btn:hover{background:var(--plum);color:var(--cream)}
+.pricing-card.featured .pricing-btn:hover{background:rgba(250,246,240,0.25)}
+
+/* FAQ */
+.faq{padding:7rem 4rem}
+.faq-list{max-width:700px;margin:0 auto}
+.faq-item{
+  border-bottom:1px solid rgba(92,29,59,0.1);
+  padding:1.5rem 0;
+}
+.faq-question{
+  display:flex;justify-content:space-between;align-items:center;
+  cursor:pointer;
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.15rem;font-weight:600;
+  color:var(--text);
+  user-select:none;
+}
+.faq-question:hover{color:var(--plum)}
+.faq-toggle{
+  width:28px;height:28px;
+  background:var(--plum-pale);
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+  font-size:1.2rem;color:var(--plum);
+  transition:transform 0.3s,background 0.2s;
+}
+.faq-item.open .faq-toggle{transform:rotate(45deg);background:var(--plum);color:var(--cream)}
+.faq-answer{
+  max-height:0;overflow:hidden;
+  transition:max-height 0.4s ease,padding 0.3s;
+  font-size:0.9rem;line-height:1.8;
+  color:var(--text2);font-weight:300;
+}
+.faq-item.open .faq-answer{max-height:300px;padding-top:1rem}
+
+/* CTA BANNER */
+.cta-banner{
+  margin:0 4rem 6rem;
+  background:var(--plum);
+  border-radius:32px;
+  padding:4rem;
+  text-align:center;
+  position:relative;overflow:hidden;
+}
+.cta-banner::before{
+  content:'';position:absolute;
+  top:-80px;left:50%;transform:translateX(-50%);
+  width:500px;height:300px;
+  background:radial-gradient(circle,rgba(255,255,255,0.08) 0%,transparent 70%);
+  pointer-events:none;
+}
+.cta-banner h2{
+  font-family:'Cormorant Garamond',serif;
+  font-size:2.5rem;font-weight:600;
+  color:var(--cream);line-height:1.2;
+  margin-bottom:0.75rem;
+  position:relative;z-index:1;
+}
+.cta-banner p{
+  font-size:1rem;color:rgba(250,246,240,0.7);
+  margin-bottom:2rem;font-weight:300;
+  position:relative;z-index:1;
+}
+.cta-banner .btn-primary{
+  background:var(--cream);color:var(--plum);
+  box-shadow:0 4px 20px rgba(0,0,0,0.2);
+  position:relative;z-index:1;
+}
+.cta-banner .btn-primary:hover{background:var(--cream2);transform:translateY(-2px)}
+
+/* FOOTER */
+footer{
+  background:var(--text);
+  color:rgba(250,246,240,0.6);
+  padding:3rem 4rem 2rem;
+}
+.footer-top{
+  display:flex;justify-content:space-between;align-items:flex-start;
+  margin-bottom:2.5rem;
+  flex-wrap:wrap;gap:2rem;
+}
+.footer-brand{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.25rem;color:var(--cream);font-weight:600;
+  margin-bottom:0.5rem;letter-spacing:0.04em;
+}
+.footer-tagline{font-size:0.8rem;max-width:220px;line-height:1.7}
+.footer-links{display:flex;gap:3.5rem}
+.footer-col h4{
+  font-size:0.72rem;letter-spacing:0.12em;text-transform:uppercase;
+  color:var(--cream);font-weight:500;margin-bottom:1rem;
+}
+.footer-col a{
+  display:block;font-size:0.82rem;color:rgba(250,246,240,0.5);
+  text-decoration:none;margin-bottom:0.5rem;
+  transition:color 0.2s;
+}
+.footer-col a:hover{color:var(--cream)}
+.footer-bottom{
+  border-top:1px solid rgba(250,246,240,0.08);
+  padding-top:1.5rem;
+  display:flex;justify-content:space-between;align-items:center;
+  flex-wrap:wrap;gap:1rem;
+}
+.footer-copy{font-size:0.78rem}
+.footer-socials{display:flex;gap:1rem}
+.social-link{
+  width:34px;height:34px;border-radius:50%;
+  background:rgba(250,246,240,0.08);
+  display:flex;align-items:center;justify-content:center;
+  text-decoration:none;
+  transition:background 0.2s;
+  color:rgba(250,246,240,0.5);font-size:0.8rem;
+}
+.social-link:hover{background:rgba(250,246,240,0.18);color:var(--cream)}
+
+/* ANIMATIONS */
+@keyframes fadeSlideUp{
+  from{opacity:0;transform:translateY(30px)}
+  to{opacity:1;transform:translateY(0)}
+}
+@keyframes fadeSlideIn{
+  from{opacity:0;transform:translateX(30px)}
+  to{opacity:1;transform:translateX(0)}
+}
+@keyframes float{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-12px)}
+}
+@keyframes floatCard1{
+  0%,100%{transform:translateY(0) rotate(-2deg)}
+  50%{transform:translateY(-8px) rotate(-1deg)}
+}
+@keyframes floatCard2{
+  0%,100%{transform:translateY(0) rotate(1deg)}
+  50%{transform:translateY(-10px) rotate(2deg)}
+}
+@keyframes floatCard3{
+  0%,100%{transform:translateY(0) rotate(1deg)}
+  50%{transform:translateY(-6px) rotate(0deg)}
+}
+@keyframes floatCard4{
+  0%,100%{transform:translateY(0) rotate(-1deg)}
+  50%{transform:translateY(-9px) rotate(-2deg)}
+}
+@keyframes pulse{
+  0%,100%{opacity:1}
+  50%{opacity:0.4}
+}
+@keyframes shieldPulse{
+  0%,100%{transform:scale(1)}
+  50%{transform:scale(1.05)}
+}
+
+/* Background blobs */
+.bg-blob-1,.bg-blob-2,.bg-blob-3{position:fixed;pointer-events:none;z-index:0}
+.bg-blob-1{top:-180px;right:-180px;width:650px;height:650px;background:radial-gradient(circle,rgba(155,74,110,0.07) 0%,transparent 70%)}
+.bg-blob-2{bottom:5%;left:-180px;width:550px;height:550px;background:radial-gradient(circle,rgba(92,29,59,0.06) 0%,transparent 70%)}
+.bg-blob-3{top:40%;right:-100px;width:400px;height:400px;background:radial-gradient(circle,rgba(245,232,239,0.5) 0%,transparent 70%)}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  nav{padding:1rem 1.5rem}
+  .nav-links{display:none}
+  .hero{grid-template-columns:1fr;padding:6rem 1.5rem 3rem;text-align:center}
+  .hero-desc{max-width:100%}
+  .hero-actions{justify-content:center}
+  .hero-trust{justify-content:center}
+  .hero-right{display:none}
+  .features{padding:4rem 1.5rem}
+  .features-grid{grid-template-columns:1fr}
+  .how{padding:4rem 1.5rem}
+  .steps{grid-template-columns:repeat(2,1fr)}
+  .steps::before{display:none}
+  .security{grid-template-columns:1fr;gap:2rem;padding:4rem 1.5rem}
+  .pricing{padding:4rem 1.5rem}
+  .pricing-grid{grid-template-columns:1fr}
+  .pricing-card.featured{transform:none}
+  .faq{padding:4rem 1.5rem}
+  .cta-banner{margin:0 1.5rem 4rem;padding:2.5rem 1.5rem}
+  footer{padding:2rem 1.5rem 1.5rem}
+  .footer-top{flex-direction:column}
+  .footer-links{flex-wrap:wrap;gap:2rem}
+  .footer-bottom{flex-direction:column;text-align:center}
+}
+</style>
 </head>
 <body>
-  <div class="auth-container">
-    <div class="auth-box">
-      <h1> LEGACY VAULT</h1>
-      <p>Secure your digital legacy</p>
 
-      <!-- Alert Messages -->
-      <div id="alertContainer"></div>
+<!-- BACKGROUND BLOBS -->
+<div class="bg-blob-1"></div>
+<div class="bg-blob-2"></div>
+<div class="bg-blob-3"></div>
 
-      <!-- Login Tab Content -->
-      <form id="loginForm">
-        <h3>Login</h3>
-        <div class="form-group">
-          <label>Email</label>
-          <input type="email" id="loginEmail" placeholder="your@email.com" required>
-        </div>
-        <div class="form-group">
-          <label>Password</label>
-          <input type="password" id="loginPassword" placeholder="••••••••" required>
-        </div>
-        <button type="submit" class="btn btn-primary btn-block">Sign In</button>
-        <p style="text-align: center; margin-top: 20px; color: var(--text-light);">
-          Don't have an account? <a href="#" onclick="switchToRegister()" style="color: var(--primary); font-weight: 600;">Register</a>
-        </p>
-      </form>
+<!-- NAVBAR -->
+<nav>
+  <a href="/" class="nav-logo">
+    <div class="nav-logo-icon">
+      <svg viewBox="0 0 24 24"><path d="M12 2L4 6v6c0 5.5 3.8 10.7 8 12 4.2-1.3 8-6.5 8-12V6l-8-4z" fill="currentColor"/></svg>
+    </div>
+    Legacy Vault
+  </a>
+  <div class="nav-links">
+    <a href="#features">Features</a>
+    <a href="#how">How it works</a>
+    <a href="#security">Security</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#faq">FAQ</a>
+    <a href="/pages/login.html" style="color:var(--plum)">Login</a>
+    <a href="/pages/register.html" class="nav-cta">Get started</a>
+  </div>
+</nav>
 
-      <!-- Register Tab Content -->
-      <form id="registerForm" style="display: none;">
-        <h3>Create Account</h3>
-        <div class="form-group">
-          <label>First Name</label>
-          <input type="text" id="registerFirstName" placeholder="John" required>
-        </div>
-        <div class="form-group">
-          <label>Last Name</label>
-          <input type="text" id="registerLastName" placeholder="Doe" required>
-        </div>
-        <div class="form-group">
-          <label>Email</label>
-          <input type="email" id="registerEmail" placeholder="your@email.com" required>
-        </div>
-        <div class="form-group">
-          <label>Password</label>
-          <input type="password" id="registerPassword" placeholder="••••••••" minlength="6" required>
-        </div>
-        <button type="submit" class="btn btn-primary btn-block">Create Account</button>
-        <p style="text-align: center; margin-top: 20px; color: var(--text-light);">
-          Already have an account? <a href="#" onclick="switchToLogin()" style="color: var(--primary); font-weight: 600;">Login</a>
-        </p>
-      </form>
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-left">
+    <div class="hero-badge">
+      <span class="hero-badge-dot"></span>
+      Trusted by 2,400+ families
+    </div>
+    <h1 class="hero-title">
+      Protect Your<br><em>Digital Legacy.</em>
+    </h1>
+    <span class="hero-brand">Legacy Vault</span>
+    <p class="hero-tagline">Protecting Life Beyond Login.</p>
+    <p class="hero-desc">
+      Secure every digital asset you own. Create a digital will, assign trusted executors, and protect your online legacy — so the people who matter most are never left behind.
+    </p>
+    <div class="hero-actions">
+      <a href="/pages/register.html" class="btn-primary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L4 6v6c0 5.5 3.8 10.7 8 12 4.2-1.3 8-6.5 8-12V6l-8-4z"/></svg>
+        Create Your Vault
+      </a>
+      <a href="#how" class="btn-secondary">
+        How It Works →
+      </a>
+    </div>
+    <div class="hero-trust">
+      <div class="hero-trust-avatars">
+        <div class="avatar">M</div>
+        <div class="avatar">S</div>
+        <div class="avatar">A</div>
+        <div class="avatar">R</div>
+      </div>
+      <span class="hero-trust-text"><strong>2,400+ families</strong> trust Legacy Vault</span>
     </div>
   </div>
 
-  <script src="js/api.js"></script>
-  <script>
-    // Check if already logged in
-    if (isLoggedIn()) {
-      window.location.href = '/pages/dashboard.html';
-    }
+  <div class="hero-right">
+    <div class="hero-img-wrap">
+      <div class="float-card card-1">
+        <div class="float-card-dot" style="background:#16a34a"></div>
+        <span>Vault Secured</span>
+      </div>
+      <div class="float-card card-2">
+        <div class="float-card-dot" style="background:#3b82f6"></div>
+        <span>3 Executors</span>
+      </div>
+      <div class="float-card card-3">
+        <div class="float-card-dot" style="background:#f59e0b"></div>
+        <span>Check-in Due</span>
+      </div>
+      <div class="float-card card-4">
+        <div class="float-card-dot" style="background:#6b2d4e"></div>
+        <span>Will Updated</span>
+      </div>
+    </div>
+  </div>
+</section>
 
-    function switchToRegister() {
-      document.getElementById('loginForm').style.display = 'none';
-      document.getElementById('registerForm').style.display = 'block';
-    }
+<!-- TRUSTED BY -->
+<section class="trusted">
+  <div class="trusted-label">Trusted by leading firms</div>
+  <div class="trusted-logos">
+    <span>Everplan</span>
+    <span>Trust & Will</span>
+    <span>Willful</span>
+    <span>Estate Planning</span>
+  </div>
+</section>
 
-    function switchToLogin() {
-      document.getElementById('registerForm').style.display = 'none';
-      document.getElementById('loginForm').style.display = 'block';
-    }
+<!-- FEATURES -->
+<section id="features" class="features">
+  <div class="section-header">
+    <div class="section-eyebrow">Everything you need</div>
+    <h2 class="section-title">Everything your <em>loved ones</em> need</h2>
+  </div>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon">🔐</div>
+      <h3 class="feature-title">Digital Vault</h3>
+      <p class="feature-desc">Store passwords, crypto keys, account credentials, and sensitive documents all in one secure place.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📋</div>
+      <h3 class="feature-title">Digital Will</h3>
+      <p class="feature-desc">Write legally-guided instructions for your digital assets and distribution to beneficiaries.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">👤</div>
+      <h3 class="feature-title">Executor Access</h3>
+      <p class="feature-desc">Designate trusted people to manage your digital legacy when needed with full audit trails.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">⏰</div>
+      <h3 class="feature-title">Dead Man's Switch</h3>
+      <p class="feature-desc">Customizable check-in system that automatically alerts executors if you're inactive.</p>
+    </div>
+  </div>
+</section>
 
-    // Login Form
-    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+<!-- HOW IT WORKS -->
+<section id="how" class="how">
+  <div class="section-header">
+    <div class="section-eyebrow">Simple 4-step process</div>
+    <h2 class="section-title">How it <em>works</em></h2>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="step-number">1</div>
+      <h3 class="step-title">Create Your Vault</h3>
+      <p class="step-desc">Sign up and secure your account with two-factor authentication.</p>
+    </div>
+    <div class="step">
+      <div class="step-number">2</div>
+      <h3 class="step-title">Add Your Assets</h3>
+      <p class="step-desc">Store passwords, documents, and instructions for each digital asset.</p>
+    </div>
+    <div class="step">
+      <div class="step-number">3</div>
+      <h3 class="step-title">Assign Executors</h3>
+      <p class="step-desc">Choose trusted people to manage your legacy and send invitations.</p>
+    </div>
+    <div class="step">
+      <div class="step-number">4</div>
+      <h3 class="step-title">Check In Regularly</h3>
+      <p class="step-desc">Stay active with periodic check-ins or triggers activate executor access.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SECURITY -->
+<section id="security" class="security">
+  <div class="security-visual">
+    <div class="security-shield">
+      <div class="shield-bg">
+        <div class="shield-icon">🛡️</div>
+      </div>
+    </div>
+  </div>
+  <div class="security-content">
+    <h2>Your data is <em>yours alone</em></h2>
+    <p>Zero-knowledge architecture means even we can't access your vault. Military-grade AES-256 encryption protects every asset, password, and instruction. Built with privacy-first principles from day one.</p>
+    <div class="security-badges">
+      <div class="sec-badge">✓ AES-256 Encryption</div>
+      <div class="sec-badge">✓ Zero-Knowledge</div>
+      <div class="sec-badge">✓ 2FA Protected</div>
+      <div class="sec-badge">✓ SOC 2 Compliant</div>
+      <div class="sec-badge">✓ GDPR Ready</div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing" class="pricing">
+  <div class="section-header">
+    <div class="section-eyebrow">Simple, transparent pricing</div>
+    <h2 class="section-title">Plans for <em>every family</em></h2>
+  </div>
+  <div class="pricing-grid">
+    <div class="pricing-card">
+      <div class="pricing-label">Starter</div>
+      <div class="pricing-price">$0<span>/forever</span></div>
+      <div class="pricing-period">Free</div>
+      <div class="pricing-divider"></div>
+      <ul class="pricing-features">
+        <li><span class="check-icon">✓</span> 1 Digital Will</li>
+        <li><span class="check-icon">✓</span> Up to 5 Assets</li>
+        <li><span class="check-icon">✓</span> 2 Executors</li>
+        <li><span class="check-icon">✓</span> Basic Support</li>
+      </ul>
+      <button class="pricing-btn">Get Started</button>
+    </div>
+    
+    <div class="pricing-card featured">
+      <div class="pricing-label">Premium</div>
+      <div class="pricing-price">$9<span>/month</span></div>
+      <div class="pricing-period">Billed monthly</div>
+      <div class="pricing-divider"></div>
+      <ul class="pricing-features">
+        <li><span class="check-icon">✓</span> Unlimited Wills</li>
+        <li><span class="check-icon">✓</span> Unlimited Assets</li>
+        <li><span class="check-icon">✓</span> Unlimited Executors</li>
+        <li><span class="check-icon">✓</span> Priority Support</li>
+      </ul>
+      <button class="pricing-btn">Start Free Trial</button>
+    </div>
+    
+    <div class="pricing-card">
+      <div class="pricing-label">Family</div>
+      <div class="pricing-price">$24<span>/month</span></div>
+      <div class="pricing-period">Up to 5 family members</div>
+      <div class="pricing-divider"></div>
+      <ul class="pricing-features">
+        <li><span class="check-icon">✓</span> Everything in Premium</li>
+        <li><span class="check-icon">✓</span> 5 Family Vaults</li>
+        <li><span class="check-icon">✓</span> Shared Assets</li>
+        <li><span class="check-icon">✓</span> Family Support</li>
+      </ul>
+      <button class="pricing-btn">Contact Sales</button>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq" class="faq">
+  <div class="section-header">
+    <h2 class="section-title">Frequently <em>asked</em> questions</h2>
+  </div>
+  <div class="faq-list">
+    <div class="faq-item open">
+      <div class="faq-question">
+        <span>What happens if I don't check in?</span>
+        <div class="faq-toggle">+</div>
+      </div>
+      <div class="faq-answer">
+        Your Dead Man's Switch will trigger after your set inactivity period (30-365 days), notifying your executors. They can then access your vault according to your pre-set instructions.
+      </div>
+    </div>
+    
+    <div class="faq-item">
+      <div class="faq-question">
+        <span>How secure is my data?</span>
+        <div class="faq-toggle">+</div>
+      </div>
+      <div class="faq-answer">
+        We use zero-knowledge encryption, meaning we literally cannot access your data. Your vault is encrypted with AES-256, the same standard used by governments and banks worldwide.
+      </div>
+    </div>
+    
+    <div class="faq-item">
+      <div class="faq-question">
+        <span>Can executors change my instructions?</span>
+        <div class="faq-toggle">+</div>
+      </div>
+      <div class="faq-answer">
+        No. Executors have read-only access to your vault and can only see what you've explicitly shared with them. All access is logged and auditable.
+      </div>
+    </div>
+    
+    <div class="faq-item">
+      <div class="faq-question">
+        <span>What if I want to update my will?</span>
+        <div class="faq-toggle">+</div>
+      </div>
+      <div class="faq-answer">
+        You can update your will, assets, and executor access anytime. Changes take effect immediately, and your executors are notified of any important updates.
+      </div>
+    </div>
+    
+    <div class="faq-item">
+      <div class="faq-question">
+        <span>Is there a free trial?</span>
+        <div class="faq-toggle">+</div>
+      </div>
+      <div class="faq-answer">
+        Yes! Start with our free Starter plan that includes 1 will, 5 assets, and 2 executors. Upgrade to Premium anytime for unlimited access.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA BANNER -->
+<section class="cta-banner">
+  <h2>Ready to protect your digital legacy?</h2>
+  <p>Join thousands of families who trust Legacy Vault with their most important digital assets.</p>
+  <a href="/pages/register.html" class="btn-primary">Create Your Vault Today</a>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-top">
+    <div>
+      <div class="footer-brand">Legacy Vault</div>
+      <p class="footer-tagline">Protecting digital legacies for families worldwide, forever.</p>
+    </div>
+    <div class="footer-links">
+      <div class="footer-col">
+        <h4>Product</h4>
+        <a href="#features">Features</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#security">Security</a>
+        <a href="/pages/register.html">Get Started</a>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <a href="#">About</a>
+        <a href="#">Blog</a>
+        <a href="#">Careers</a>
+        <a href="#">Contact</a>
+      </div>
+      <div class="footer-col">
+        <h4>Legal</h4>
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+        <a href="#">GDPR</a>
+        <a href="#">Security</a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="footer-copy">&copy; 2026 Legacy Vault. All rights reserved.</div>
+    <div class="footer-socials">
+      <a href="#" class="social-link" title="Instagram">ig</a>
+      <a href="#" class="social-link" title="Twitter">tw</a>
+      <a href="#" class="social-link" title="LinkedIn">in</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+// FAQ Accordion
+document.querySelectorAll('.faq-question').forEach(question => {
+  question.addEventListener('click', function() {
+    const item = this.parentElement;
+    const isOpen = item.classList.contains('open');
+    
+    document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+    
+    if (!isOpen) {
+      item.classList.add('open');
+    }
+  });
+});
+
+// Sticky nav shadow on scroll
+window.addEventListener('scroll', function() {
+  const nav = document.querySelector('nav');
+  if (window.scrollY > 20) {
+    nav.style.boxShadow = '0 4px 20px rgba(92,29,59,0.08)';
+  } else {
+    nav.style.boxShadow = 'none';
+  }
+});
+
+// Smooth scroll for anchor links
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+  anchor.addEventListener('click', function(e) {
+    const href = this.getAttribute('href');
+    if (href !== '#') {
       e.preventDefault();
-
-      const email = document.getElementById('loginEmail').value;
-      const password = document.getElementById('loginPassword').value;
-
-      try {
-        await loginUser(email, password);
-        showAlert('Login successful!', 'success');
-        setTimeout(() => {
-          window.location.href = '/pages/dashboard.html';
-        }, 1000);
-      } catch (error) {
-        showAlert(error.message, 'danger');
+      const target = document.querySelector(href);
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth' });
       }
-    });
-
-    // Register Form
-    document.getElementById('registerForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-
-      const firstName = document.getElementById('registerFirstName').value;
-      const lastName = document.getElementById('registerLastName').value;
-      const email = document.getElementById('registerEmail').value;
-      const password = document.getElementById('registerPassword').value;
-
-      try {
-        await registerUser(email, password, firstName, lastName);
-        showAlert('Account created successfully!', 'success');
-        setTimeout(() => {
-          window.location.href = '/pages/dashboard.html';
-        }, 1000);
-      } catch (error) {
-        showAlert(error.message, 'danger');
-      }
-    });
-
-    function showAlert(message, type) {
-      const alertDiv = document.createElement('div');
-      alertDiv.className = `alert alert-${type}`;
-      alertDiv.innerHTML = `
-        <span>${message}</span>
-        <button style="background:none; border:none; cursor:pointer; font-size:18px; color:inherit;">×</button>
-      `;
-
-      document.getElementById('alertContainer').appendChild(alertDiv);
-      alertDiv.querySelector('button').addEventListener('click', () => {
-        alertDiv.remove();
-      });
-
-      setTimeout(() => alertDiv.remove(), 5000);
     }
-  </script>
+  });
+});
+</script>
+
 </body>
 </html>
