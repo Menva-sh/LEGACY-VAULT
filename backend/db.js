@@ -24,8 +24,18 @@ pool.on('error', (err) => {
   // Don't crash the app - the pool will handle reconnection automatically
 });
 
+// Handle individual client errors
+pool.on('connect', (client) => {
+  client.on('error', (err) => {
+    console.error('⚠️ Client connection error:', err.message);
+  });
+});
+
 pool.connect()
-  .then(() => console.log("Connected to PostgreSQL (Neon)"))
+  .then((client) => {
+    console.log("Connected to PostgreSQL (Neon)");
+    client.release();
+  })
   .catch(err => console.error('Connection failed:', err));
 
 module.exports = pool;

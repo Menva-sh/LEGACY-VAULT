@@ -197,6 +197,18 @@ try {
 }
 console.log('=== SCHEDULED JOBS INITIALIZED ===\n');
 
+// Global error handlers
+process.on('uncaughtException', (err) => {
+  console.error('❌ Uncaught Exception:', err.message);
+  console.error(err.stack);
+  // Don't exit - let the app continue running
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('❌ Unhandled Rejection at:', promise, 'reason:', reason);
+  // Don't exit - let the app continue running
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`\n✅ Server running on port ${PORT}`);
