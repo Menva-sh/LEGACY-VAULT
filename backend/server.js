@@ -157,7 +157,7 @@ app.use('/executor-portal', executorPortalRoutes);
 console.log('All routes loaded successfully');
 
 app.get('/test', (req, res) => {
-  res.json({ message: 'Test route working', routes: Object.keys(app._router.stack).filter(i => i !== 'query' && i !== 'expressInit' && i !== 'cors' && i !== 'json' && i !== 'json') });
+  res.json({ message: 'Test route working', status: 'OK' });
 });
 
 // Protected dashboard route for testing
