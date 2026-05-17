@@ -35,7 +35,10 @@ const generateProfessionalWill = async (req, res) => {
     const mappedAssets = assets.map((asset, index) => ({
       name: asset.asset_name || `Asset ${index + 1}`,
       type: asset.asset_type || 'Digital Asset',
+      email: asset.email || 'N/A',
       description: asset.description || 'Digital asset description',
+      action_type: asset.action_type || 'pass',
+      last_message: asset.last_message || '',
       location: asset.location || '—',
       created_at: asset.created_at || new Date().toISOString().split('T')[0]
     }));
@@ -259,13 +262,15 @@ async function generatePdfViasPython(userData) {
       currentY += 12;
 
       // Compact asset cards
+      const actionLabels = { pass: 'Pass to Executor', delete: 'Delete Account', last_message: 'Final Message' };
       if (userData.assets && userData.assets.length > 0) {
         userData.assets.slice(0, 2).forEach((asset, index) => {
           const romanNums = ['I', 'II'];
+          const cardHeight = (asset.action_type === 'last_message' && asset.last_message) ? 52 : 40;
           
           // Box
-          doc.rect(margin, currentY, contentWidth, 38).stroke('#dedad4');
-          doc.rect(margin, currentY, 6, 38).fill('#6b2d4e');
+          doc.rect(margin, currentY, contentWidth, cardHeight).stroke('#dedad4');
+          doc.rect(margin, currentY, 6, cardHeight).fill('#6b2d4e');
           
           // Roman numeral
           doc.fontSize(11).fillColor('#ffffff').font('Helvetica-Bold');
@@ -275,15 +280,17 @@ async function generatePdfViasPython(userData) {
           doc.fontSize(10).fillColor('#1a0810').font('Helvetica-Bold');
           doc.text(asset.name, margin + 20, currentY + 5);
           
-          // Type and description on one line
+          // Type + action on one line
           doc.fontSize(8).fillColor('#4a4846').font('Helvetica');
-          doc.text(`${asset.type} • ${asset.description}`, margin + 20, currentY + 18);
+          doc.text(`${asset.type}  •  ${actionLabels[asset.action_type] || 'Pass to Executor'}  •  ${asset.email}`, margin + 20, currentY + 18);
           
-          // Location (right side)
-          doc.fontSize(7).fillColor('#999790').font('Helvetica');
-          doc.text(`Loc: ${asset.location}`, pageWidth - margin - 120, currentY + 8);
+          // Farewell message if set
+          if (asset.action_type === 'last_message' && asset.last_message) {
+            doc.fontSize(7).fillColor('#555').font('Helvetica-Oblique');
+            doc.text(`Message: "${asset.last_message.slice(0, 90)}${asset.last_message.length > 90 ? '…' : ''}"`, margin + 20, currentY + 30, { width: contentWidth - 30 });
+          }
           
-          currentY += 43;
+          currentY += cardHeight + 5;
         });
       }
 
