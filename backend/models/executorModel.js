@@ -244,9 +244,9 @@ const getExecutorByEmail = async (executorEmail) => {
     const query = `
       SELECT id, executor_email, executor_name, password, is_active, user_id
       FROM executors
-      WHERE executor_email = $1 AND is_active = true
+      WHERE LOWER(executor_email) = LOWER($1) AND is_active = true
     `;
-    const result = await pool.query(query, [executorEmail]);
+    const result = await pool.query(query, [executorEmail.trim()]);
     return result.rows[0];
   } catch (err) {
     throw new Error(`Error fetching executor by email: ${err.message}`);

@@ -244,7 +244,27 @@
     </div>
 
     <script>
-        const API_URL = 'https://legacy-vault-backend-l50w.onrender.com';
+        const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:3000'
+            : 'https://legacy-vault-backend-l50w.onrender.com';
+
+        async function tryExecutorLogin(email, password) {
+            const response = await fetch(`${API_URL}/api/executor-auth/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email, password })
+            });
+
+            const data = await response.json().catch(() => ({}));
+
+            if (!response.ok) {
+                throw new Error(data.error || `Login failed (${response.status})`);
+            }
+
+            return data;
+        }
 
         // Check if already logged in
         const token = localStorage.getItem('executorToken');
@@ -258,25 +278,15 @@
 
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
+            const submitBtn = e.currentTarget.querySelector('button[type="submit"]');
 
             try {
-                const btn = document.querySelector('.btn-primary');
-                btn.disabled = true;
-                btn.innerHTML = '<i class="ti ti-loader"></i> Logging in...';
-
-                const response = await fetch(`${API_URL}/executor-auth/login`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ email, password })
-                });
-
-                const data = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(data.error || 'Login failed');
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<i class="ti ti-loader"></i> Logging in...';
                 }
+
+                const data = await tryExecutorLogin(email, password);
 
                 // Save token and executor info
                 localStorage.setItem('executorToken', data.token);
@@ -287,9 +297,12 @@
                 // Redirect to dashboard
                 window.location.href = '/executor-dashboard.html';
             } catch (err) {
-                btn.disabled = false;
-                btn.innerHTML = '<i class="ti ti-login"></i> Login to Dashboard';
                 showError(err.message);
+            } finally {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="ti ti-login"></i> Login to Dashboard';
+                }
             }
         });
 

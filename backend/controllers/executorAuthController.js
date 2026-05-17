@@ -119,7 +119,8 @@ const setupExecutorPassword = async (req, res) => {
  */
 const executorLogin = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const email = req.body.email?.trim();
+    const { password } = req.body;
     
     if (!email || !password) {
       return res.status(400).json({ error: 'Email and password required' });
@@ -131,6 +132,10 @@ const executorLogin = async (req, res) => {
     const executor = await getExecutorByEmail(email);
     if (!executor) {
       return res.status(401).json({ error: 'Invalid email or password' });
+    }
+
+    if (!executor.password) {
+      return res.status(401).json({ error: 'Executor account is not set up yet. Please use the setup link from your invitation email.' });
     }
     
     // Verify password

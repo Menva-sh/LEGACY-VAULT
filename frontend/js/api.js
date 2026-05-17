@@ -127,17 +127,26 @@ function getCurrentUser() {
 
 // Executor Authentication
 async function executorLogin(email, password) {
-  const response = await apiRequest('/executor-auth/login', 'POST', {
-    email,
-    password,
+  const response = await fetch(`${API_URL}/api/executor-auth/login`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ email, password }),
   });
 
-  if (response.token) {
-    setToken(response.token);
-    localStorage.setItem('executor', JSON.stringify(response.executor));
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(data.error || `Executor login failed (${response.status})`);
   }
 
-  return response;
+  if (data.token) {
+    localStorage.setItem('executorToken', data.token);
+    localStorage.setItem('executor', JSON.stringify(data.executor));
+  }
+
+  return data;
 }
 
 // Asset Functions

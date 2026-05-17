@@ -256,6 +256,7 @@ document.getElementById('executorLoginForm').addEventListener('submit', async fu
   e.preventDefault();
   const email = document.getElementById('email').value;
   const password = document.getElementById('password').value;
+  const submitBtn = e.currentTarget.querySelector('button[type="submit"]');
   
   if (!email || !password) {
     alert('Please enter both email and password');
@@ -263,12 +264,23 @@ document.getElementById('executorLoginForm').addEventListener('submit', async fu
   }
   
   try {
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Signing in...';
+    }
     const result = await executorLogin(email, password);
-    alert('Executor login successful! Redirecting to portal...');
-    window.location.href = '/pages/executor-portal.html';
+    localStorage.setItem('executorId', result.executor.id);
+    localStorage.setItem('executorEmail', result.executor.email);
+    localStorage.setItem('executorName', result.executor.name);
+    window.location.href = '/executor-dashboard.html';
   } catch (error) {
     alert('Executor login failed: ' + error.message);
     console.error('Executor login error:', error);
+  } finally {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Sign In';
+    }
   }
 });
 </script>
