@@ -52,7 +52,7 @@ async function apiRequest(endpoint, method = 'GET', body = null) {
       
       if (response.status === 401) {
         removeToken();
-        window.location.href = 'index.html';
+        window.location.href = '/index.html';
         throw new Error('Token expired - please login again');
       }
 
