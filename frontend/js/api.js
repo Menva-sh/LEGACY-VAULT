@@ -50,7 +50,7 @@ async function apiRequest(endpoint, method = 'GET', body = null) {
     if (!response.ok) {
       console.error(`API Error - Status: ${response.status}, Endpoint: ${endpoint}`);
       
-      if (response.status === 401) {
+      if (response.status === 401 && !endpoint.includes('/login')) {
         removeToken();
         window.location.href = '/index.html';
         throw new Error('Token expired - please login again');
