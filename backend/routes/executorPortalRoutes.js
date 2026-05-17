@@ -1,5 +1,5 @@
 const express = require('express');
-const { getExecutorDashboard, viewWill, viewAsset, getExecutorLogs, getExecutorWills, viewExecutorWill, downloadExecutorWill } = require('../controllers/executorPortalController');
+const { getExecutorDashboard, viewWill, viewAsset, getExecutorLogs, getExecutorWills, getExecutorAssets, viewExecutorWill, downloadExecutorWill } = require('../controllers/executorPortalController');
 const { verifyExecutorToken } = require('../controllers/executorAuthController');
 
 const router = express.Router();
@@ -10,6 +10,9 @@ const router = express.Router();
 // Authenticated executor portal routes (requires executor JWT token)
 // GET /executor-portal/wills - Get all wills assigned to executor
 router.get('/wills', verifyExecutorToken, getExecutorWills);
+
+// GET /executor-portal/assets - Get all assets available to executor
+router.get('/assets', verifyExecutorToken, getExecutorAssets);
 
 // GET /executor-portal/wills/:willId - Get specific will for authenticated executor
 router.get('/wills/:willId', verifyExecutorToken, viewExecutorWill);

@@ -58,7 +58,12 @@ const initializeDatabase = async () => {
       { version: 6, file: '006_create_executor_access_logs_table.sql' },
       { version: 7, file: '007_add_file_path_to_wills.sql' },
       { version: 8, file: '008_add_last_active_to_users.sql' },
-      { version: 9, file: '009_add_status_to_dead_mans_switch.sql' }
+      { version: 9, file: '009_add_status_to_dead_mans_switch.sql' },
+      { version: 10, file: '010_fix_wills_executor_fk.sql' },
+      { version: 11, file: '011_add_executor_auth.sql' },
+      { version: 12, file: '012_add_email_password_to_assets.sql' },
+      { version: 13, file: '013_create_will_executor_assignments.sql' },
+      { version: 14, file: '014_create_asset_workflow_completions.sql' }
     ];
 
     for (const migration of migrationFiles) {

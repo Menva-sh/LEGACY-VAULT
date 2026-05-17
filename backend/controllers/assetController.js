@@ -129,10 +129,54 @@ const removeAsset = async (req, res) => {
   }
 };
 
+// Complete workflow for asset
+const completeWorkflow = async (req, res) => {
+  try {
+    const { assetId } = req.params;
+    const userId = req.user.id;
+    const { action, executorId, completedAt } = req.body;
+
+    // Validate required fields
+    if (!action || !executorId || !completedAt) {
+      return res.status(400).json({ error: 'Action, executorId, and completedAt are required' });
+    }
+
+    // Verify asset belongs to user
+    const asset = await getAssetById(assetId, userId);
+    if (!asset) {
+      return res.status(404).json({ error: 'Asset not found' });
+    }
+
+    // Get database connection
+    const db = require('../db');
+
+    // Insert workflow completion record
+    const result = await db.query(
+      `INSERT INTO asset_workflow_completions (asset_id, executor_id, action, completed_at)
+       VALUES ($1, $2, $3, $4)
+       RETURNING id, asset_id, executor_id, action, completed_at`,
+      [assetId, executorId, action, new Date(completedAt)]
+    );
+
+    const completion = result.rows[0];
+
+    console.log('Workflow completed for asset:', assetId, 'action:', action);
+
+    res.status(201).json({
+      message: 'Workflow completion recorded successfully',
+      completion
+    });
+  } catch (err) {
+    console.error('Complete workflow error:', err);
+    res.status(500).json({ error: 'Failed to record workflow completion', details: err.message });
+  }
+};
+
 module.exports = {
   uploadAsset,
   getAllAssets,
   getAsset,
   updateAssetMetadata,
-  removeAsset
+  removeAsset,
+  completeWorkflow
 };

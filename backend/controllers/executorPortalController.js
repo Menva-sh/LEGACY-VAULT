@@ -151,6 +151,33 @@ const getExecutorWills = async (req, res) => {
   }
 };
 
+// Get assets for authenticated executor
+const getExecutorAssets = async (req, res) => {
+  try {
+    const executorId = req.executorId;
+
+    if (!executorId) {
+      return res.status(401).json({ error: 'Not authenticated as executor' });
+    }
+
+    console.log(`Fetching assets for executor: ${executorId}`);
+    const assets = await getExecutorAccessibleAssets(executorId);
+
+    const vaultOwner = await getVaultOwnerByExecutorId(executorId);
+    if (vaultOwner) {
+      await logAccess(executorId, vaultOwner.id, 'assets_list_view', 'executor_portal_assets');
+    }
+
+    res.status(200).json({
+      message: 'Assets retrieved successfully',
+      assets
+    });
+  } catch (err) {
+    console.error('Error fetching executor assets:', err.message);
+    res.status(500).json({ error: 'Failed to retrieve assets' });
+  }
+};
+
 // Get single will for authenticated executor
 const viewExecutorWill = async (req, res) => {
   try {
@@ -277,6 +304,7 @@ module.exports = {
   viewAsset,
   getExecutorLogs,
   getExecutorWills,
+  getExecutorAssets,
   viewExecutorWill,
   downloadExecutorWill
 };

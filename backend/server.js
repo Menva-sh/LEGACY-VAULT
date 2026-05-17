@@ -7,7 +7,7 @@ const { generateProfessionalWill } = require('./controllers/willPdfController');
 const deadManswitchScheduler = require('./services/deadManswitchScheduler');
 
 // Import routes with error handling
-let authRoutes, assetRoutes, executorRoutes, executorAuthRoutes, willRoutes, switchRoutes, executorPortalRoutes;
+let authRoutes, assetRoutes, executorRoutes, executorAuthRoutes, willRoutes, switchRoutes, executorPortalRoutes, workflowRoutes;
 
 try {
   console.log('Importing auth routes from ./routes/authRoutes...');
@@ -40,6 +40,14 @@ try {
   console.log('✅ Executor auth routes imported');
 } catch (err) {
   console.error('❌ Failed to import executor auth routes:', err.message);
+}
+
+try {
+  console.log('Importing workflow routes...');
+  workflowRoutes = require('./routes/workflow');
+  console.log('Workflow routes imported');
+} catch (err) {
+  console.error('Failed to import workflow routes:', err.message);
 }
 
 try {
@@ -146,6 +154,9 @@ app.use('/auth', authRoutes);
 console.log('Loading executor auth routes...');
 app.use('/api/executor-auth', executorAuthRoutes);
 app.use('/executor-auth', executorAuthRoutes);
+console.log('Loading workflow routes...');
+app.use('/api', workflowRoutes);
+app.use('/', workflowRoutes);
 console.log('Loading asset routes...');
 app.use('/api/assets', assetRoutes);
 app.use('/assets', assetRoutes);
