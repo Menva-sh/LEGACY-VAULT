@@ -813,69 +813,207 @@
       }
     });
 
-    // Asset Action Handlers
-    function passToExecutor(assetId) {
+    // Global variable for executors
+    let userExecutors = [];
+
+    async function loadUserExecutors() {
       try {
-        const data = localStorage.getItem('executors');
-        const executors = data ? JSON.parse(data) : [];
-        
-        // Show executor list if available, otherwise allow manual entry
-        let executorEmail;
-        
-        if (executors.length > 0) {
-          executorEmail = prompt(
-            'Select executor by email:\n' + executors.map(e => e.email).join('\n'),
-            executors[0]?.email || ''
-          );
-        } else {
-          executorEmail = prompt('Enter executor email address:');
+        const data = await getExecutors();
+        userExecutors = data.executors || data || [];
+        localStorage.setItem('executors', JSON.stringify(userExecutors));
+      } catch (err) {
+        console.error('Failed to load executors:', err);
+      }
+    }
+
+    // Asset Action Handlers
+    async function passToExecutor(assetId) {
+      try {
+        if (userExecutors.length === 0) {
+          showAlert('Please designate at least one executor in the Executors page before assigning assets.', 'warning');
+          return;
         }
 
-        if (executorEmail) {
-          // Store asset assignment in localStorage
-          const assignments = JSON.parse(localStorage.getItem('assetAssignments') || '{}');
-          assignments[assetId] = executorEmail;
-          localStorage.setItem('assetAssignments', JSON.stringify(assignments));
-          
-          showAlert('Asset assigned to executor: ' + executorEmail, 'success');
-          // TODO: Implement backend call to assign asset to executor
+        // Show executor list by email
+        let promptText = 'Select executor by email:\n';
+        userExecutors.forEach((e, i) => {
+          promptText += `${i + 1}. ${e.executor_email}\n`;
+        });
+        promptText += '\nEnter the index number or email address of the executor:';
+
+        const selection = prompt(promptText, userExecutors[0]?.executor_email || '');
+        if (!selection) return;
+
+        let executor = null;
+        const cleanSelection = selection.trim().toLowerCase();
+
+        // Try to match by index number or by email
+        const index = parseInt(cleanSelection) - 1;
+        if (!isNaN(index) && index >= 0 && index < userExecutors.length) {
+          executor = userExecutors[index];
+        } else {
+          executor = userExecutors.find(e => e.executor_email.toLowerCase() === cleanSelection);
         }
+
+        if (!executor) {
+          showAlert('Invalid executor selection. Please enter a valid index or email.', 'danger');
+          return;
+        }
+
+        const executorEmail = executor.executor_email;
+        const executorId = executor.id;
+
+        // Call backend API to record workflow completion
+        const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+          ? 'http://localhost:3000'
+          : 'https://legacy-vault-backend-l50w.onrender.com';
+        
+        const token = getToken();
+        const response = await fetch(`${API_URL}/assets/${assetId}/workflow-complete`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            action: 'pass',
+            executorId: Number(executorId),
+            completedAt: new Date().toISOString()
+          })
+        });
+
+        if (!response.ok) {
+          const errData = await response.json();
+          throw new Error(errData.error || 'Failed to record completion');
+        }
+
+        // Store asset assignment in localStorage
+        const assignments = JSON.parse(localStorage.getItem('assetAssignments') || '{}');
+        assignments[assetId] = executorEmail;
+        localStorage.setItem('assetAssignments', JSON.stringify(assignments));
+        
+        showAlert(`Success! Asset assigned to ${executor.executor_name || executorEmail} and recorded in database.`, 'success');
       } catch (error) {
         showAlert('Error: ' + error.message, 'danger');
       }
     }
 
-    function addFinalMessage(assetId) {
-      const message = prompt('Enter a final message for this asset (max 500 characters):');
-      
-      if (message !== null) {
+    async function addFinalMessage(assetId) {
+      try {
+        if (userExecutors.length === 0) {
+          showAlert('Please designate at least one executor in the Executors page before configuring assets.', 'warning');
+          return;
+        }
+
+        const message = prompt('Enter a final message for this asset (max 500 characters):');
+        if (message === null) return;
+        
         if (message.length > 500) {
           showAlert('Message too long. Maximum 500 characters.', 'warning');
           return;
         }
+
+        // Default to first executor
+        let executor = userExecutors[0];
+        if (userExecutors.length > 1) {
+          const promptText = 'Select which executor should receive this message:\n' + 
+            userExecutors.map((e, i) => `${i + 1}. ${e.executor_email}`).join('\n') + 
+            '\n\nEnter the index number:';
+          const selection = prompt(promptText, '1');
+          if (selection) {
+            const index = parseInt(selection.trim()) - 1;
+            if (index >= 0 && index < userExecutors.length) {
+              executor = userExecutors[index];
+            }
+          }
+        }
+
+        const executorId = executor.id;
+
+        // Call backend API to record workflow completion
+        const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+          ? 'http://localhost:3000'
+          : 'https://legacy-vault-backend-l50w.onrender.com';
         
+        const token = getToken();
+        const response = await fetch(`${API_URL}/assets/${assetId}/workflow-complete`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            action: 'last_message',
+            executorId: Number(executorId),
+            completedAt: new Date().toISOString()
+          })
+        });
+
+        if (!response.ok) {
+          const errData = await response.json();
+          throw new Error(errData.error || 'Failed to record message completion');
+        }
+
         // Store message in localStorage
         const messages = JSON.parse(localStorage.getItem('assetMessages') || '{}');
         messages[assetId] = message;
         localStorage.setItem('assetMessages', JSON.stringify(messages));
         
-        showAlert('Final message saved for this asset', 'success');
-        // TODO: Implement backend call to save message to database
+        showAlert('Success! Final message saved and action recorded in database.', 'success');
+      } catch (error) {
+        showAlert('Error: ' + error.message, 'danger');
       }
     }
 
-    function deleteAccount(assetId) {
-      if (confirm('⚠️  Are you sure you want to DELETE this account?\n\nThis action will delete the credentials but the asset record will remain. You can edit it later if needed.')) {
+    async function deleteAccount(assetId) {
+      if (confirm('⚠️  Are you sure you want to DELETE this account?\n\nThis action will delete the credentials and record the deletion action in the database.')) {
         try {
-          showAlert('Account credentials deleted. Asset record preserved.', 'success');
-          // TODO: Implement backend call to delete credentials while preserving asset record
+          if (userExecutors.length === 0) {
+            showAlert('Please designate at least one executor in the Executors page before performing actions.', 'warning');
+            return;
+          }
+
+          // Default to first executor
+          const executorId = userExecutors[0].id;
+
+          // Call backend API to record workflow completion
+          const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:3000'
+            : 'https://legacy-vault-backend-l50w.onrender.com';
+          
+          const token = getToken();
+          const response = await fetch(`${API_URL}/assets/${assetId}/workflow-complete`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+              action: 'delete',
+              executorId: Number(executorId),
+              completedAt: new Date().toISOString()
+            })
+          });
+
+          if (!response.ok) {
+            const errData = await response.json();
+            throw new Error(errData.error || 'Failed to record deletion completion');
+          }
+
+          showAlert('Success! Account credentials deletion action recorded in database.', 'success');
         } catch (error) {
           showAlert('Error: ' + error.message, 'danger');
         }
       }
     }
 
-    loadAssets();
+    // Initialize page
+    async function initPage() {
+      await loadUserExecutors();
+      await loadAssets();
+    }
+
+    initPage();
   </script>
 </body>
 </html>

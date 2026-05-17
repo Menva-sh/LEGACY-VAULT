@@ -1,0 +1,1215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Executor Dashboard - Legacy Vault</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons@latest/tabler-icons.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Cormorant+Garamond:ital@0;1&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #fdf8f5;
+      color: #2c2c2a;
+      line-height: 1.6;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       WORKFLOW PANEL STYLES
+       ═══════════════════════════════════════════════════════════════ */
+
+    #workflowPanel {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      background: #fdf8f5;
+    }
+
+    .workflow-panel-hidden {
+      display: none !important;
+    }
+
+    .workflow-panel-visible {
+      animation: slideIn 0.3s ease forwards;
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    .workflow-steps-sidebar {
+      background: #1a0810;
+      padding: 24px 0;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .workflow-sidebar-header {
+      padding: 0 20px 24px;
+      border-bottom: 0.5px solid rgba(255, 255, 255, 0.1);
+      position: relative;
+    }
+
+    .workflow-platform-section {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .workflow-platform-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      color: #fdf8f5;
+    }
+
+    .workflow-platform-info {
+      flex: 1;
+    }
+
+    .workflow-platform-name {
+      font-size: 16px;
+      font-weight: 600;
+      color: #fdf8f5;
+      margin-bottom: 2px;
+    }
+
+    .workflow-action-badge {
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #c08fa8;
+      font-weight: 500;
+    }
+
+    .workflow-close-btn {
+      position: absolute;
+      top: 0;
+      right: 0;
+      background: rgba(255, 255, 255, 0.08);
+      border: none;
+      color: #f4c0d1;
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+    }
+
+    .workflow-close-btn:hover {
+      background: rgba(255, 255, 255, 0.12);
+      color: #fdf8f5;
+    }
+
+    .workflow-progress-bar {
+      height: 3px;
+      background: rgba(255, 255, 255, 0.08);
+      margin: 16px 20px;
+    }
+
+    .workflow-progress-fill {
+      height: 100%;
+      background: #6b2d4e;
+      transition: width 0.3s ease;
+    }
+
+    .workflow-step-list {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .step-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 20px;
+      cursor: pointer;
+      border-left: 3px solid transparent;
+      transition: all 0.15s;
+    }
+
+    .step-item:hover {
+      background: rgba(244, 192, 209, 0.06);
+    }
+
+    .step-item-active {
+      background: rgba(107, 45, 78, 0.3);
+      border-left: 3px solid #f4c0d1;
+    }
+
+    .step-item-number {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: rgba(244, 192, 209, 0.15);
+      color: #f4c0d1;
+      font-size: 11px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .step-item-active .step-item-number {
+      background: #6b2d4e;
+      color: #f4c0d1;
+    }
+
+    .step-item-title {
+      font-size: 13px;
+      color: rgba(253, 248, 245, 0.55);
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .step-item-active .step-item-title {
+      color: #fdf8f5;
+      font-weight: 500;
+    }
+
+    .workflow-preview-panel {
+      background: #fdf8f5;
+      padding: 32px 40px;
+      overflow-y: auto;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       PREVIEW CONTENT STYLES
+       ═══════════════════════════════════════════════════════════════ */
+
+    #previewContent {
+      max-width: 100%;
+    }
+
+    .irreversible-warning {
+      background: #fcebeb;
+      border-left: 3px solid #a32d2d;
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 13px;
+      color: #a32d2d;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .irreversible-warning i {
+      font-size: 16px;
+      margin-top: 2px;
+      flex-shrink: 0;
+    }
+
+    .step-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .step-number-badge {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #6b2d4e;
+      color: #f4c0d1;
+      font-size: 16px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .step-header-text h2 {
+      font-size: 18px;
+      font-weight: 500;
+      color: #1a0810;
+      margin-bottom: 4px;
+    }
+
+    .step-header-text p {
+      font-size: 13px;
+      color: #999790;
+    }
+
+    .step-action {
+      background: #fff;
+      border: 0.5px solid #dedad4;
+      border-radius: 12px;
+      padding: 18px;
+      margin: 24px 0;
+      font-size: 14px;
+      color: #4a4846;
+      line-height: 1.8;
+      white-space: pre-wrap;
+    }
+
+    .account-info-section {
+      background: #fff;
+      border: 0.5px solid #dedad4;
+      border-radius: 12px;
+      padding: 16px 18px;
+      margin: 24px 0;
+    }
+
+    .section-header {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #6b2d4e;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+
+    .section-header i {
+      font-size: 14px;
+    }
+
+    .account-info-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 0.5px solid #dedad4;
+    }
+
+    .account-info-row:last-child {
+      border-bottom: none;
+    }
+
+    .credential-label {
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #999790;
+    }
+
+    .credential-value {
+      font-size: 14px;
+      color: #1a0810;
+      font-family: 'Courier New', monospace;
+      letter-spacing: 0.05em;
+      margin: 4px 0;
+    }
+
+    .credentials-section {
+      background: #fff;
+      border: 0.5px solid #dedad4;
+      border-radius: 12px;
+      padding: 16px 18px;
+      margin: 24px 0;
+    }
+
+    .credential-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 0.5px solid #dedad4;
+    }
+
+    .credential-item:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .credential-left {
+      flex: 1;
+    }
+
+    .credential-buttons {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .copy-credential-btn {
+      background: rgba(107, 45, 78, 0.06);
+      border: 0.5px solid #dedad4;
+      border-radius: 6px;
+      padding: 5px 8px;
+      cursor: pointer;
+      color: #6b2d4e;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.15s;
+    }
+
+    .copy-credential-btn:hover {
+      background: rgba(107, 45, 78, 0.12);
+      color: #893860;
+    }
+
+    .toggle-password-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #c08fa8;
+      font-size: 15px;
+      padding: 4px;
+      display: flex;
+      align-items: center;
+      transition: color 0.15s;
+    }
+
+    .toggle-password-btn:hover {
+      color: #893860;
+    }
+
+    .tips-section {
+      background: #fff;
+      border: 0.5px solid #dedad4;
+      border-radius: 12px;
+      padding: 16px 18px;
+      margin: 24px 0;
+    }
+
+    .tip-item {
+      padding: 10px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      color: #4a4846;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      transition: background 0.15s;
+    }
+
+    .tip-item:hover {
+      background: rgba(107, 45, 78, 0.04);
+    }
+
+    .tip-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .tip-toggle {
+      font-size: 12px;
+      color: #c08fa8;
+      margin-top: 2px;
+      flex-shrink: 0;
+      width: 12px;
+    }
+
+    .tip-content {
+      flex: 1;
+    }
+
+    .tip-text {
+      display: none;
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 0.5px solid #dedad4;
+      font-size: 12px;
+      color: #4a4846;
+      line-height: 1.6;
+    }
+
+    .tip-item.expanded .tip-text {
+      display: block;
+    }
+
+    .farewell-message-box {
+      background: #fbeaf0;
+      border-left: 3px solid #6b2d4e;
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin: 24px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .farewell-header {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #6b2d4e;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .farewell-header i {
+      font-size: 14px;
+    }
+
+    .farewell-text {
+      font-style: italic;
+      color: #2c2c2a;
+      font-size: 14px;
+      line-height: 1.75;
+      margin: 8px 0;
+    }
+
+    .farewell-copy-btn {
+      background: rgba(107, 45, 78, 0.06);
+      border: 0.5px solid #dedad4;
+      border-radius: 6px;
+      padding: 6px 12px;
+      cursor: pointer;
+      color: #6b2d4e;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      width: fit-content;
+      transition: all 0.15s;
+    }
+
+    .farewell-copy-btn:hover {
+      background: rgba(107, 45, 78, 0.12);
+      color: #893860;
+    }
+
+    .workflow-nav-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 40px;
+      padding-top: 24px;
+      border-top: 0.5px solid #dedad4;
+    }
+
+    .workflow-nav-btn {
+      background: #6b2d4e;
+      color: #f4c0d1;
+      border: none;
+      border-radius: 100px;
+      padding: 10px 22px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.15s;
+    }
+
+    .workflow-nav-btn:hover:not(:disabled) {
+      background: #893860;
+      color: #f4c0d1;
+    }
+
+    .workflow-nav-btn:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
+    .workflow-nav-btn.done {
+      background: #2d6b3e;
+      color: #fff;
+    }
+
+    .workflow-nav-btn.done:hover {
+      background: #1f4a2b;
+    }
+
+    .workflow-step-counter {
+      font-size: 13px;
+      color: #999790;
+      font-weight: 500;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       TOAST STYLES
+       ═══════════════════════════════════════════════════════════════ */
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 9999;
+      background: #6b2d4e;
+      color: #f4c0d1;
+      border-radius: 8px;
+      padding: 12px 20px;
+      font-size: 13px;
+      font-family: 'Inter', sans-serif;
+      animation: fadeInOut 2.5s ease forwards;
+      pointer-events: none;
+    }
+
+    @keyframes fadeInOut {
+      0% {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      10% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      90% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+    }
+
+    /* Placeholder dashboard content */
+    .executor-content {
+      padding: 40px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .executor-content h1 {
+      font-size: 32px;
+      font-weight: 600;
+      color: #1a0810;
+      margin-bottom: 8px;
+    }
+
+    .executor-content p {
+      font-size: 16px;
+      color: #999790;
+      margin-bottom: 32px;
+    }
+
+    .assets-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 24px;
+    }
+
+    .asset-card {
+      background: #fff;
+      border: 0.5px solid #dedad4;
+      border-radius: 12px;
+      padding: 20px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .asset-card:hover {
+      border-color: #6b2d4e;
+      box-shadow: 0 4px 12px rgba(107, 45, 78, 0.08);
+    }
+
+    .asset-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      margin-bottom: 12px;
+    }
+
+    .asset-name {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1a0810;
+      margin-bottom: 8px;
+    }
+
+    .asset-account {
+      font-size: 12px;
+      color: #999790;
+      margin-bottom: 16px;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .action-btn {
+      flex: 1;
+      min-width: 80px;
+      background: rgba(107, 45, 78, 0.08);
+      border: 0.5px solid #dedad4;
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 11px;
+      font-weight: 500;
+      color: #6b2d4e;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-align: center;
+    }
+
+    .action-btn:hover {
+      background: rgba(107, 45, 78, 0.15);
+      color: #893860;
+    }
+
+    .action-btn.delete {
+      background: rgba(163, 45, 45, 0.08);
+      color: #a32d2d;
+    }
+
+    .action-btn.delete:hover {
+      background: rgba(163, 45, 45, 0.15);
+    }
+  </style>
+</head>
+<body>
+  <!-- WORKFLOW PANEL -->
+  <div id="workflowPanel" class="workflow-panel workflow-panel-hidden">
+    <!-- LEFT SIDEBAR -->
+    <div class="workflow-steps-sidebar">
+      <div class="workflow-sidebar-header">
+        <button class="workflow-close-btn" onclick="closeWorkflow()" title="Close workflow (Esc)">
+          <i class="ti ti-x"></i>
+        </button>
+        <div class="workflow-platform-section">
+          <div class="workflow-platform-icon" id="platformIcon"></div>
+          <div class="workflow-platform-info">
+            <div class="workflow-platform-name" id="platformName"></div>
+            <div class="workflow-action-badge" id="actionBadge"></div>
+          </div>
+        </div>
+      </div>
+      <div class="workflow-progress-bar">
+        <div class="workflow-progress-fill" id="progressFill"></div>
+      </div>
+      <div class="workflow-step-list" id="stepList"></div>
+    </div>
+
+    <!-- RIGHT CONTENT PANEL -->
+    <div class="workflow-preview-panel">
+      <div id="previewContent"></div>
+    </div>
+  </div>
+
+  <!-- DASHBOARD CONTENT (PLACEHOLDER) -->
+  <div class="executor-content">
+    <h1>Executor Dashboard</h1>
+    <p>Welcome to Legacy Vault's executor portal. Manage digital assets and complete workflows.</p>
+    
+    <h2 style="font-size: 20px; color: #1a0810; margin-bottom: 20px;">Assets Assigned to You</h2>
+    <div class="assets-grid" id="assetsGrid">
+      <!-- Assets will be loaded here -->
+      <div class="asset-card">
+        <div class="asset-icon" style="background: #E4405F; color: #fff;">
+          <i class="ti ti-brand-instagram"></i>
+        </div>
+        <div class="asset-name">Instagram</div>
+        <div class="asset-account">menva@gmail.com</div>
+        <div class="action-buttons">
+          <button class="action-btn" onclick="openWorkflowDirect(1, 'Instagram', 'menva@gmail.com', 'delete', '', 'Pass123!')">Delete</button>
+          <button class="action-btn" onclick="openWorkflowDirect(1, 'Instagram', 'menva@gmail.com', 'last_message', 'Test message', 'Pass123!')">Message</button>
+        </div>
+      </div>
+
+      <div class="asset-card">
+        <div class="asset-icon" style="background: #1877F2; color: #fff;">
+          <i class="ti ti-brand-facebook"></i>
+        </div>
+        <div class="asset-name">Facebook</div>
+        <div class="asset-account">john.doe@example.com</div>
+        <div class="action-buttons">
+          <button class="action-btn" onclick="openWorkflowDirect(2, 'Facebook', 'john.doe@example.com', 'delete', '', 'MyPass456!')">Delete</button>
+        </div>
+      </div>
+
+      <div class="asset-card">
+        <div class="asset-icon" style="background: #25D366; color: #fff;">
+          <i class="ti ti-brand-whatsapp"></i>
+        </div>
+        <div class="asset-name">WhatsApp</div>
+        <div class="asset-account">+1-555-0123</div>
+        <div class="action-buttons">
+          <button class="action-btn" onclick="openWorkflowDirect(3, 'WhatsApp', '+1-555-0123', 'last_message', 'Goodbye everyone', 'WA1234!')">Message</button>
+        </div>
+      </div>
+
+      <div class="asset-card">
+        <div class="asset-icon" style="background: #EA4335; color: #fff;">
+          <i class="ti ti-mail"></i>
+        </div>
+        <div class="asset-name">Gmail</div>
+        <div class="asset-account">user@gmail.com</div>
+        <div class="action-buttons">
+          <button class="action-btn" onclick="openWorkflowDirect(4, 'Gmail', 'user@gmail.com', 'delete', '', 'SecurePass!')">Delete</button>
+          <button class="action-btn" onclick="openWorkflowDirect(4, 'Gmail', 'user@gmail.com', 'pass', '', 'SecurePass!')">Transfer</button>
+        </div>
+      </div>
+
+      <div class="asset-card">
+        <div class="asset-icon" style="background: #4285F4; color: #fff;">
+          <i class="ti ti-cloud"></i>
+        </div>
+        <div class="asset-name">Google Drive</div>
+        <div class="asset-account">user@gmail.com</div>
+        <div class="action-buttons">
+          <button class="action-btn" onclick="openWorkflowDirect(5, 'Google Drive', 'user@gmail.com', 'pass', '', 'SecurePass!')">Transfer</button>
+        </div>
+      </div>
+
+      <div class="asset-card">
+        <div class="asset-icon" style="background: #E50914; color: #fff;">
+          <i class="ti ti-play"></i>
+        </div>
+        <div class="asset-name">Netflix</div>
+        <div class="asset-account">netflix@example.com</div>
+        <div class="action-buttons">
+          <button class="action-btn" onclick="openWorkflowDirect(6, 'Netflix', 'netflix@example.com', 'handoff', '', 'NetflixPass!')">Archive</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPTS -->
+  <script src="../js/workflow-steps-detailed.js"></script>
+  <script src="../js/api.js"></script>
+  <script>
+    // ═══════════════════════════════════════════════════════════════
+    // WORKFLOW PANEL STATE
+    // ═══════════════════════════════════════════════════════════════
+
+    let currentAssetId = null;
+    let currentPlatform = null;
+    let currentAccount = null;
+    let currentAction = null;
+    let currentMessage = null;
+    let currentPassword = null;
+    let currentStep = 1;
+    let totalSteps = 0;
+    let currentWorkflow = null;
+
+    // ═══════════════════════════════════════════════════════════════
+    // MAIN ENTRY POINT: openWorkflowDirect()
+    // ═══════════════════════════════════════════════════════════════
+
+    function openWorkflowDirect(assetId, platform, account, action, message, password) {
+      // Store parameters
+      currentAssetId = assetId;
+      currentPlatform = platform;
+      currentAccount = account;
+      currentAction = action;
+      currentMessage = message;
+      currentPassword = password;
+      currentStep = 1;
+
+      // Validate platform and action
+      if (!WORKFLOWS[platform]) {
+        showToast('This platform isn\'t supported yet — contact support');
+        return;
+      }
+
+      if (!WORKFLOWS[platform].actions[action]) {
+        showToast('Workflow not available for this action');
+        return;
+      }
+
+      // Get workflow data
+      const platformData = WORKFLOWS[platform];
+      const actionData = platformData.actions[action];
+      currentWorkflow = actionData;
+      totalSteps = actionData.steps.length;
+
+      // Build step list
+      const stepList = document.getElementById('stepList');
+      stepList.innerHTML = '';
+
+      actionData.steps.forEach((step, index) => {
+        const stepItem = document.createElement('div');
+        stepItem.className = 'step-item' + (index === 0 ? ' step-item-active' : '');
+        stepItem.innerHTML = `
+          <div class="step-item-number">${step.stepNumber}</div>
+          <div class="step-item-title">${step.title}</div>
+        `;
+        stepItem.onclick = () => selectStep(index);
+        stepList.appendChild(stepItem);
+      });
+
+      // Populate header
+      document.getElementById('platformName').textContent = platformData.appName;
+      document.getElementById('platformName').style.marginBottom = '4px';
+      document.getElementById('actionBadge').textContent = actionData.title;
+
+      const platformIcon = document.getElementById('platformIcon');
+      platformIcon.innerHTML = `<i class="${platformData.icon}"></i>`;
+      platformIcon.style.backgroundColor = platformData.color;
+
+      // Show panel
+      const panel = document.getElementById('workflowPanel');
+      panel.classList.remove('workflow-panel-hidden');
+      panel.classList.add('workflow-panel-visible');
+
+      // Render first step
+      renderStepPreview(actionData.steps[0]);
+
+      // Update progress
+      updateProgress();
+
+      // Attach keyboard listener
+      document.addEventListener('keydown', handlePanelKeydown);
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // STEP SELECTION
+    // ═══════════════════════════════════════════════════════════════
+
+    function selectStep(stepIndex) {
+      currentStep = stepIndex + 1;
+      const stepItems = document.querySelectorAll('.step-item');
+      stepItems.forEach((item, i) => {
+        if (i === stepIndex) {
+          item.classList.add('step-item-active');
+        } else {
+          item.classList.remove('step-item-active');
+        }
+      });
+      renderStepPreview(currentWorkflow.steps[stepIndex]);
+      updateProgress();
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // RENDER STEP PREVIEW
+    // ═══════════════════════════════════════════════════════════════
+
+    function renderStepPreview(step) {
+      const previewContent = document.getElementById('previewContent');
+      let html = '';
+
+      // 1. IRREVERSIBLE WARNING (only for delete actions)
+      if (currentAction === 'delete') {
+        html += `
+          <div class="irreversible-warning">
+            <i class="ti ti-alert-triangle"></i>
+            <span>This action is permanent and irreversible. Read every step carefully before proceeding.</span>
+          </div>
+        `;
+      }
+
+      // 2. STEP HEADER
+      html += `
+        <div class="step-header">
+          <div class="step-number-badge">${step.stepNumber}</div>
+          <div class="step-header-text">
+            <h2>${step.title}</h2>
+            <p>${step.description}</p>
+          </div>
+        </div>
+      `;
+
+      // 3. ACTION INSTRUCTIONS
+      html += `<div class="step-action">${step.action.replace(/\n/g, '<br>')}</div>`;
+
+      // 4. ACCOUNT INFORMATION (always on step 1)
+      if (step.stepNumber === 1) {
+        html += `
+          <div class="account-info-section">
+            <div class="section-header">
+              <i class="ti ti-user"></i>
+              Account Information
+            </div>
+            <div class="account-info-row">
+              <div>
+                <div class="credential-label">Email / Username</div>
+                <div class="credential-value">${currentAccount}</div>
+              </div>
+              <button class="copy-credential-btn" onclick="copyUsernameValue('accountValue')">
+                <i class="ti ti-copy"></i> Copy
+              </button>
+            </div>
+          </div>
+        `;
+
+        // Store account value for copying
+        const accountValueEl = document.createElement('div');
+        accountValueEl.id = 'accountValue';
+        accountValueEl.textContent = currentAccount;
+        accountValueEl.style.display = 'none';
+        document.body.appendChild(accountValueEl);
+      }
+
+      // 5. CREDENTIALS SECTION
+      if (step.credentials && step.credentials.length > 0) {
+        html += `<div class="credentials-section">`;
+        html += `<div class="section-header"><i class="ti ti-lock"></i> Credentials Required</div>`;
+
+        step.credentials.forEach((credType) => {
+          let credHtml = `<div class="credential-item">`;
+          credHtml += `<div class="credential-left">`;
+          credHtml += `<div class="credential-label">${credType.toUpperCase()}</div>`;
+
+          const credId = `cred-${step.stepNumber}-${credType}`;
+
+          if (['password', 'pin', '2fa_backup'].includes(credType)) {
+            // Masked credential
+            const bullets = '•'.repeat(currentPassword.length);
+            credHtml += `<div class="credential-value" id="${credId}" data-actual="${currentPassword}">${bullets}</div>`;
+            credHtml += `</div>`;
+            credHtml += `<div class="credential-buttons">`;
+            credHtml += `<button class="copy-credential-btn" onclick="copyPasswordValue('${credId}')"><i class="ti ti-copy"></i></button>`;
+            credHtml += `<button class="toggle-password-btn" onclick="togglePasswordDisplay('${credId}')"><i class="ti ti-eye"></i></button>`;
+            credHtml += `</div>`;
+          } else if (['email', 'username', 'account'].includes(credType)) {
+            // Plain text credential
+            credHtml += `<div class="credential-value" id="${credId}">${currentAccount}</div>`;
+            credHtml += `</div>`;
+            credHtml += `<div class="credential-buttons">`;
+            credHtml += `<button class="copy-credential-btn" onclick="copyCredential('${credId}', '${credType.charAt(0).toUpperCase() + credType.slice(1)} copied')"><i class="ti ti-copy"></i></button>`;
+            credHtml += `</div>`;
+          } else {
+            // Custom credential
+            credHtml += `<div class="credential-value">Required — provide your own</div>`;
+            credHtml += `</div>`;
+            credHtml += `<div class="credential-buttons"></div>`;
+          }
+
+          credHtml += `</div>`;
+          html += credHtml;
+        });
+
+        html += `</div>`;
+      }
+
+      // 6. TIPS SECTION
+      if (step.tips && step.tips.length > 0) {
+        html += `<div class="tips-section">`;
+        html += `<div class="section-header"><i class="ti ti-bulb"></i> Tips & Warnings</div>`;
+
+        step.tips.forEach((tip, index) => {
+          const tipId = `tip-${step.stepNumber}-${index}`;
+          html += `
+            <div class="tip-item" id="${tipId}" onclick="toggleTip('${tipId}')">
+              <div class="tip-toggle">▶</div>
+              <div class="tip-content">
+                <div><strong>Tip ${index + 1}</strong></div>
+                <div class="tip-text">${tip}</div>
+              </div>
+            </div>
+          `;
+        });
+
+        html += `</div>`;
+      }
+
+      // 7. FAREWELL MESSAGE BOX
+      if (step.showFarewellMessage && currentMessage) {
+        html += `
+          <div class="farewell-message-box">
+            <div class="farewell-header">
+              <i class="ti ti-heart"></i>
+              Farewell Message
+            </div>
+            <div class="farewell-text" id="farewellMessageText">${currentMessage}</div>
+            <button class="farewell-copy-btn" onclick="copyMessageValue('farewellMessageText')">
+              <i class="ti ti-copy"></i> Copy Message
+            </button>
+          </div>
+        `;
+      }
+
+      // 8. NAVIGATION BAR
+      const isFirstStep = step.stepNumber === 1;
+      const isLastStep = step.stepNumber === totalSteps;
+
+      html += `
+        <div class="workflow-nav-bar">
+          <button class="workflow-nav-btn" onclick="previousStep()" ${isFirstStep ? 'disabled' : ''}>
+            ← Previous
+          </button>
+          <div class="workflow-step-counter">Step ${step.stepNumber} of ${totalSteps}</div>
+          ${
+            isLastStep
+              ? `<button class="workflow-nav-btn done" onclick="markAsDone()">Mark as Done ✓</button>`
+              : `<button class="workflow-nav-btn" onclick="nextStep()">Next →</button>`
+          }
+        </div>
+      `;
+
+      previewContent.innerHTML = html;
+
+      // Scroll to top
+      document.querySelector('.workflow-preview-panel').scrollTop = 0;
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // COPY FUNCTIONS
+    // ═══════════════════════════════════════════════════════════════
+
+    function copyPasswordValue(elementId) {
+      const el = document.getElementById(elementId);
+      const actual = el.getAttribute('data-actual');
+      navigator.clipboard.writeText(actual).then(() => {
+        showToast('Password copied to clipboard');
+      });
+    }
+
+    function copyUsernameValue(elementId) {
+      const el = document.getElementById(elementId);
+      const text = el.textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        showToast('Email address copied');
+      });
+    }
+
+    function copyMessageValue(elementId) {
+      const el = document.getElementById(elementId);
+      const text = el.textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        showToast('Farewell message copied');
+      });
+    }
+
+    function copyCredential(elementId, toastMessage) {
+      const el = document.getElementById(elementId);
+      const text = el.textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        showToast(toastMessage);
+      });
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // PASSWORD TOGGLE
+    // ═══════════════════════════════════════════════════════════════
+
+    function togglePasswordDisplay(elementId) {
+      const el = document.getElementById(elementId);
+      const isMasked = el.textContent.includes('•');
+      const actual = el.getAttribute('data-actual');
+      const icon = event.target.closest('.toggle-password-btn').querySelector('i');
+
+      if (isMasked) {
+        el.textContent = actual;
+        icon.className = 'ti ti-eye-off';
+      } else {
+        el.textContent = '•'.repeat(actual.length);
+        icon.className = 'ti ti-eye';
+      }
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // TIP TOGGLE
+    // ═══════════════════════════════════════════════════════════════
+
+    function toggleTip(tipId) {
+      const tipEl = document.getElementById(tipId);
+      tipEl.classList.toggle('expanded');
+
+      // Update toggle icon
+      const toggle = tipEl.querySelector('.tip-toggle');
+      if (tipEl.classList.contains('expanded')) {
+        toggle.textContent = '▼';
+      } else {
+        toggle.textContent = '▶';
+      }
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // NAVIGATION
+    // ═══════════════════════════════════════════════════════════════
+
+    function nextStep() {
+      if (currentStep < totalSteps) {
+        selectStep(currentStep);
+      }
+    }
+
+    function previousStep() {
+      if (currentStep > 1) {
+        selectStep(currentStep - 2);
+      }
+    }
+
+    function updateProgress() {
+      const progressFill = document.getElementById('progressFill');
+      const percentage = (currentStep / totalSteps) * 100;
+      progressFill.style.width = percentage + '%';
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // MARK AS DONE
+    // ═══════════════════════════════════════════════════════════════
+
+    async function markAsDone() {
+      try {
+        const result = await apiRequest(`/api/assets/${currentAssetId}/workflow-complete`, 'POST', {
+          action: currentAction,
+          executorId: 1, // TODO: Get from auth context
+          completedAt: new Date().toISOString()
+        });
+
+        if (result) {
+          showToast('Workflow completed — well done');
+          closeWorkflow();
+        }
+      } catch (err) {
+        console.error('Error marking workflow complete:', err);
+        showToast('Failed to save workflow completion');
+      }
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // CLOSE WORKFLOW
+    // ═══════════════════════════════════════════════════════════════
+
+    function closeWorkflow() {
+      const panel = document.getElementById('workflowPanel');
+      panel.classList.remove('workflow-panel-visible');
+      panel.classList.add('workflow-panel-hidden');
+      document.removeEventListener('keydown', handlePanelKeydown);
+    }
+
+    function handlePanelKeydown(e) {
+      if (e.key === 'Escape') {
+        closeWorkflow();
+      }
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // TOAST NOTIFICATION
+    // ═══════════════════════════════════════════════════════════════
+
+    function showToast(message) {
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.textContent = message;
+      document.body.appendChild(toast);
+
+      setTimeout(() => {
+        toast.remove();
+      }, 2500);
+    }
+  </script>
+</body>
+</html>
