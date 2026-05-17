@@ -139,6 +139,26 @@
             line-height: 1.5;
         }
 
+        .will-instructions-preview {
+            background: #f7f4f0;
+            border-left: 3px solid #6b2d4e;
+            border-radius: 6px;
+            color: #2c2c2a;
+            font-size: 14px;
+            line-height: 1.5;
+            margin: 12px 0;
+            padding: 12px;
+            white-space: pre-wrap;
+        }
+
+        .will-instructions-preview strong {
+            color: #6b2d4e;
+            display: block;
+            font-size: 12px;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+
         .will-meta {
             display: flex;
             gap: 20px;
@@ -313,6 +333,11 @@
             white-space: pre-wrap;
         }
 
+        .will-info-value.empty {
+            color: #888;
+            font-style: italic;
+        }
+
         @media (max-width: 768px) {
             .header {
                 flex-direction: column;
@@ -463,6 +488,12 @@
                         <span class="badge badge-status">${escapeHtml(will.status || 'draft')}</span>
                     </div>
                     ${will.description ? `<div class="will-description">${escapeHtml(will.description)}</div>` : ''}
+                    ${getWillInstructions(will) ? `
+                        <div class="will-instructions-preview">
+                            <strong>Executor Instructions</strong>
+                            ${escapeHtml(truncateText(getWillInstructions(will), 220))}
+                        </div>
+                    ` : ''}
                     <div class="will-meta">
                         ${will.user_name ? `<span><i class="ti ti-user"></i> ${escapeHtml(will.user_name)}</span>` : ''}
                         <span><i class="ti ti-calendar"></i> ${new Date(will.created_at).toLocaleDateString()}</span>
@@ -500,6 +531,7 @@
 
                 const data = await response.json();
                 const will = data.will;
+                const instructions = getWillInstructions(will);
 
                 const detailsHtml = `
                     <div class="will-info">
@@ -516,12 +548,10 @@
                             <div class="will-info-value">${escapeHtml(will.description)}</div>
                         </div>
                     ` : ''}
-                    ${will.content ? `
-                        <div class="will-info">
-                            <label>Content</label>
-                            <div class="will-info-value">${escapeHtml(will.content)}</div>
-                        </div>
-                    ` : ''}
+                    <div class="will-info">
+                        <label>Executor Instructions</label>
+                        <div class="will-info-value${instructions ? '' : ' empty'}">${instructions ? escapeHtml(instructions) : 'No executor instructions were added for this will.'}</div>
+                    </div>
                     <div class="will-info">
                         <label>Created</label>
                         <div class="will-info-value">${new Date(will.created_at).toLocaleString()}</div>
@@ -595,6 +625,18 @@
             setTimeout(() => {
                 errorEl.classList.remove('show');
             }, 5000);
+        }
+
+        function getWillInstructions(will) {
+            return (will.content || will.instructions || '').trim();
+        }
+
+        function truncateText(text, maxLength) {
+            if (!text || text.length <= maxLength) {
+                return text || '';
+            }
+
+            return `${text.slice(0, maxLength).trim()}...`;
         }
 
         // Escape HTML
