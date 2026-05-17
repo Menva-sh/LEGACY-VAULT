@@ -18,7 +18,7 @@ app.use((req, res, next) => {
 // Serve static assets (CSS, JS, images)
 app.use(express.static(path.join(__dirname, '.'), {
   index: false,  // Don't auto-serve index.html for directories
-  maxAge: '1h',
+  maxAge: 0,
   setHeaders: (res, filePath) => {
     if (filePath.endsWith('.js')) {
       res.setHeader('Content-Type', 'application/javascript; charset=utf-8');

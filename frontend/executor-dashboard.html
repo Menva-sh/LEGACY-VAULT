@@ -1320,12 +1320,59 @@
                 return;
             }
 
-            if (!WORKFLOWS[platform]) {
-                showToast("This platform isn't supported yet — contact support");
-                return;
+            let platformData = WORKFLOWS[platform];
+            if (!platformData) {
+                // Determine a suitable icon, category, and color based on platform name
+                let iconClass = 'ti ti-help-circle';
+                let categoryName = 'General Digital Asset';
+                let themeColor = '#6b2d4e';
+                const lowerPlatform = platform.toLowerCase();
+
+                if (lowerPlatform.includes('bitcoin') || lowerPlatform.includes('ethereum') || lowerPlatform.includes('crypto')) {
+                    iconClass = 'ti ti-currency-bitcoin';
+                    categoryName = 'Crypto';
+                    themeColor = '#f2a900';
+                } else if (lowerPlatform.includes('account') || lowerPlatform.includes('bank') || lowerPlatform.includes('savings') || lowerPlatform.includes('checking')) {
+                    iconClass = 'ti ti-building-bank';
+                    categoryName = 'Finance';
+                    themeColor = '#0070ba';
+                }
+
+                const fallbackPlatform = {
+                    appName: platform,
+                    icon: iconClass,
+                    category: categoryName,
+                    color: themeColor,
+                    url: 'https://www.google.com'
+                };
+
+                platformData = {
+                    appName: platform,
+                    icon: fallbackPlatform.icon,
+                    category: fallbackPlatform.category,
+                    color: fallbackPlatform.color,
+                    actions: {
+                        delete: {
+                            title: `Permanently Delete Account - ${platform}`,
+                            steps: buildDeleteSteps(fallbackPlatform)
+                        },
+                        pass: {
+                            title: `Transfer Account Access - ${platform}`,
+                            steps: buildPassSteps(fallbackPlatform)
+                        },
+                        last_message: {
+                            title: `Post or Send Farewell Message - ${platform}`,
+                            steps: buildLastMessageSteps(fallbackPlatform)
+                        },
+                        handoff: {
+                            title: `Create Read-Only Archive Handoff - ${platform}`,
+                            steps: buildHandoffSteps(fallbackPlatform)
+                        }
+                    }
+                };
             }
 
-            if (!WORKFLOWS[platform].actions[action]) {
+            if (!platformData.actions[action]) {
                 showToast('Workflow not available for this action');
                 return;
             }
@@ -1337,10 +1384,9 @@
             currentMessage = message || '';
             currentPassword = password || '';
             currentStep = 1;
-            currentWorkflow = WORKFLOWS[platform].actions[action];
+            currentWorkflow = platformData.actions[action];
             totalSteps = currentWorkflow.steps.length;
 
-            const platformData = WORKFLOWS[platform];
             document.getElementById('platformIcon').innerHTML = `<i class="${platformData.icon}"></i>`;
             document.getElementById('platformIcon').style.backgroundColor = platformData.color;
             document.getElementById('platformName').textContent = platformData.appName;
