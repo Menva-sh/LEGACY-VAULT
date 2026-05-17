@@ -1,1769 +1,932 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Executor Dashboard - Legacy Vault</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons@latest/tabler-icons.min.css">
-    <style>
-        :root {
-            --lv-mauve: #6b2d4e;
-            --lv-mauve-mid: #893860;
-            --lv-mauve-light: #c08fa8;
-            --lv-blush: #f4c0d1;
-            --lv-cream: #fdf8f5;
-            --lv-dark: #1a0810;
-            --lv-text-body: #2c2c2a;
-            --lv-text-mid: #4a4846;
-            --lv-text-light: #999790;
-            --lv-rule: #dedad4;
-            --lv-white: #ffffff;
-            --lv-green: #2d6b3e;
-            --lv-amber: #8b4513;
-            --lv-red: #a32d2d;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
-            background: var(--lv-cream);
-            color: var(--lv-text-body);
-            min-height: 100vh;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        .header {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            margin-bottom: 30px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .header-content h1 {
-            font-size: 28px;
-            color: #6b2d4e;
-            margin-bottom: 5px;
-        }
-
-        .header-content p {
-            color: #888;
-            font-size: 14px;
-        }
-
-        .header-actions {
-            display: flex;
-            gap: 10px;
-        }
-
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .btn-logout {
-            background: #f8f8f8;
-            color: #2c2c2a;
-            border: 1px solid #e0ddd6;
-        }
-
-        .btn-logout:hover {
-            background: #f0f0f0;
-        }
-
-        .section {
-            margin-bottom: 30px;
-        }
-
-        .section-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: #6b2d4e;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .card {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            transition: all 0.3s;
-            border: 1px solid #e0ddd6;
-        }
-
-        .card:hover {
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-
-        .will-card {
-            cursor: pointer;
-        }
-
-        .will-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: start;
-            margin-bottom: 12px;
-        }
-
-        .will-title {
-            font-size: 16px;
-            font-weight: 600;
-            color: #2c2c2a;
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .badge-status {
-            background: #e7f3ff;
-            color: #0066cc;
-        }
-
-        .will-description {
-            color: #888;
-            font-size: 14px;
-            margin-bottom: 10px;
-            line-height: 1.5;
-        }
-
-        .will-instructions-preview {
-            background: #f7f4f0;
-            border-left: 3px solid #6b2d4e;
-            border-radius: 6px;
-            color: #2c2c2a;
-            font-size: 14px;
-            line-height: 1.5;
-            margin: 12px 0;
-            padding: 12px;
-            white-space: pre-wrap;
-        }
-
-        .will-instructions-preview strong {
-            color: #6b2d4e;
-            display: block;
-            font-size: 12px;
-            margin-bottom: 4px;
-            text-transform: uppercase;
-        }
-
-        .will-meta {
-            display: flex;
-            gap: 20px;
-            font-size: 13px;
-            color: #888;
-        }
-
-        .will-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        .btn-action {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: 600;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .btn-view {
-            background: #6b2d4e;
-            color: white;
-        }
-
-        .btn-view:hover {
-            background: #571c42;
-        }
-
-        .btn-download {
-            background: #6b2d4e;
-            color: white;
-            border: 1px solid #5a1f3d;
-        }
-
-        .btn-download:hover {
-            background: #5a1f3d;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: #888;
-        }
-
-        .empty-state-icon {
-            font-size: 48px;
-            margin-bottom: 16px;
-            opacity: 0.5;
-        }
-
-        .empty-state h3 {
-            font-size: 18px;
-            color: #2c2c2a;
-            margin-bottom: 8px;
-        }
-
-        .empty-state p {
-            font-size: 14px;
-        }
-
-        .error-message {
-            background: #f8d7da;
-            color: #721c24;
-            padding: 12px 20px;
-            border-radius: 6px;
-            margin-bottom: 20px;
-            display: none;
-            border: 1px solid #f5c6cb;
-        }
-
-        .error-message.show {
-            display: block;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: #888;
-        }
-
-        .loading-spinner {
-            display: inline-block;
-            width: 30px;
-            height: 30px;
-            border: 3px solid #e0ddd6;
-            border-top-color: #6b2d4e;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .assets-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-            gap: 16px;
-        }
-
-        .asset-card {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .asset-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .asset-icon {
-            align-items: center;
-            border-radius: 8px;
-            color: var(--lv-white);
-            display: flex;
-            flex: 0 0 42px;
-            font-size: 22px;
-            height: 42px;
-            justify-content: center;
-            width: 42px;
-        }
-
-        .asset-name {
-            color: var(--lv-dark);
-            font-size: 15px;
-            font-weight: 600;
-        }
-
-        .asset-account {
-            color: var(--lv-text-light);
-            font-size: 13px;
-            margin-top: 2px;
-            word-break: break-word;
-        }
-
-        .asset-actions {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 8px;
-        }
-
-        .asset-action-btn {
-            align-items: center;
-            background: rgba(107, 45, 78, 0.06);
-            border: 0.5px solid var(--lv-rule);
-            border-radius: 8px;
-            color: var(--lv-mauve);
-            cursor: pointer;
-            display: inline-flex;
-            font-family: 'Inter', sans-serif;
-            font-size: 12px;
-            font-weight: 500;
-            gap: 6px;
-            justify-content: center;
-            padding: 9px 10px;
-        }
-
-        .asset-action-btn:hover {
-            background: rgba(107, 45, 78, 0.12);
-        }
-
-        .workflow-panel {
-            background: var(--lv-cream);
-            display: grid;
-            grid-template-columns: 300px 1fr;
-            inset: 0;
-            position: fixed;
-            z-index: 1000;
-        }
-
-        .workflow-panel-visible {
-            animation: slideIn 0.3s ease forwards;
-        }
-
-        .workflow-panel-hidden {
-            display: none;
-        }
-
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-
-        .workflow-steps-sidebar {
-            background: var(--lv-dark);
-            overflow-y: auto;
-            padding: 24px 0;
-        }
-
-        .workflow-sidebar-header {
-            padding: 0 20px;
-            position: relative;
-        }
-
-        .workflow-close-btn {
-            background: rgba(244, 192, 209, 0.08);
-            border: 0.5px solid rgba(244, 192, 209, 0.18);
-            border-radius: 8px;
-            color: var(--lv-blush);
-            cursor: pointer;
-            padding: 7px 9px;
-            position: absolute;
-            right: 20px;
-            top: 0;
-        }
-
-        .workflow-platform-section {
-            align-items: center;
-            display: flex;
-            gap: 12px;
-            padding-right: 42px;
-        }
-
-        .workflow-platform-icon {
-            align-items: center;
-            border-radius: 12px;
-            color: var(--lv-white);
-            display: flex;
-            flex: 0 0 48px;
-            font-size: 24px;
-            height: 48px;
-            justify-content: center;
-            width: 48px;
-        }
-
-        .workflow-platform-name {
-            color: var(--lv-cream);
-            font-size: 15px;
-            font-weight: 500;
-        }
-
-        .workflow-action-badge {
-            color: var(--lv-blush);
-            font-size: 12px;
-            margin-top: 4px;
-        }
-
-        .workflow-progress-bar {
-            background: rgba(255, 255, 255, 0.08);
-            height: 3px;
-            margin: 16px 20px;
-        }
-
-        .workflow-progress-fill {
-            background: var(--lv-mauve);
-            height: 100%;
-            transition: width 0.3s ease;
-        }
-
-        .step-item {
-            align-items: center;
-            border-left: 3px solid transparent;
-            cursor: pointer;
-            display: flex;
-            gap: 12px;
-            padding: 12px 20px;
-            transition: all 0.15s;
-        }
-
-        .step-item:hover {
-            background: rgba(244, 192, 209, 0.06);
-        }
-
-        .step-item-active {
-            background: rgba(107, 45, 78, 0.3);
-            border-left: 3px solid var(--lv-blush);
-        }
-
-        .step-item-number {
-            align-items: center;
-            background: rgba(244, 192, 209, 0.15);
-            border-radius: 50%;
-            color: var(--lv-blush);
-            display: flex;
-            font-size: 11px;
-            font-weight: 500;
-            height: 26px;
-            justify-content: center;
-            width: 26px;
-        }
-
-        .step-item-active .step-item-number {
-            background: var(--lv-mauve);
-            color: var(--lv-blush);
-        }
-
-        .step-item-title {
-            color: rgba(253, 248, 245, 0.55);
-            font-size: 13px;
-        }
-
-        .step-item-active .step-item-title {
-            color: var(--lv-cream);
-            font-weight: 500;
-        }
-
-        .workflow-preview-panel {
-            background: var(--lv-cream);
-            overflow-y: auto;
-            padding: 32px 40px;
-        }
-
-        #previewContent {
-            max-width: 820px;
-        }
-
-        .irreversible-warning {
-            align-items: flex-start;
-            background: #fcebeb;
-            border-left: 3px solid var(--lv-red);
-            border-radius: 8px;
-            color: var(--lv-red);
-            display: flex;
-            font-size: 13px;
-            gap: 8px;
-            margin-bottom: 16px;
-            padding: 12px 14px;
-        }
-
-        .step-header {
-            align-items: flex-start;
-            display: flex;
-            gap: 14px;
-            margin-bottom: 18px;
-        }
-
-        .step-number-badge {
-            align-items: center;
-            background: var(--lv-mauve);
-            border-radius: 50%;
-            color: var(--lv-blush);
-            display: flex;
-            flex: 0 0 34px;
-            font-size: 14px;
-            height: 34px;
-            justify-content: center;
-            width: 34px;
-        }
-
-        .step-header h2 {
-            color: var(--lv-dark);
-            font-size: 18px;
-            font-weight: 500;
-            margin: 0;
-        }
-
-        .step-header p {
-            color: var(--lv-text-light);
-            font-size: 13px;
-            margin-top: 4px;
-        }
-
-        .step-action {
-            color: var(--lv-text-mid);
-            font-family: 'Inter', sans-serif;
-            font-size: 14px;
-            line-height: 1.8;
-            margin-bottom: 18px;
-        }
-
-        .credentials-section,
-        .tips-section,
-        .account-info-section {
-            background: var(--lv-white);
-            border: 0.5px solid var(--lv-rule);
-            border-radius: 12px;
-            margin: 16px 0;
-            padding: 16px 18px;
-        }
-
-        .credentials-header {
-            align-items: center;
-            color: var(--lv-mauve);
-            display: flex;
-            font-size: 11px;
-            font-weight: 500;
-            gap: 6px;
-            letter-spacing: 0.08em;
-            margin-bottom: 14px;
-            text-transform: uppercase;
-        }
-
-        .credential-item {
-            align-items: center;
-            border-bottom: 0.5px solid var(--lv-rule);
-            display: flex;
-            justify-content: space-between;
-            padding: 10px 0;
-        }
-
-        .credential-item:last-child {
-            border-bottom: 0;
-        }
-
-        .credential-label {
-            color: var(--lv-text-light);
-            font-size: 10px;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-        }
-
-        .credential-value {
-            color: var(--lv-dark);
-            font-family: monospace;
-            font-size: 14px;
-            letter-spacing: 0.05em;
-            margin-top: 3px;
-            word-break: break-word;
-        }
-
-        .copy-credential-btn {
-            background: rgba(107, 45, 78, 0.06);
-            border: 0.5px solid var(--lv-rule);
-            border-radius: 6px;
-            color: var(--lv-mauve);
-            cursor: pointer;
-            font-size: 13px;
-            padding: 5px 8px;
-        }
-
-        .toggle-password-btn {
-            background: none;
-            border: none;
-            color: var(--lv-mauve-light);
-            cursor: pointer;
-            font-size: 15px;
-            margin-left: 6px;
-        }
-
-        .tip-item {
-            align-items: flex-start;
-            border-radius: 6px;
-            color: var(--lv-text-mid);
-            cursor: pointer;
-            display: flex;
-            font-size: 13px;
-            gap: 8px;
-            margin-bottom: 4px;
-            padding: 8px 12px;
-        }
-
-        .tip-item:hover {
-            background: rgba(107, 45, 78, 0.04);
-        }
-
-        .tip-text {
-            display: none;
-            line-height: 1.6;
-            margin-top: 4px;
-        }
-
-        .tip-item.expanded .tip-text {
-            display: block;
-        }
-
-        .farewell-message-box {
-            background: #fbeaf0;
-            border-left: 3px solid var(--lv-mauve);
-            border-radius: 8px;
-            color: var(--lv-text-body);
-            font-size: 14px;
-            font-style: italic;
-            line-height: 1.75;
-            margin: 16px 0;
-            padding: 14px 16px;
-        }
-
-        .farewell-header {
-            align-items: center;
-            color: var(--lv-mauve);
-            display: flex;
-            font-style: normal;
-            font-weight: 600;
-            gap: 6px;
-            margin-bottom: 8px;
-        }
-
-        .farewell-copy-btn {
-            background: var(--lv-mauve);
-            border: none;
-            border-radius: 100px;
-            color: var(--lv-blush);
-            cursor: pointer;
-            font-size: 12px;
-            margin-top: 12px;
-            padding: 8px 14px;
-        }
-
-        .workflow-nav-bar {
-            align-items: center;
-            border-top: 0.5px solid var(--lv-rule);
-            display: flex;
-            justify-content: space-between;
-            margin-top: 32px;
-            padding-top: 20px;
-        }
-
-        .workflow-nav-btn {
-            background: var(--lv-mauve);
-            border: none;
-            border-radius: 100px;
-            color: var(--lv-blush);
-            cursor: pointer;
-            font-family: 'Inter', sans-serif;
-            font-size: 13px;
-            font-weight: 500;
-            padding: 10px 22px;
-        }
-
-        .workflow-nav-btn:disabled {
-            cursor: not-allowed;
-            opacity: 0.35;
-        }
-
-        .workflow-nav-btn.done {
-            background: var(--lv-green);
-            color: var(--lv-white);
-        }
-
-        .workflow-step-counter {
-            color: var(--lv-text-light);
-            font-size: 13px;
-        }
-
-        .toast {
-            animation: fadeIn 0.2s ease, fadeOut 0.3s ease 2.2s forwards;
-            background: var(--lv-mauve);
-            border-radius: 8px;
-            bottom: 24px;
-            color: var(--lv-blush);
-            font-family: 'Inter', sans-serif;
-            font-size: 13px;
-            padding: 12px 20px;
-            pointer-events: none;
-            position: fixed;
-            right: 24px;
-            z-index: 9999;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(6px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes fadeOut {
-            to { opacity: 0; transform: translateY(6px); }
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal.show {
-            display: flex;
-        }
-
-        .modal-content {
-            background: white;
-            border-radius: 12px;
-            padding: 30px;
-            max-width: 600px;
-            width: 90%;
-            max-height: 80vh;
-            overflow-y: auto;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            border-bottom: 1px solid #e0ddd6;
-            padding-bottom: 15px;
-        }
-
-        .modal-header h2 {
-            color: #6b2d4e;
-            font-size: 20px;
-        }
-
-        .modal-close {
-            background: none;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            color: #888;
-        }
-
-        .modal-body {
-            margin-bottom: 20px;
-        }
-
-        .will-info {
-            margin-bottom: 15px;
-        }
-
-        .will-info label {
-            font-weight: 600;
-            color: #6b2d4e;
-            font-size: 13px;
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        .will-info-value {
-            color: #2c2c2a;
-            font-size: 14px;
-            line-height: 1.6;
-            white-space: pre-wrap;
-        }
-
-        .will-info-value.empty {
-            color: #888;
-            font-style: italic;
-        }
-
-        @media (max-width: 768px) {
-            .header {
-                flex-direction: column;
-                gap: 15px;
-            }
-
-            .header-actions {
-                width: 100%;
-            }
-
-            .will-header {
-                flex-direction: column;
-                gap: 10px;
-            }
-
-            .will-actions {
-                flex-direction: column;
-            }
-
-            .btn-action {
-                width: 100%;
-                justify-content: center;
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Legacy Vault — Executor Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --cream:#faf6f0; --cream2:#f3ede3; --cream3:#ede5d8;
+  --plum:#5c1d3b; --plum2:#7a2d52; --plum-light:#9b4a6e;
+  --plum-pale:#f5e8ef; --plum-ultra:#fdf2f6;
+  --sidebar:#130810;
+  --muted:#8a7080; --text:#1e0f18; --text2:#6b4f5e;
+  --white:#fff; --border:rgba(92,29,59,0.1);
+  --green:#22c55e; --amber:#f59e0b; --blue:#6366f1; --red:#ef4444;
+  --green-bg:rgba(34,197,94,0.08); --amber-bg:rgba(245,158,11,0.08);
+  --red-bg:rgba(239,68,68,0.08); --blue-bg:rgba(99,102,241,0.08);
+}
+html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text);overflow:hidden}
+.app{display:flex;height:100vh;overflow:hidden}
+
+/* ════════════════════════════════════
+   SIDEBAR
+════════════════════════════════════ */
+.sidebar{
+  width:272px;flex-shrink:0;
+  background:var(--sidebar);
+  display:flex;flex-direction:column;
+  overflow:hidden;position:relative;
+}
+.sidebar::before{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse 200px 200px at 50% 0%,rgba(155,74,110,0.22) 0%,transparent 100%);
+}
+/* brand */
+.sb-brand{
+  padding:1.1rem 1.1rem 1rem;
+  border-bottom:1px solid rgba(255,255,255,0.05);
+  flex-shrink:0;position:relative;z-index:1;
+}
+.sb-logo-row{display:flex;align-items:center;gap:0.6rem;margin-bottom:1rem}
+.sb-logo-icon{
+  width:34px;height:34px;border-radius:8px;flex-shrink:0;
+  background:linear-gradient(135deg,var(--plum-light),var(--plum));
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 12px rgba(92,29,59,0.5);
+}
+.sb-logo-icon svg{width:16px;height:16px;fill:var(--cream)}
+.sb-logo-text{}
+.sb-brand-name{font-family:'Cormorant Garamond',serif;font-size:0.92rem;font-weight:600;color:rgba(250,246,240,0.9);letter-spacing:0.03em}
+.sb-brand-sub{font-size:0.58rem;color:rgba(250,246,240,0.28);letter-spacing:0.09em;text-transform:uppercase;margin-top:1px}
+/* asset pill */
+.sb-asset-pill{
+  background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);
+  border-radius:9px;padding:0.65rem 0.8rem;
+  display:flex;align-items:center;gap:0.6rem;
+}
+.sb-app-icon{width:28px;height:28px;border-radius:7px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:15px}
+.sb-pill-info{flex:1;min-width:0}
+.sb-pill-name{font-size:0.8rem;font-weight:600;color:rgba(250,246,240,0.85);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sb-pill-cat{font-size:0.6rem;color:rgba(250,246,240,0.3);text-transform:uppercase;letter-spacing:0.07em;margin-top:1px}
+.sb-action-tag{
+  flex-shrink:0;font-size:0.57rem;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;
+  padding:0.18rem 0.5rem;border-radius:100px;
+}
+.tag-pass{background:rgba(99,102,241,0.18);color:#a5b4fc;border:1px solid rgba(99,102,241,0.25)}
+.tag-delete{background:rgba(239,68,68,0.15);color:#fca5a5;border:1px solid rgba(239,68,68,0.22)}
+.tag-message{background:rgba(34,197,94,0.15);color:#86efac;border:1px solid rgba(34,197,94,0.22)}
+/* progress */
+.sb-prog{margin-top:0.65rem}
+.sb-prog-meta{display:flex;justify-content:space-between;font-size:0.6rem;color:rgba(250,246,240,0.28);margin-bottom:0.3rem}
+.sb-prog-track{height:2px;background:rgba(255,255,255,0.06);border-radius:100px;overflow:hidden}
+.sb-prog-fill{height:100%;background:linear-gradient(90deg,var(--plum-light),#c084a0);border-radius:100px;transition:width 0.5s ease}
+/* steps nav */
+.sb-steps{flex:1;overflow-y:auto;padding:0.6rem 0.65rem;scrollbar-width:none}
+.sb-steps::-webkit-scrollbar{display:none}
+.sb-step{
+  display:flex;align-items:flex-start;gap:0.6rem;
+  padding:0.6rem 0.55rem;border-radius:8px;cursor:pointer;
+  transition:background 0.15s;margin-bottom:2px;
+}
+.sb-step:hover:not(.active){background:rgba(255,255,255,0.03)}
+.sb-step.active{background:rgba(92,29,59,0.38);border:1px solid rgba(155,74,110,0.22)}
+.sb-step.done .sb-num{border-color:transparent!important;background:rgba(34,197,94,0.18)!important;color:var(--green)!important}
+.sb-num{
+  width:22px;height:22px;border-radius:50%;flex-shrink:0;
+  border:1.5px solid rgba(255,255,255,0.1);
+  display:flex;align-items:center;justify-content:center;
+  font-size:0.62rem;font-weight:600;color:rgba(250,246,240,0.35);
+  transition:all 0.2s;margin-top:1px;
+}
+.sb-step.active .sb-num{background:var(--plum);border-color:var(--plum);color:var(--cream);box-shadow:0 0 0 3px rgba(92,29,59,0.4)}
+.sb-step-info{flex:1;min-width:0}
+.sb-step-title{font-size:0.78rem;font-weight:500;color:rgba(250,246,240,0.45);line-height:1.3;transition:color 0.15s}
+.sb-step.active .sb-step-title{color:rgba(250,246,240,0.9)}
+.sb-step.done .sb-step-title{color:rgba(250,246,240,0.3);text-decoration:line-through;text-decoration-color:rgba(34,197,94,0.35)}
+.sb-step-desc{font-size:0.65rem;color:rgba(250,246,240,0.22);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sb-connector{width:1px;height:12px;background:rgba(255,255,255,0.05);margin:1px 0 1px calc(0.55rem + 10px)}
+/* footer */
+.sb-footer{padding:0.85rem 1rem;border-top:1px solid rgba(255,255,255,0.05);flex-shrink:0}
+.sb-exec-row{display:flex;align-items:center;gap:0.6rem}
+.sb-exec-ava{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--plum-light),var(--plum));display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:600;color:var(--cream);flex-shrink:0}
+.sb-exec-name{font-size:0.76rem;font-weight:500;color:rgba(250,246,240,0.65)}
+.sb-exec-role{font-size:0.6rem;color:rgba(250,246,240,0.28)}
+.sb-exec-badge{margin-left:auto;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2);border-radius:100px;padding:0.2rem 0.5rem;font-size:0.57rem;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--green)}
+
+/* ════════════════════════════════════
+   MAIN
+════════════════════════════════════ */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;background:var(--cream2)}
+
+/* topbar */
+.topbar{
+  height:50px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;
+  padding:0 1.5rem;
+  background:rgba(250,246,240,0.92);backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+}
+.tb-left{display:flex;align-items:center;gap:0.5rem;font-size:0.73rem;color:var(--text2)}
+.tb-sep{color:var(--muted)}
+.tb-active{color:var(--plum);font-weight:600}
+.tb-pill{background:var(--plum-pale);border:1px solid rgba(92,29,59,0.15);border-radius:100px;padding:0.28rem 0.75rem;font-size:0.65rem;font-weight:600;color:var(--plum);letter-spacing:0.02em}
+.tb-right{display:flex;align-items:center;gap:0.55rem}
+.tb-btn{display:flex;align-items:center;gap:0.35rem;padding:0.38rem 0.8rem;border-radius:7px;font-size:0.71rem;font-weight:500;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:all 0.18s}
+.tb-ghost{background:transparent;color:var(--text2);border:1px solid var(--border)}
+.tb-ghost:hover{background:var(--plum-pale);color:var(--plum);border-color:rgba(92,29,59,0.18)}
+.tb-solid{background:var(--plum);color:var(--cream)}
+.tb-solid:hover{background:var(--plum2)}
+.tb-btn svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0}
+
+/* asset picker */
+.asset-bar{
+  flex-shrink:0;background:var(--white);border-bottom:1px solid var(--border);
+  padding:0.65rem 1.5rem;display:flex;align-items:center;gap:0.55rem;
+  overflow-x:auto;scrollbar-width:none;
+}
+.asset-bar::-webkit-scrollbar{display:none}
+.asset-chip{
+  display:flex;align-items:center;gap:0.45rem;
+  padding:0.35rem 0.75rem 0.35rem 0.45rem;
+  border-radius:100px;border:1.5px solid var(--border);
+  cursor:pointer;transition:all 0.18s;white-space:nowrap;flex-shrink:0;
+  background:transparent;font-family:'DM Sans',sans-serif;
+}
+.asset-chip:hover{border-color:rgba(92,29,59,0.2);background:var(--plum-ultra)}
+.asset-chip.sel{background:var(--plum);border-color:var(--plum)}
+.chip-icon{width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
+.chip-name{font-size:0.75rem;font-weight:500;color:var(--text)}
+.asset-chip.sel .chip-name{color:var(--cream)}
+.chip-action{font-size:0.57rem;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;padding:0.1rem 0.4rem;border-radius:100px}
+.asset-chip.sel .chip-action{background:rgba(255,255,255,0.15);color:rgba(250,246,240,0.75)}
+.asset-chip:not(.sel) .chip-ap{background:rgba(99,102,241,0.1);color:var(--blue)}
+.asset-chip:not(.sel) .chip-ad{background:rgba(239,68,68,0.08);color:var(--red)}
+.asset-chip:not(.sel) .chip-am{background:rgba(34,197,94,0.1);color:var(--green)}
+
+/* content scroll */
+.content{flex:1;overflow-y:auto;padding:1.5rem;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+
+/* ── Step header ── */
+.step-hdr{display:flex;align-items:flex-start;gap:0.9rem;margin-bottom:1.25rem}
+.step-badge{
+  width:42px;height:42px;border-radius:50%;background:var(--plum);flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 6px 18px rgba(92,29,59,0.28);
+}
+.step-badge span{font-family:'Cormorant Garamond',serif;font-size:1.15rem;font-weight:700;color:var(--cream)}
+.step-hdr-text h2{font-family:'Cormorant Garamond',serif;font-size:1.55rem;font-weight:600;color:var(--text);line-height:1.2}
+.step-hdr-text .step-meta{font-size:0.75rem;color:var(--text2);margin-top:0.28rem;line-height:1.6}
+
+/* ── Credentials ── */
+.cred-card{
+  background:var(--white);border:1.5px solid var(--border);
+  border-radius:13px;padding:1rem 1.15rem;margin-bottom:1rem;
+}
+.cred-heading{font-size:0.59rem;letter-spacing:0.12em;text-transform:uppercase;font-weight:600;color:var(--plum);margin-bottom:0.85rem;display:flex;align-items:center;gap:0.4rem}
+.cred-heading svg{width:10px;height:10px;stroke:var(--plum);fill:none;stroke-width:2.5}
+.cred-fields{display:grid;grid-template-columns:1fr 1fr;gap:0.65rem}
+.cred-field-label{font-size:0.59rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);font-weight:500;margin-bottom:0.28rem}
+.cred-field-box{
+  display:flex;align-items:center;gap:0.4rem;
+  background:var(--cream2);border:1px solid var(--border);
+  border-radius:7px;padding:0.5rem 0.75rem;
+}
+.cred-val{font-family:'DM Mono',monospace;font-size:0.78rem;color:var(--text);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pwd-hidden{letter-spacing:0.12em;color:var(--muted);font-size:1rem;line-height:1}
+.cred-btn{
+  width:26px;height:26px;border-radius:6px;background:var(--white);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all 0.16s;
+}
+.cred-btn:hover{background:var(--plum-pale);border-color:rgba(92,29,59,0.18)}
+.cred-btn svg{width:11px;height:11px;stroke:var(--muted);fill:none;stroke-width:2}
+.cred-btn.ok svg{stroke:var(--green)}
+
+/* ── How to do it ── */
+.how-card{background:var(--white);border:1px solid var(--border);border-radius:13px;overflow:hidden;margin-bottom:1rem}
+.how-header{
+  background:var(--plum);padding:0.68rem 1.1rem;
+  display:flex;align-items:center;gap:0.45rem;
+}
+.how-header svg{width:12px;height:12px;stroke:rgba(250,246,240,0.65);fill:none;stroke-width:2}
+.how-header span{font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;font-weight:600;color:rgba(250,246,240,0.75)}
+.how-title{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:600;color:var(--text);padding:0.9rem 1.15rem 0.65rem}
+.how-list{padding:0 1.15rem 1rem}
+.how-item{display:flex;align-items:flex-start;gap:0.75rem;padding:0.65rem 0;border-bottom:1px solid rgba(92,29,59,0.045)}
+.how-item:last-child{border-bottom:none}
+.how-icon-box{
+  width:32px;height:32px;border-radius:8px;background:var(--cream2);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;
+}
+.how-icon-box svg{width:14px;height:14px;stroke:var(--plum);fill:none;stroke-width:1.8}
+.how-item-body{}
+.how-item-label{font-size:0.58rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:0.18rem}
+.how-item-title{font-size:0.83rem;font-weight:600;color:var(--text);line-height:1.35}
+.how-item-detail{font-size:0.76rem;color:var(--text2);line-height:1.6;margin-top:0.18rem}
+.how-item-detail code{font-family:'DM Mono',monospace;font-size:0.71rem;background:var(--cream2);border:1px solid var(--border);padding:0.08rem 0.35rem;border-radius:4px;color:var(--plum)}
+
+/* ── Tips ── */
+.tips-card{background:rgba(245,158,11,0.05);border:1px solid rgba(245,158,11,0.18);border-radius:13px;padding:0.9rem 1.1rem;margin-bottom:1rem}
+.tips-heading{font-size:0.58rem;letter-spacing:0.12em;text-transform:uppercase;font-weight:600;color:var(--amber);margin-bottom:0.65rem;display:flex;align-items:center;gap:0.4rem}
+.tips-heading svg{width:11px;height:11px;stroke:var(--amber);fill:none;stroke-width:2}
+.tip-row{display:flex;align-items:flex-start;gap:0.55rem;padding:0.28rem 0;font-size:0.78rem;color:var(--text2);line-height:1.6}
+.tip-dot{width:6px;height:6px;border-radius:50%;background:var(--amber);flex-shrink:0;margin-top:7px;opacity:0.7}
+
+/* ── Warning banner ── */
+.warn-card{background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.18);border-radius:13px;padding:0.9rem 1.1rem;margin-bottom:1rem;display:flex;gap:0.65rem}
+.warn-icon{width:32px;height:32px;border-radius:8px;background:rgba(239,68,68,0.1);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.warn-icon svg{width:15px;height:15px;stroke:var(--red);fill:none;stroke-width:2}
+.warn-text{font-size:0.79rem;color:var(--text2);line-height:1.65}
+.warn-text strong{color:var(--red);font-weight:600}
+
+/* ── Farewell block ── */
+.farewell-card{background:linear-gradient(135deg,rgba(92,29,59,0.04),rgba(155,74,110,0.05));border:1px solid rgba(92,29,59,0.12);border-radius:13px;padding:1rem 1.15rem;margin-bottom:1rem}
+.farewell-heading{font-size:0.58rem;letter-spacing:0.12em;text-transform:uppercase;font-weight:600;color:var(--plum);margin-bottom:0.6rem;display:flex;align-items:center;gap:0.4rem}
+.farewell-heading svg{width:11px;height:11px;stroke:var(--plum);fill:none;stroke-width:2}
+.farewell-quote{font-family:'Cormorant Garamond',serif;font-size:1.05rem;font-style:italic;color:var(--text);line-height:1.75;border-left:2px solid var(--plum-light);padding-left:0.9rem;margin-left:0.2rem}
+
+/* ── WILL section (overview mode) ── */
+.will-section{padding:0.25rem 0 1.25rem}
+.section-label{font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;font-weight:600;color:var(--plum);margin-bottom:0.9rem}
+.will-card{
+  background:var(--white);border:1px solid var(--border);
+  border-radius:14px;padding:1.15rem 1.25rem;
+  display:flex;align-items:center;gap:1.1rem;
+}
+.will-icon{
+  width:44px;height:44px;border-radius:11px;flex-shrink:0;
+  background:var(--plum-pale);display:flex;align-items:center;justify-content:center;
+}
+.will-icon svg{width:20px;height:20px;stroke:var(--plum);fill:none;stroke-width:1.8}
+.will-body{flex:1;min-width:0}
+.will-title{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:600;color:var(--text)}
+.will-meta{font-size:0.73rem;color:var(--text2);margin-top:0.2rem}
+.will-badge{
+  padding:0.22rem 0.65rem;border-radius:100px;font-size:0.62rem;font-weight:600;letter-spacing:0.04em;
+  text-transform:uppercase;border:1px solid rgba(34,197,94,0.25);
+  background:rgba(34,197,94,0.08);color:var(--green);flex-shrink:0;
+}
+.will-btns{display:flex;gap:0.55rem;flex-shrink:0}
+.will-btn{
+  display:flex;align-items:center;gap:0.35rem;
+  padding:0.48rem 1rem;border-radius:8px;
+  font-size:0.73rem;font-weight:500;cursor:pointer;
+  border:none;font-family:'DM Sans',sans-serif;transition:all 0.18s;
+}
+.will-btn-view{background:var(--plum);color:var(--cream)}
+.will-btn-view:hover{background:var(--plum2)}
+.will-btn-dl{background:var(--cream2);color:var(--text2);border:1px solid var(--border)}
+.will-btn-dl:hover{background:var(--plum-pale);color:var(--plum);border-color:rgba(92,29,59,0.18)}
+.will-btn svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2}
+
+/* ── Bottom nav ── */
+.bottom-bar{
+  height:56px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;
+  padding:0 1.5rem;background:var(--white);border-top:1px solid var(--border);
+}
+.bb-prog{display:flex;align-items:center;gap:0.75rem;flex:1}
+.bb-label{font-size:0.7rem;color:var(--text2)}
+.bb-track{flex:1;max-width:140px;height:2.5px;background:var(--border);border-radius:100px;overflow:hidden}
+.bb-fill{height:100%;background:var(--plum);border-radius:100px;transition:width 0.4s ease}
+.bb-btns{display:flex;gap:0.55rem}
+.bb-btn{
+  display:flex;align-items:center;gap:0.4rem;
+  padding:0.5rem 1.1rem;border-radius:8px;
+  font-size:0.78rem;font-weight:500;cursor:pointer;
+  border:none;font-family:'DM Sans',sans-serif;transition:all 0.18s;
+}
+.bb-prev{background:transparent;border:1.5px solid var(--border);color:var(--text2)}
+.bb-prev:hover{border-color:var(--plum);color:var(--plum)}
+.bb-prev:disabled{opacity:0.4;cursor:not-allowed;pointer-events:none}
+.bb-next{background:var(--plum);color:var(--cream);box-shadow:0 4px 12px rgba(92,29,59,0.22)}
+.bb-next:hover{background:var(--plum2)}
+.bb-btn svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2}
+</style>
 </head>
 <body>
-    <div id="workflowPanel" class="workflow-panel workflow-panel-hidden">
-        <div class="workflow-steps-sidebar">
-            <div class="workflow-sidebar-header">
-                <div class="workflow-platform-section">
-                    <div class="workflow-platform-icon" id="platformIcon"></div>
-                    <div class="workflow-platform-info">
-                        <div class="workflow-platform-name" id="platformName"></div>
-                        <div class="workflow-action-badge" id="actionBadge"></div>
-                    </div>
-                </div>
-                <button class="workflow-close-btn" onclick="closeWorkflow()" title="Close workflow (Esc)">
-                    <i class="ti ti-x"></i>
-                </button>
-            </div>
-            <div class="workflow-progress-bar">
-                <div class="workflow-progress-fill" id="progressFill"></div>
-            </div>
-            <div class="workflow-step-list" id="stepList"></div>
-        </div>
+<div class="app">
 
-        <div class="workflow-preview-panel">
-            <div id="previewContent"></div>
-        </div>
+<!-- ════ SIDEBAR ════ -->
+<aside class="sidebar">
+  <div class="sb-brand">
+    <div class="sb-logo-row">
+      <div class="sb-logo-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 2L4 6v6c0 5.5 3.8 10.7 8 12 4.2-1.3 8-6.5 8-12V6l-8-4z"/></svg>
+      </div>
+      <div class="sb-logo-text">
+        <div class="sb-brand-name">Legacy Vault</div>
+        <div class="sb-brand-sub">Executor Portal</div>
+      </div>
     </div>
-
-    <div class="container">
-        <div class="header">
-            <div class="header-content">
-                <h1>Executor Dashboard</h1>
-                <p id="welcomeText">Welcome, loading...</p>
-            </div>
-            <div class="header-actions">
-                <button class="btn btn-logout" onclick="logout()">
-                    <i class="ti ti-logout"></i>
-                    Logout
-                </button>
-            </div>
-        </div>
-
-        <div id="errorMessage" class="error-message"></div>
-
-        <div class="section">
-            <h2 class="section-title">
-                <i class="ti ti-file-text"></i>
-                Assigned Wills
-            </h2>
-            <div id="willsContainer">
-                <div class="loading">
-                    <div class="loading-spinner"></div>
-                    <p style="margin-top: 10px;">Loading wills...</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="section">
-            <h2 class="section-title">
-                <i class="ti ti-vault"></i>
-                Assigned Digital Assets
-            </h2>
-            <div id="assetsContainer">
-                <div class="loading">
-                    <div class="loading-spinner"></div>
-                    <p style="margin-top: 10px;">Loading assets...</p>
-                </div>
-            </div>
-        </div>
+    <div class="sb-asset-pill" id="sb-pill"></div>
+    <div class="sb-prog">
+      <div class="sb-prog-meta"><span id="sb-prog-txt">Step 1 of 5</span><span id="sb-prog-pct">20%</span></div>
+      <div class="sb-prog-track"><div class="sb-prog-fill" id="sb-fill" style="width:20%"></div></div>
     </div>
-
-    <!-- Will Details Modal -->
-    <div id="willModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Will Details</h2>
-                <button class="modal-close" onclick="closeModal()">&times;</button>
-            </div>
-            <div class="modal-body" id="willDetailsBody"></div>
-            <div style="display: flex; gap: 10px;">
-                <button class="btn btn-download" onclick="closeModal()">Close</button>
-                <button class="btn btn-view" id="downloadWillBtn">
-                    <i class="ti ti-download"></i>
-                    Download PDF
-                </button>
-            </div>
-        </div>
+  </div>
+  <div class="sb-steps" id="sb-steps"></div>
+  <div class="sb-footer">
+    <div class="sb-exec-row">
+      <div class="sb-exec-ava">MS</div>
+      <div><div class="sb-exec-name">Menva Sanesh</div><div class="sb-exec-role">Primary Executor</div></div>
+      <span class="sb-exec-badge">Active</span>
     </div>
+  </div>
+</aside>
 
-    <script src="/js/workflow-steps-detailed.js"></script>
-    <script>
-        const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-            ? 'http://localhost:3000'
-            : 'https://legacy-vault-backend-l50w.onrender.com';
-        let currentAssetId = null;
-        let currentPlatform = null;
-        let currentAccount = null;
-        let currentAction = null;
-        let currentMessage = '';
-        let currentPassword = '';
-        let currentStep = 1;
-        let totalSteps = 0;
-        let currentWorkflow = null;
-        let currentExecutorId = null;
-        let executorAssetsById = {};
+<!-- ════ MAIN ════ -->
+<div class="main">
+  <!-- topbar -->
+  <div class="topbar">
+    <div class="tb-left">
+      <span>Executor Portal</span>
+      <span class="tb-sep">›</span>
+      <span id="tb-asset">—</span>
+      <span class="tb-sep">›</span>
+      <span class="tb-active" id="tb-step">Step 1</span>
+      <span class="tb-pill" id="tb-pill" style="margin-left:0.5rem">Step 1 of 5</span>
+    </div>
+    <div class="tb-right">
+      <button class="tb-btn tb-ghost" onclick="markDone()">
+        <svg viewBox="0 0 24 24"><polyline points="20,6 9,17 4,12"/></svg>Mark done
+      </button>
+      <button class="tb-btn tb-solid">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Help
+      </button>
+    </div>
+  </div>
 
-        // Check authentication
-        function checkAuth() {
-            const token = localStorage.getItem('executorToken');
-            const executorName = localStorage.getItem('executorName');
-            
-            if (!token) {
-                window.location.href = '/executor-login.html';
-                return;
-            }
+  <!-- asset bar -->
+  <div class="asset-bar" id="asset-bar"></div>
 
-            document.getElementById('welcomeText').textContent = `Welcome, ${executorName}!`;
+  <!-- scrollable content -->
+  <div class="content" id="content"></div>
+
+  <!-- bottom nav -->
+  <div class="bottom-bar">
+    <div class="bb-prog">
+      <span class="bb-label" id="bb-label">Step 1 of 5</span>
+      <div class="bb-track"><div class="bb-fill" id="bb-fill" style="width:20%"></div></div>
+    </div>
+    <div class="bb-btns">
+      <button class="bb-btn bb-prev" id="btn-prev" onclick="prev()">
+        <svg viewBox="0 0 24 24"><polyline points="15,18 9,12 15,6"/></svg>Previous
+      </button>
+      <button class="bb-btn bb-next" id="btn-next" onclick="next()">
+        Next<svg viewBox="0 0 24 24"><polyline points="9,18 15,12 9,6"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+// ═══════════════════════════════════════
+//  SVG ICON LIBRARY
+// ═══════════════════════════════════════
+function icon(name,size=14,col='var(--plum)'){
+  const a=`width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="${col}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"`;
+  const m={
+    shield:`<svg ${a}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`,
+    globe:`<svg ${a}><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>`,
+    'external-link':`<svg ${a}><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15,3 21,3 21,9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>`,
+    log:`<svg ${a}><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10,17 15,12 10,7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>`,
+    lock:`<svg ${a}><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`,
+    key:`<svg ${a}><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>`,
+    settings:`<svg ${a}><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`,
+    users:`<svg ${a}><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
+    camera:`<svg ${a}><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>`,
+    'file-text':`<svg ${a}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>`,
+    trash:`<svg ${a}><polyline points="3,6 5,6 21,6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>`,
+    alert:`<svg ${a}><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`,
+    mail:`<svg ${a}><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>`,
+    message:`<svg ${a}><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`,
+    send:`<svg ${a}><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22,2 15,22 11,13 2,9"/></svg>`,
+    search:`<svg ${a}><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>`,
+    user:`<svg ${a}><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
+    check:`<svg ${a}><polyline points="20,6 9,17 4,12"/></svg>`,
+    edit:`<svg ${a}><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`,
+    copy:`<svg ${a}><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`,
+    eye:`<svg ${a}><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`,
+    'eye-off':`<svg ${a}><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`,
+    phone:`<svg ${a}><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.55 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.29 6.29l1.28-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>`,
+    download:`<svg ${a}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>`,
+    heart:`<svg ${a}><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`,
+    'arrow-right':`<svg ${a}><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12,5 19,12 12,19"/></svg>`,
+    refresh:`<svg ${a}><polyline points="23,4 23,10 17,10"/><polyline points="1,20 1,14 7,14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>`,
+    'dollar-sign':`<svg ${a}><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>`,
+  };
+  return m[name]||m['check'];
+}
+
+// ═══════════════════════════════════════
+//  APP ICON SVGs (proper brand icons)
+// ═══════════════════════════════════════
+const APP_ICONS = {
+  Instagram: {
+    color:'#E4405F',
+    svg:`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="17.5" cy="6.5" r="1.2" fill="white" stroke="none"/></svg>`
+  },
+  TikTok: {
+    color:'#010101',
+    svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="white"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.34 6.34 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.99a8.22 8.22 0 004.79 1.52V7.07a4.85 4.85 0 01-1.02-.38z"/></svg>`
+  },
+  Ethereum: {
+    color:'#627EEA',
+    svg:`<svg width="14" height="14" viewBox="0 0 24 24"><polygon points="12,2 20,14 12,18 4,14" fill="rgba(255,255,255,0.9)"/><polygon points="12,18 20,14 12,22 4,14" fill="rgba(255,255,255,0.5)"/></svg>`
+  },
+  'Investment Account': {
+    color:'#16a34a',
+    svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/><polyline points="3,8 9,3 15,8"/></svg>`
+  },
+  'Checking Account': {
+    color:'#0ea5e9',
+    svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/><line x1="7" y1="15" x2="9" y2="15"/><line x1="11" y1="15" x2="17" y2="15"/></svg>`
+  },
+  Facebook: {
+    color:'#1877F2',
+    svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="white"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>`
+  },
+  Gmail: {
+    color:'#EA4335',
+    svg:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>`
+  }
+};
+
+function getAppIcon(name){ return APP_ICONS[name] || {color:'#5c1d3b', svg:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 2L4 6v6c0 5.5 3.8 10.7 8 12 4.2-1.3 8-6.5 8-12V6l-8-4z"/></svg>`}; }
+
+// ═══════════════════════════════════════
+//  WORKFLOW DATA (from JS file)
+// ═══════════════════════════════════════
+const WORKFLOWS = {
+  Instagram:{
+    pass:[
+      {title:'Open Instagram Website',desc:'Access Instagram in web browser',
+       action:'Open web browser → Go to instagram.com → Verify page loads with Instagram logo',creds:null,
+       tips:['Use desktop/web version for better control','Ensure you have a stable internet connection','Use a private/incognito window for security']},
+      {title:'Login to Instagram Account',desc:'Sign in with account credentials',
+       action:'Click "Log In" → Enter username/email → Enter password → Click "Log in"',creds:['username/email','password'],
+       tips:['Verify credentials are correct before proceeding','If 2FA is enabled, complete the verification','Wait for page to fully load']},
+      {title:'Change Account Password',desc:'Update password for executor access',
+       action:'Click profile picture (top right) → Click menu icon → Click "Settings" → Look for "Login" or "Security" section → Click "Password" → Enter your current password → Enter new temporary password (strong) → Confirm new password → Click "Change password"',creds:['current password'],
+       tips:['New password must be different from old password','Use a strong password (mix of letters, numbers, symbols)','Write down the temporary password securely','Share this password with executor through secure method (not email/text)','Example strong password: Insta@Pass2024!Exec']},
+      {title:'Setup Trusted Contacts',desc:'Allow executor to help manage account',
+       action:'In Settings → Click "Help" → Click "Trusted Contacts" (if available) → Add executor\'s contact information',creds:null,
+       tips:['Not all accounts have this feature','Trusted contacts can help recover account if locked out','Add executor email and phone number','They will receive notification that they\'re a trusted contact']},
+      {title:'Document Account Information',desc:'Prepare handoff documentation',
+       action:'Take screenshots of: 1) Account settings page 2) Email address connected 3) Phone number 4) Recovery options 5) Linked accounts (Facebook, etc.) 6) Save this info in a secure document for executor',creds:null,
+       tips:['Write down the email address used for account recovery','Note any phone number associated with account','List all two-factor authentication methods','Document any linked social accounts','Note any business accounts or collaborators']}
+    ],
+    delete:[
+      {title:'Open Instagram Website',desc:'Access Instagram through web browser (not mobile app)',
+       action:'Open your web browser (Chrome, Firefox, Safari, Edge) → Type "instagram.com" in address bar → Press Enter',creds:null,
+       tips:['Use desktop/web browser - Instagram app does not have delete option','Check the URL shows "instagram.com" with padlock icon (HTTPS)','Clear browser cookies first for security']},
+      {title:'Login to Instagram Account',desc:'Enter your account credentials',
+       action:'Click "Log In" button → Enter username or email address → Press Tab/Click password field → Enter password → Click "Log in" button',creds:['username/email','password'],
+       tips:['Use the exact username or email registered to the account','Password is case-sensitive','If two-factor authentication is enabled, approve the login on your phone when prompted','Do NOT check "Save your login info" checkbox']},
+      {title:'Navigate to Account Settings',desc:'Access the settings menu',
+       action:'Click "More" in the bottom-left sidebar → Click "Settings" → In the left sidebar, click "Accounts Center"',creds:null,
+       tips:['"Accounts Center" manages settings across all Meta apps','If you do not see Accounts Center, scroll down in Settings']},
+      {title:'Access Account Deletion Page',desc:'Find the permanent delete option',
+       action:'In Accounts Center → Click "Personal details" → Click "Account ownership and control" → Click "Deactivation or deletion" → Select your Instagram account → Select "Delete account" → Click "Continue"',creds:null,
+       tips:['Do NOT choose "Deactivate account" — that is only temporary','You can download your data from Accounts Center before proceeding'],warn:'This will PERMANENTLY delete the account after 30 days. The action cannot be undone.'},
+      {title:'Confirm Permanent Deletion',desc:'Complete the account deletion process',
+       action:'Select a reason for deletion (select "Privacy concerns") → Click "Continue" → Re-enter your password → Click "Delete account" → Confirm on the final screen',creds:['password'],
+       tips:['You MUST re-enter your password to confirm','Your account is hidden immediately but fully deleted after 30 days','Full deletion takes up to 90 days to clear from servers','Linked Facebook or Threads accounts are NOT deleted — handle those separately'],warn:'Permanent deletion occurs 30 days after confirmation. Do NOT log in during this period or deletion will be cancelled.'}
+    ],
+    last_message:[
+      {title:'Open Instagram',desc:'Access Instagram website',
+       action:'Open web browser → Go to instagram.com',creds:null,
+       tips:['Direct messages work best on web/app','Mobile browser version also works']},
+      {title:'Login to Account',desc:'Sign in with credentials',
+       action:'Click "Log In" → Enter username/email → Enter password → Click "Log in"',creds:['username/email','password'],
+       tips:['Complete 2FA if enabled','Wait for full page load']},
+      {title:'Open Direct Messages',desc:'Access the message inbox',
+       action:'In top right corner, click the messenger icon (paper plane ✈️ or chat bubble) → Your inbox opens showing all conversations',creds:null,
+       tips:['Icon is in the top navigation bar on the right side','You can search for specific people using the search box']},
+      {title:'Select Recipient',desc:'Choose who will receive your last message',
+       action:'Click on the person/group you want to message → If new recipient: Click "Send Message" icon, search their name, click on them',creds:null,
+       tips:['Choose people important to you (close family, best friends)','You can send messages to multiple people','Consider messaging each person individually for a personal touch']},
+      {title:'Type and Send Final Message',desc:'Compose and send your last message',
+       action:'Click in the message text field → Type your farewell message → Click the send button (arrow icon on right) → Message is sent immediately',creds:null,farewell:true,
+       tips:['Keep message thoughtful but not too long','Message will appear immediately in their inbox','Consider messaging your closest people first']}
+    ]
+  },
+  TikTok:{
+    pass:[
+      {title:'Open TikTok Website',desc:'Navigate to TikTok on web browser',action:'Open web browser → Go to tiktok.com → Confirm TikTok logo is visible',creds:null,tips:['Use desktop web browser for full account control','Ensure stable internet connection']},
+      {title:'Login to Account',desc:'Sign in with account credentials',action:'Click "Log in" (top right) → Select "Use phone / email / username" → Enter email → Enter password → Click "Log in"',creds:['username/email','password'],tips:['TikTok may show a CAPTCHA puzzle — complete it to continue','2FA: check registered email or phone for verification code']},
+      {title:'Change Password for Handoff',desc:'Update password so executor can access',action:'Click profile icon (top right) → Click three-dot menu (⋮) → Click "Settings and privacy" → Tap "Security" → Tap "Password" → Enter current password → Enter new temporary password → Confirm → Save',creds:['current password'],tips:['Create strong password 12+ characters','Share with executor securely — avoid email or text']},
+      {title:'Update Recovery Info',desc:'Ensure executor can recover account if needed',action:'In Settings → "Security" → "Email" — Verify the email address is accessible to the executor. Also check "Phone number".',creds:null,tips:['Ensure executor has access to the recovery email inbox','Note any linked social accounts (Google, Facebook) used to log in']},
+      {title:'Document & Handoff',desc:'Compile all information for executor',action:'Screenshot: (1) Profile page (2) Follower count (3) Account settings (4) Linked accounts (5) Recovery options. Compile into a secure offline document.',creds:null,tips:['Document follower count and any business partnerships','Note any TikTok LIVE permissions or monetization settings']}
+    ],
+    delete:[
+      {title:'Open TikTok',desc:'Navigate to TikTok',action:'Open browser → Go to tiktok.com',creds:null,tips:['Use web version for account management']},
+      {title:'Login to Account',desc:'Sign in',action:'Click "Log in" → Select email/username method → Enter credentials',creds:['username/email','password'],tips:['Complete CAPTCHA if shown']},
+      {title:'Access Privacy Settings',desc:'Navigate to account deletion',action:'Tap profile icon → Tap three-dot menu (⋮) → "Settings and privacy" → "Manage account"',creds:null,tips:['Look for "Manage account" option under settings']},
+      {title:'Select Delete Account',desc:'Find the deletion option',action:'In "Manage account" → Tap "Delete account" → Read warning message → Tap "Continue"',creds:null,tips:['TikTok shows a 30-day deactivation period first'],warn:'Account enters a 30-day deactivation period. Do NOT log in during this window or deletion will be cancelled.'},
+      {title:'Confirm Deletion',desc:'Complete account deletion',action:'Enter your password → Enter verification code sent to email/phone → Tap "Delete account" to confirm',creds:['password'],tips:['Your account is immediately deactivated','Permanent deletion occurs after 30 days of no login','All videos, followers, and data are permanently removed'],warn:'This is irreversible after 30 days. All content will be permanently deleted.'}
+    ]
+  },
+  Ethereum:{
+    pass:[
+      {title:'Locate Wallet Credentials',desc:'Find the seed phrase and private keys',action:'Look for a 12 or 24-word seed phrase (recovery phrase) stored in the vault. This is the MASTER KEY to the wallet — handle physically, never share digitally.',creds:null,tips:['NEVER type the seed phrase into any website or app','The seed phrase is the only way to recover funds if the wallet app is lost','Handle physically — write on paper, do not screenshot'],warn:'The seed phrase grants FULL access to all funds. Treat it like physical cash. Never photograph, email, or message it.'},
+      {title:'Install Wallet Application',desc:'Set up the wallet software to access funds',action:'Install MetaMask (metamask.io) or the wallet app specified in the asset notes on a secure, private computer.',creds:null,tips:['Only download from official sources (metamask.io, not third-party sites)','Use the deceased\'s own device or a freshly set-up device','Verify the browser extension is authentic before entering any seed phrase']},
+      {title:'Restore Wallet with Seed Phrase',desc:'Import the wallet using recovery phrase',action:'In MetaMask setup → Click "Import an existing wallet" → Select "Import wallet" → Type each word of the seed phrase in the correct order → Set a new strong password → Click "Import"',creds:null,tips:['Enter seed phrase words in EXACT order — spelling must be perfect','Set a strong new password that the executor controls','Confirm the wallet address matches what is on file in Legacy Vault']},
+      {title:'Verify Wallet Balance',desc:'Confirm funds are accessible',action:'After restoring, confirm the ETH balance and any tokens (ERC-20) visible in the wallet match the expected amounts. Review transaction history to confirm no unauthorized transfers.',creds:null,tips:['Do NOT send any funds until all verification is complete','Check for any staking positions or DeFi protocols connected to the wallet','Record the wallet address for documentation']},
+      {title:'Secure Transfer of Assets',desc:'Transfer funds to executor\'s wallet',action:'Click "Send" → Enter executor\'s verified wallet address → Double-check EVERY character of the address → Enter amount → Review gas fee → Confirm transaction. Wait for confirmation on etherscan.io.',creds:null,tips:['ALWAYS double-check the recipient wallet address — crypto transfers are irreversible','Start with a small test transfer first, then send the remainder','Screenshot the transaction hash (txid) for documentation'],warn:'Crypto transfers are IRREVERSIBLE. Verify the recipient wallet address character by character before confirming.'}
+    ]
+  },
+  'Investment Account':{
+    delete:[
+      {title:'Open Brokerage Website',desc:'Access the investment account platform',action:'Open your web browser → Navigate to the brokerage platform URL noted in the account details (Fidelity, Schwab, Zerodha, etc.) → Confirm HTTPS 🔒 in URL bar',creds:null,tips:['Use the URL saved in Legacy Vault — do not search for the site to avoid phishing','Use a secure, private network — avoid public WiFi']},
+      {title:'Login to Investment Account',desc:'Sign in with account credentials',action:'Find the "Log In" or "Sign In" button on the homepage (usually top right) → Enter the registered email → Enter password → Handle 2FA or security question if prompted',creds:['email/username','password'],tips:['Investment platforms often require 2FA — use the app or SMS code','If login fails, use "Forgot Password" with the recovery email']},
+      {title:'Locate Account Closure Option',desc:'Find the account termination / closure page',action:'Click account name or profile icon (top right) → Look for "Account Settings", "Profile", or "Preferences" → Find "Close Account", "Account Closure", or "Terminate Account" — may be under "Account Services"',creds:null,tips:['Some brokerages require a phone call or written request to close — check Help/FAQ','If funds are still in the account, they MUST be transferred or withdrawn first','Note any ongoing positions, dividends, or auto-investments that need to be cancelled']},
+      {title:'Withdraw or Transfer Remaining Funds',desc:'Ensure no funds are left in the account',action:'Go to "Transfer" or "Withdraw" → Link the executor\'s bank account → Transfer all available cash balance. If there are stocks/ETFs, sell them first to convert to cash, then withdraw.',creds:null,tips:['Tax events may be triggered when selling investments — consult a tax professional','Keep a record of all transactions for estate accounting','Confirm the bank transfer clears before closing'],warn:'Selling investments may trigger capital gains taxes. Consult a tax professional before liquidating positions.'},
+      {title:'Submit Account Closure Request',desc:'Formally request account closure',action:'Click "Close Account" → Select reason (select "Estate/Deceased" or similar) → Follow on-screen steps → Download or screenshot any closure confirmation page → Check registered email for confirmation email.',creds:null,tips:['Some accounts take 7–30 business days to fully close','Request a final account statement for tax and estate records','Check for any annual fees that may be charged during the closure window']}
+    ],
+    pass:[
+      {title:'Contact the Brokerage',desc:'Notify the institution about the estate',action:'Call the brokerage\'s customer service or dedicated bereavement/estate services number. Explain the situation and request information on their estate transfer process.',creds:null,tips:['Gather: account number (from Legacy Vault), deceased\'s details, your ID','Ask specifically about their estate transfer or beneficiary process','Some brokerages have dedicated estate services teams']},
+      {title:'Gather Required Documents',desc:'Prepare estate documentation',action:'You will typically need: (1) Death certificate, (2) Your government-issued photo ID, (3) Grant of Probate or Letter of Administration, (4) Completed estate claim form (provided by brokerage)',creds:null,tips:['Request multiple certified copies of the death certificate','The brokerage will provide their specific estate claim form','Joint accounts may have a simplified process — ask about this']},
+      {title:'Login and Document Current State',desc:'Record all account details for estate records',action:'Login using stored credentials → Screenshot: (1) Total portfolio value, (2) All holdings, (3) Recent transactions, (4) Linked bank accounts, (5) Account settings',creds:['email/username','password'],tips:['Document the date and portfolio value for estate accounting','Note any automatic investments or dividend reinvestments that will need to stop','Keep all screenshots for the estate file']},
+      {title:'Freeze Automatic Transactions',desc:'Stop all scheduled and automatic transactions',action:'Login → Go to settings or preferences → Disable any automatic investments, dividend reinvestment plans (DRIPs), or scheduled transfers → Confirm each has been cancelled',creds:null,tips:['Check for recurring contributions (monthly investments)','Cancel any linked external bank auto-transfers','Note the last transaction date for estate records']},
+      {title:'Initiate Transfer of Assets',desc:'Transfer holdings to estate or beneficiaries',action:'Work with the brokerage\'s estate team to initiate a TOD (Transfer on Death) or JTWROS transfer → OR complete their estate claim form → Assets will be transferred to the estate account or named beneficiaries per probate instructions',creds:null,tips:['TOD designations bypass probate and transfer directly to named beneficiaries','The transfer may take 2–8 weeks to complete','Keep all transfer confirmation documents for the estate file']}
+    ]
+  },
+  'Checking Account':{
+    pass:[
+      {title:'Contact the Bank Directly',desc:'Financial institutions require official estate processes — do not log in first',action:'Call the bank\'s dedicated bereavement / estate services line (found on the back of the bank card or bank\'s official website). Do NOT attempt to log in to the account online first.',creds:null,tips:['Banks have specific legal processes for deceased accounts','Using the account without authorization after death may be a criminal offence','The bank will freeze the account upon notification to protect the estate'],warn:'Do NOT attempt to log in to or use this bank account. Contact the bank\'s bereavement team first. Using a deceased person\'s account without authorization may be illegal.'},
+      {title:'Prepare Documentation',desc:'Gather all required estate documents',action:'You will typically need: (1) Death certificate (certified copy), (2) Your photo ID (passport/driver\'s licence), (3) Grant of Probate or Letter of Administration, (4) Account details from Legacy Vault — account number, sort code/routing number.',creds:null,tips:['Request certified copies of the death certificate from the registrar (you will need multiple)','The bank will provide their specific estate administration checklist','Ask about a dedicated bereavement manager for guidance']},
+      {title:'Submit Bereavement Notification',desc:'Officially notify the bank of the account holder\'s passing',action:'Complete the bank\'s bereavement notification form (in branch or by post to their estate services address) → Attach certified copies of: death certificate, your photo ID, probate document',creds:null,tips:['Send certified copies only — keep the originals','Some banks allow this to be initiated online or by phone','Ask the bank to note all linked accounts under the same notification']},
+      {title:'Account Freeze and Statement Request',desc:'The bank will review and secure the account',action:'Upon notification, the bank will freeze the account. Request: (1) Final account statement, (2) List of all standing orders and direct debits, (3) List of all linked accounts or services',creds:null,tips:['Note any standing orders for essential bills (mortgage, utilities) so they can be redirected','Joint accounts may be handled differently — ask the bank specifically','Overdraft or credit facilities attached to the account will also be frozen']},
+      {title:'Estate Settlement and Account Closure',desc:'Transfer funds and formally close the account',action:'Once probate is granted, provide the bank with the executor\'s account details for the funds transfer → The bank will transfer funds per the will\'s instructions → Request written confirmation of closure for the estate file.',creds:null,tips:['The entire process can take weeks to several months — start early','Retain all bank documents for at least 7 years for tax purposes','Report any interest earned to the tax authority as part of the estate income']}
+    ]
+  }
+};
+
+// ═══════════════════════════════════════
+//  API CONFIG
+// ═══════════════════════════════════════
+const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+  ? 'http://localhost:3000'
+  : 'https://legacy-vault-backend-l50w.onrender.com';
+
+// ═══════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════
+let ASSETS = [];
+let WILL_DATA = null;
+let ai = 0, si = 0;
+const done = {};
+const shown = {};
+
+const asset = () => ASSETS[ai];
+const steps = () => {
+  const a = asset();
+  if (!a) return [];
+  const wf = WORKFLOWS[a.name];
+  if (!wf) return [];
+  return wf[a.action] || wf['pass'] || [];
+};
+
+// ═══════════════════════════════════════
+//  AUTH
+// ═══════════════════════════════════════
+async function checkAuth() {
+  const token = localStorage.getItem('executorToken');
+  if (!token) { window.location.href = '/executor-login.html'; return; }
+
+  const endpoints = ['/api/executor/verify', '/executor/verify'];
+  for (const ep of endpoints) {
+    try {
+      const res = await fetch(`${API_URL}${ep}`, { headers: { 'Authorization': `Bearer ${token}` } });
+      if (res.ok) {
+        const data = await res.json();
+        localStorage.setItem('executorId', data.executorId);
+        // Update executor name in footer
+        if (data.name || data.email) {
+          const initials = (data.name || data.email).split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2);
+          document.querySelector('.sb-exec-ava').textContent = initials;
+          document.querySelector('.sb-exec-name').textContent = data.name || data.email;
         }
-
-        // Load wills assigned to executor
-        async function loadWills() {
-            try {
-                const token = localStorage.getItem('executorToken');
-                const executorId = localStorage.getItem('executorId');
-
-                const response = await fetch(`${API_URL}/executor-portal/wills`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                if (response.status === 401) {
-                    localStorage.removeItem('executorToken');
-                    window.location.href = '/executor-login.html';
-                    return;
-                }
-
-                const data = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(data.error || 'Failed to load wills');
-                }
-
-                displayWills(data.wills || []);
-            } catch (err) {
-                showError(err.message);
-                document.getElementById('willsContainer').innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-state-icon">⚠️</div>
-                        <h3>Could not load wills</h3>
-                        <p>${err.message}</p>
-                    </div>
-                `;
-            }
-        }
-
-        // Display wills
-        function displayWills(wills) {
-            const container = document.getElementById('willsContainer');
-
-            if (wills.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-state-icon">📄</div>
-                        <h3>No Wills Assigned Yet</h3>
-                        <p>You haven't been assigned any wills yet. The account holder will assign wills to you.</p>
-                    </div>
-                `;
-                return;
-            }
-
-            container.innerHTML = wills.map(will => `
-                <div class="card will-card" onclick="viewWill(${will.id})">
-                    <div class="will-header">
-                        <div class="will-title">${escapeHtml(will.title)}</div>
-                        <span class="badge badge-status">${escapeHtml(will.status || 'draft')}</span>
-                    </div>
-                    ${will.description ? `<div class="will-description">${escapeHtml(will.description)}</div>` : ''}
-                    ${getWillInstructions(will) ? `
-                        <div class="will-instructions-preview">
-                            <strong>Executor Instructions</strong>
-                            ${escapeHtml(truncateText(getWillInstructions(will), 220))}
-                        </div>
-                    ` : ''}
-                    <div class="will-meta">
-                        ${will.user_name ? `<span><i class="ti ti-user"></i> ${escapeHtml(will.user_name)}</span>` : ''}
-                        <span><i class="ti ti-calendar"></i> ${new Date(will.created_at).toLocaleDateString()}</span>
-                    </div>
-                    <div class="will-actions">
-                        <button class="btn-action btn-view" onclick="event.stopPropagation(); viewWill(${will.id})">
-                            <i class="ti ti-eye"></i>
-                            View Details
-                        </button>
-                        ${will.file_path ? `
-                            <button class="btn-action btn-download" onclick="event.stopPropagation(); downloadWill(${will.id}, '${escapeHtml(will.title)}')">
-                                <i class="ti ti-download"></i>
-                                Download PDF
-                            </button>
-                        ` : ''}
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        // View will details
-        async function viewWill(willId) {
-            try {
-                const token = localStorage.getItem('executorToken');
-
-                const response = await fetch(`${API_URL}/executor-portal/wills/${willId}`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error('Could not load will details');
-                }
-
-                const data = await response.json();
-                const will = data.will;
-                const instructions = getWillInstructions(will);
-
-                const detailsHtml = `
-                    <div class="will-info">
-                        <label>Title</label>
-                        <div class="will-info-value">${escapeHtml(will.title)}</div>
-                    </div>
-                    <div class="will-info">
-                        <label>Status</label>
-                        <div class="will-info-value">${escapeHtml(will.status || 'draft')}</div>
-                    </div>
-                    ${will.description ? `
-                        <div class="will-info">
-                            <label>Description</label>
-                            <div class="will-info-value">${escapeHtml(will.description)}</div>
-                        </div>
-                    ` : ''}
-                    <div class="will-info">
-                        <label>Executor Instructions</label>
-                        <div class="will-info-value${instructions ? '' : ' empty'}">${instructions ? escapeHtml(instructions) : 'No executor instructions were added for this will.'}</div>
-                    </div>
-                    <div class="will-info">
-                        <label>Created</label>
-                        <div class="will-info-value">${new Date(will.created_at).toLocaleString()}</div>
-                    </div>
-                `;
-
-                document.getElementById('willDetailsBody').innerHTML = detailsHtml;
-
-                if (will.file_path) {
-                    document.getElementById('downloadWillBtn').onclick = () => downloadWill(will.id, will.title);
-                    document.getElementById('downloadWillBtn').style.display = 'inline-flex';
-                } else {
-                    document.getElementById('downloadWillBtn').style.display = 'none';
-                }
-
-                document.getElementById('willModal').classList.add('show');
-            } catch (err) {
-                showError(err.message);
-            }
-        }
-
-        // Download will PDF
-        async function downloadWill(willId, willTitle) {
-            try {
-                const token = localStorage.getItem('executorToken');
-
-                const response = await fetch(`${API_URL}/executor-portal/wills/${willId}/download`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || 'Could not download will');
-                }
-
-                const blob = await response.blob();
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `${willTitle}.pdf`;
-                document.body.appendChild(a);
-                a.click();
-                window.URL.revokeObjectURL(url);
-                document.body.removeChild(a);
-            } catch (err) {
-                showError(err.message);
-            }
-        }
-
-        // Close modal
-        function closeModal() {
-            document.getElementById('willModal').classList.remove('show');
-        }
-
-        // Logout
-        function logout() {
-            localStorage.removeItem('executorToken');
-            localStorage.removeItem('executorId');
-            localStorage.removeItem('executorEmail');
-            localStorage.removeItem('executorName');
-            window.location.href = '/executor-login.html';
-        }
-
-        // Show error
-        function showError(message) {
-            const errorEl = document.getElementById('errorMessage');
-            errorEl.textContent = message;
-            errorEl.classList.add('show');
-            setTimeout(() => {
-                errorEl.classList.remove('show');
-            }, 5000);
-        }
-
-        async function loadAssets() {
-            try {
-                const token = localStorage.getItem('executorToken');
-                const response = await fetch(`${API_URL}/executor-portal/assets`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                if (response.status === 401) {
-                    localStorage.removeItem('executorToken');
-                    window.location.href = '/executor-login.html';
-                    return;
-                }
-
-                const data = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(data.error || 'Failed to load assets');
-                }
-
-                displayAssets(data.assets || []);
-            } catch (err) {
-                document.getElementById('assetsContainer').innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-state-icon">⚠</div>
-                        <h3>Could not load assets</h3>
-                        <p>${escapeHtml(err.message)}</p>
-                    </div>
-                `;
-            }
-        }
-
-        function displayAssets(assets) {
-            const container = document.getElementById('assetsContainer');
-            executorAssetsById = {};
-
-            if (assets.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-state-icon">□</div>
-                        <h3>No Digital Assets Assigned Yet</h3>
-                        <p>Assigned assets will appear here when the account holder grants executor access.</p>
-                    </div>
-                `;
-                return;
-            }
-
-            container.innerHTML = `<div class="assets-grid">${assets.map(asset => {
-                const platform = normalizePlatformName(asset.asset_name || asset.asset_type || '');
-                const platformData = WORKFLOWS[platform] || {};
-                const account = asset.email || asset.account || 'Account not provided';
-                const password = asset.password || '';
-                const message = asset.last_message || asset.final_message || asset.farewell_message || '';
-                
-                // Determine action type
-                const rawAction = asset.action_type || 'pass';
-                let actionKey = rawAction;
-                let btnLabel = 'View Instructions';
-                let btnIcon = 'ti ti-list-details';
-                
-                if (rawAction === 'pass') {
-                    actionKey = 'handoff';
-                    btnLabel = 'Pass to Executor';
-                    btnIcon = 'ti ti-user-share';
-                } else if (rawAction === 'delete') {
-                    actionKey = 'delete';
-                    btnLabel = 'Delete Account';
-                    btnIcon = 'ti ti-trash';
-                } else if (rawAction === 'last_message') {
-                    actionKey = 'last_message';
-                    btnLabel = 'Final Message';
-                    btnIcon = 'ti ti-heart';
-                }
-                
-                executorAssetsById[asset.id] = { platform, account, password, message };
-
-                return `
-                    <div class="card asset-card">
-                        <div class="asset-header">
-                            <div class="asset-icon" style="background:${platformData.color || '#6b2d4e'}">
-                                <i class="${platformData.icon || 'ti ti-key'}"></i>
-                            </div>
-                            <div>
-                                <div class="asset-name">${escapeHtml(asset.asset_name || platform)}</div>
-                                <div class="asset-account">${escapeHtml(account)}</div>
-                            </div>
-                        </div>
-                        ${asset.description ? `<div class="will-description">${escapeHtml(asset.description)}</div>` : ''}
-                        <div class="asset-actions">
-                            <button class="asset-action-btn" onclick="openWorkflowForAsset(${Number(asset.id)}, '${escapeJs(actionKey)}')">
-                                <i class="${btnIcon}"></i>
-                                ${btnLabel}
-                            </button>
-                        </div>
-                    </div>
-                `;
-            }).join('')}</div>`;
-        }
-
-        function renderWorkflowButton(assetId, action, label, icon) {
-            return `
-                <button class="asset-action-btn" onclick="openWorkflowForAsset(${Number(assetId)}, '${escapeJs(action)}')">
-                    <i class="${icon}"></i>
-                    ${label}
-                </button>
-            `;
-        }
-
-        function openWorkflowForAsset(assetId, action) {
-            const asset = executorAssetsById[assetId];
-            if (!asset) {
-                showToast('Workflow not available for this action');
-                return;
-            }
-
-            openWorkflowDirect(assetId, asset.platform, asset.account, action, asset.message, asset.password);
-        }
-
-        function normalizePlatformName(value) {
-            const cleanValue = String(value || '').trim().toLowerCase();
-            const aliases = {
-                twitter: 'Twitter/X',
-                x: 'Twitter/X',
-                icloud: 'iCloud',
-                'icloud photos': 'iCloud Photos',
-                googlephotos: 'Google Photos',
-                googlepay: 'Google Pay',
-                google: 'Google Drive',
-                prime: 'Amazon Prime',
-                'prime video': 'Amazon Prime',
-                youtube: 'YouTube',
-                paypal: 'PayPal',
-                paytm: 'Paytm',
-                phonepe: 'PhonePe',
-                bhim: 'BHIM',
-                coindcx: 'CoinDCX',
-                wazirx: 'WazirX'
-            };
-
-            if (aliases[cleanValue]) {
-                return aliases[cleanValue];
-            }
-
-            const exact = Object.keys(WORKFLOWS).find(name => name.toLowerCase() === cleanValue);
-            if (exact) {
-                return exact;
-            }
-
-            return Object.keys(WORKFLOWS).find(name => cleanValue.includes(name.toLowerCase())) || value;
-        }
-
-        async function verifyExecutorSession() {
-            const token = localStorage.getItem('executorToken');
-            const endpoints = ['/api/executor/verify', '/executor/verify'];
-
-            for (const endpoint of endpoints) {
-                const response = await fetch(`${API_URL}${endpoint}`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    currentExecutorId = data.executorId;
-                    localStorage.setItem('executorId', data.executorId);
-                    return data.verified === true;
-                }
-
-                if (response.status === 401) {
-                    closeWorkflow();
-                    localStorage.removeItem('executorToken');
-                    window.location.href = '/executor-login.html';
-                    return false;
-                }
-            }
-
-            return false;
-        }
-
-        async function openWorkflowDirect(assetId, platform, account, action, message, password) {
-            const verified = await verifyExecutorSession();
-            if (!verified) {
-                showToast('Workflow not available for this action');
-                return;
-            }
-
-            let platformData = WORKFLOWS[platform];
-            if (!platformData) {
-                // Determine a suitable icon, category, and color based on platform name
-                let iconClass = 'ti ti-help-circle';
-                let categoryName = 'General Digital Asset';
-                let themeColor = '#6b2d4e';
-                const lowerPlatform = platform.toLowerCase();
-
-                if (lowerPlatform.includes('bitcoin') || lowerPlatform.includes('ethereum') || lowerPlatform.includes('crypto')) {
-                    iconClass = 'ti ti-currency-bitcoin';
-                    categoryName = 'Crypto';
-                    themeColor = '#f2a900';
-                } else if (lowerPlatform.includes('account') || lowerPlatform.includes('bank') || lowerPlatform.includes('savings') || lowerPlatform.includes('checking')) {
-                    iconClass = 'ti ti-building-bank';
-                    categoryName = 'Finance';
-                    themeColor = '#0070ba';
-                }
-
-                const fallbackPlatform = {
-                    appName: platform,
-                    icon: iconClass,
-                    category: categoryName,
-                    color: themeColor,
-                    url: 'https://www.google.com'
-                };
-
-                platformData = {
-                    appName: platform,
-                    icon: fallbackPlatform.icon,
-                    category: fallbackPlatform.category,
-                    color: fallbackPlatform.color,
-                    actions: {
-                        delete: {
-                            title: `Permanently Delete Account - ${platform}`,
-                            steps: buildDeleteSteps(fallbackPlatform)
-                        },
-                        pass: {
-                            title: `Transfer Account Access - ${platform}`,
-                            steps: buildPassSteps(fallbackPlatform)
-                        },
-                        last_message: {
-                            title: `Post or Send Farewell Message - ${platform}`,
-                            steps: buildLastMessageSteps(fallbackPlatform)
-                        },
-                        handoff: {
-                            title: `Create Read-Only Archive Handoff - ${platform}`,
-                            steps: buildHandoffSteps(fallbackPlatform)
-                        }
-                    }
-                };
-            }
-
-            if (!platformData.actions[action]) {
-                showToast('Workflow not available for this action');
-                return;
-            }
-
-            currentAssetId = assetId;
-            currentPlatform = platform;
-            currentAccount = account;
-            currentAction = action;
-            currentMessage = message || '';
-            currentPassword = password || '';
-            currentStep = 1;
-            currentWorkflow = platformData.actions[action];
-            totalSteps = currentWorkflow.steps.length;
-
-            document.getElementById('platformIcon').innerHTML = `<i class="${platformData.icon}"></i>`;
-            document.getElementById('platformIcon').style.backgroundColor = platformData.color;
-            document.getElementById('platformName').textContent = platformData.appName;
-            document.getElementById('actionBadge').textContent = currentWorkflow.title;
-
-            const stepList = document.getElementById('stepList');
-            stepList.innerHTML = '';
-            currentWorkflow.steps.forEach((step, index) => {
-                const item = document.createElement('div');
-                item.className = `step-item${index === 0 ? ' step-item-active' : ''}`;
-                item.innerHTML = `
-                    <div class="step-item-number">${step.stepNumber}</div>
-                    <div class="step-item-title">${escapeHtml(step.title)}</div>
-                `;
-                item.addEventListener('click', () => selectStep(index));
-                stepList.appendChild(item);
-            });
-
-            renderStepPreview(currentWorkflow.steps[0], platform, account, action, password, message);
-
-            const panel = document.getElementById('workflowPanel');
-            panel.classList.remove('workflow-panel-hidden');
-            panel.classList.add('workflow-panel-visible');
-            document.getElementById('progressFill').style.width = `${(1 / totalSteps) * 100}%`;
-            document.addEventListener('keydown', handlePanelKeydown);
-            logStepView(1);
-        }
-
-        function selectStep(stepIndex) {
-            currentStep = stepIndex + 1;
-            document.querySelectorAll('.step-item').forEach((item, index) => {
-                item.classList.toggle('step-item-active', index === stepIndex);
-            });
-            renderStepPreview(currentWorkflow.steps[stepIndex], currentPlatform, currentAccount, currentAction, currentPassword, currentMessage);
-            document.getElementById('progressFill').style.width = `${(currentStep / totalSteps) * 100}%`;
-            logStepView(currentStep);
-        }
-
-        function renderStepPreview(step, platform, account, action, password, message) {
-            const previewContent = document.getElementById('previewContent');
-            const instructions = escapeHtml(step.action).replace(/\n/g, '<br>');
-            let html = '';
-
-            if (action === 'delete') {
-                html += `
-                    <div class="irreversible-warning">
-                        <i class="ti ti-alert-triangle"></i>
-                        <span>This action is permanent and irreversible. Read every step carefully before proceeding.</span>
-                    </div>
-                `;
-            }
-
-            html += `
-                <div class="step-header">
-                    <div class="step-number-badge">${step.stepNumber}</div>
-                    <div>
-                        <h2>${escapeHtml(step.title)}</h2>
-                        <p>${escapeHtml(step.description)}</p>
-                    </div>
-                </div>
-                <div class="step-action">${instructions}</div>
-            `;
-
-            if (step.stepNumber === 1) {
-                html += `
-                    <div class="account-info-section">
-                        <div class="credentials-header"><i class="ti ti-user"></i> Account Information</div>
-                        <div class="credential-item">
-                            <div>
-                                <div class="credential-label">Email / Username</div>
-                                <div class="credential-value" id="accountValue">${escapeHtml(account)}</div>
-                            </div>
-                            <button class="copy-credential-btn" onclick="copyUsernameValue('accountValue')"><i class="ti ti-copy"></i></button>
-                        </div>
-                    </div>
-                `;
-            }
-
-            if (step.credentials !== null) {
-                html += `
-                    <div class="credentials-section">
-                        <div class="credentials-header"><i class="ti ti-lock"></i> Credentials Required</div>
-                        ${step.credentials.map(credential => renderCredential(step.stepNumber, credential, account, password)).join('')}
-                    </div>
-                `;
-            }
-
-            if (step.tips && step.tips.length > 0) {
-                html += `
-                    <div class="tips-section">
-                        <div class="credentials-header"><i class="ti ti-bulb"></i> Tips & Warnings</div>
-                        ${step.tips.map((tip, index) => `
-                            <div class="tip-item" onclick="toggleTip(this)">
-                                <span class="tip-toggle">▶</span>
-                                <div>
-                                    <div>${escapeHtml(`Tip ${index + 1}`)}</div>
-                                    <div class="tip-text">${escapeHtml(tip)}</div>
-                                </div>
-                            </div>
-                        `).join('')}
-                    </div>
-                `;
-            }
-
-            if (step.showFarewellMessage === true) {
-                html += `
-                    <div class="farewell-message-box">
-                        <div class="farewell-header"><i class="ti ti-heart"></i> Farewell Message</div>
-                        <div id="farewellMessageText">${escapeHtml(message || '')}</div>
-                        <button class="farewell-copy-btn" onclick="copyMessageValue('farewellMessageText')">
-                            <i class="ti ti-copy"></i> Copy Message
-                        </button>
-                    </div>
-                `;
-            }
-
-            const isFirstStep = step.stepNumber === 1;
-            const isLastStep = step.stepNumber === totalSteps;
-            html += `
-                <div class="workflow-nav-bar">
-                    <button class="workflow-nav-btn" onclick="previousStep()" ${isFirstStep ? 'disabled' : ''}>← Previous</button>
-                    <div class="workflow-step-counter">Step ${step.stepNumber} of ${totalSteps}</div>
-                    ${isLastStep ? '<button class="workflow-nav-btn done" onclick="markAsDone()">Mark as Done ✓</button>' : '<button class="workflow-nav-btn" onclick="nextStep()">Next →</button>'}
-                </div>
-            `;
-
-            previewContent.innerHTML = html;
-            document.querySelector('.workflow-preview-panel').scrollTop = 0;
-        }
-
-        function renderCredential(stepNumber, credential, account, password) {
-            const name = String(credential);
-            const id = `credential-${stepNumber}-${name.replace(/[^a-z0-9]/gi, '-')}`;
-            const normalized = name.toLowerCase();
-
-            if (normalized.includes('password') || normalized.includes('pin') || normalized.includes('2fa')) {
-                const actual = password || '';
-                const bullets = '•'.repeat(Math.max(actual.length, 8));
-                return `
-                    <div class="credential-item">
-                        <div>
-                            <div class="credential-label">${escapeHtml(name.toUpperCase())}</div>
-                            <div class="credential-value" id="${id}" data-actual="${escapeAttr(actual)}">${bullets}</div>
-                        </div>
-                        <div>
-                            <button class="copy-credential-btn" onclick="copyPasswordValue('${id}')"><i class="ti ti-copy"></i></button>
-                            <button class="toggle-password-btn" data-toggle-for="${id}" onclick="togglePasswordDisplay('${id}')"><i class="ti ti-eye"></i></button>
-                        </div>
-                    </div>
-                `;
-            }
-
-            if (normalized.includes('email') || normalized.includes('username') || normalized.includes('account')) {
-                return `
-                    <div class="credential-item">
-                        <div>
-                            <div class="credential-label">${escapeHtml(name.toUpperCase())}</div>
-                            <div class="credential-value" id="${id}">${escapeHtml(account)}</div>
-                        </div>
-                        <button class="copy-credential-btn" onclick="copyCredential('${id}', 'Email address copied')"><i class="ti ti-copy"></i></button>
-                    </div>
-                `;
-            }
-
-            return `
-                <div class="credential-item">
-                    <div>
-                        <div class="credential-label">${escapeHtml(name.toUpperCase())}</div>
-                        <div class="credential-value">Required — provide your own</div>
-                    </div>
-                </div>
-            `;
-        }
-
-        function copyPasswordValue(elementId) {
-            const el = document.getElementById(elementId);
-            navigator.clipboard.writeText(el.getAttribute('data-actual') || '');
-            showToast('Password copied to clipboard');
-        }
-
-        function copyUsernameValue(elementId) {
-            const el = document.getElementById(elementId);
-            navigator.clipboard.writeText(el.textContent);
-            showToast('Email address copied');
-        }
-
-        function copyMessageValue(elementId) {
-            const el = document.getElementById(elementId);
-            navigator.clipboard.writeText(el.textContent);
-            showToast('Farewell message copied');
-        }
-
-        function copyCredential(elementId, toastMessage) {
-            const el = document.getElementById(elementId);
-            navigator.clipboard.writeText(el.textContent);
-            showToast(toastMessage);
-        }
-
-        function togglePasswordDisplay(elementId) {
-            const el = document.getElementById(elementId);
-            const actual = el.getAttribute('data-actual') || '';
-            const isMasked = el.textContent.includes('•');
-            const icon = document.querySelector(`[data-toggle-for="${elementId}"] i`);
-
-            el.textContent = isMasked ? actual : '•'.repeat(Math.max(actual.length, 8));
-            if (icon) {
-                icon.className = isMasked ? 'ti ti-eye-off' : 'ti ti-eye';
-            }
-        }
-
-        function nextStep() {
-            const active = document.querySelector('.step-item-active');
-            if (active && active.nextElementSibling) active.nextElementSibling.click();
-        }
-
-        function previousStep() {
-            const active = document.querySelector('.step-item-active');
-            if (active && active.previousElementSibling) active.previousElementSibling.click();
-        }
-
-        async function markAsDone() {
-            const executorId = Number(currentExecutorId || localStorage.getItem('executorId'));
-            closeWorkflow();
-            showToast('Workflow completed — well done');
-
-            try {
-                await postWorkflowEndpoint(`/api/assets/${currentAssetId}/workflow-complete`, {
-                    action: currentAction,
-                    executorId,
-                    completedAt: new Date().toISOString()
-                });
-            } catch (err) {
-                console.error('Workflow completion logging failed:', err);
-            }
-        }
-
-        function closeWorkflow() {
-            const panel = document.getElementById('workflowPanel');
-            panel.classList.remove('workflow-panel-visible');
-            panel.classList.add('workflow-panel-hidden');
-            document.removeEventListener('keydown', handlePanelKeydown);
-        }
-
-        function handlePanelKeydown(event) {
-            if (event.key === 'Escape') {
-                closeWorkflow();
-            }
-        }
-
-        function showToast(message) {
-            const toast = document.createElement('div');
-            toast.className = 'toast';
-            toast.textContent = message;
-            document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 2600);
-        }
-
-        function toggleTip(tipItem) {
-            tipItem.classList.toggle('expanded');
-            tipItem.querySelector('.tip-toggle').textContent = tipItem.classList.contains('expanded') ? '▼' : '▶';
-        }
-
-        async function logStepView(stepNumber) {
-            try {
-                await postWorkflowEndpoint(`/api/assets/${currentAssetId}/step-view`, {
-                    platform: currentPlatform,
-                    action: currentAction,
-                    stepNumber,
-                    viewedAt: new Date().toISOString()
-                });
-            } catch (err) {
-                console.debug('Step telemetry skipped:', err.message);
-            }
-        }
-
-        async function postWorkflowEndpoint(endpoint, body) {
-            const token = localStorage.getItem('executorToken');
-            const endpoints = [endpoint, endpoint.replace('/api', '')];
-            let lastError = 'Request failed';
-
-            for (const candidate of endpoints) {
-                const response = await fetch(`${API_URL}${candidate}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify(body)
-                });
-
-                if (response.ok) return response.json().catch(() => ({}));
-                lastError = `Request failed (${response.status})`;
-                if (response.status !== 404) break;
-            }
-
-            throw new Error(lastError);
-        }
-
-        function getWillInstructions(will) {
-            const instructions = (will.instructions || '').trim();
-            if (instructions) {
-                return instructions;
-            }
-
-            const content = (will.content || '').trim();
-            if (!content || isAutoGeneratedWillContent(content)) {
-                return '';
-            }
-
-            return content;
-        }
-
-        function isAutoGeneratedWillContent(content) {
-            return content.startsWith('Digital Will for ')
-                && content.includes('ASSETS (')
-                && content.includes('EXECUTORS (');
-        }
-
-        function truncateText(text, maxLength) {
-            if (!text || text.length <= maxLength) {
-                return text || '';
-            }
-
-            return `${text.slice(0, maxLength).trim()}...`;
-        }
-
-        // Escape HTML
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        function escapeAttr(text) {
-            return escapeHtml(text).replace(/"/g, '&quot;');
-        }
-
-        function escapeJs(text) {
-            return String(text || '')
-                .replace(/\\/g, '\\\\')
-                .replace(/'/g, "\\'")
-                .replace(/\n/g, '\\n')
-                .replace(/\r/g, '');
-        }
-
-        // Close modal when clicking outside
-        document.getElementById('willModal').addEventListener('click', (e) => {
-            if (e.target.id === 'willModal') {
-                closeModal();
-            }
-        });
-
-        // Initialize
-        checkAuth();
-        loadWills();
-        loadAssets();
-    </script>
+        return true;
+      }
+      if (res.status === 401) { localStorage.removeItem('executorToken'); window.location.href = '/executor-login.html'; return false; }
+    } catch(e) {}
+  }
+  return false;
+}
+
+// ═══════════════════════════════════════
+//  API FETCH
+// ═══════════════════════════════════════
+async function fetchAssets() {
+  const token = localStorage.getItem('executorToken');
+  const endpoints = ['/api/executor-portal/assets', '/executor-portal/assets'];
+  for (const ep of endpoints) {
+    try {
+      const res = await fetch(`${API_URL}${ep}`, { headers: { 'Authorization': `Bearer ${token}` } });
+      if (res.ok) {
+        const data = await res.json();
+        return (data.assets || data || []).map(a => ({
+          id: String(a.id),
+          name: a.asset_name || a.name,
+          account: a.email || a.account || '',
+          password: a.password || '',
+          action: a.action_type || 'pass',
+          farewell: a.last_message || ''
+        }));
+      }
+    } catch(e) {}
+  }
+  return [];
+}
+
+async function fetchWill() {
+  const token = localStorage.getItem('executorToken');
+  const endpoints = ['/api/executor-portal/wills', '/executor-portal/wills'];
+  for (const ep of endpoints) {
+    try {
+      const res = await fetch(`${API_URL}${ep}`, { headers: { 'Authorization': `Bearer ${token}` } });
+      if (res.ok) {
+        const data = await res.json();
+        const wills = data.wills || data || [];
+        return wills.length > 0 ? wills[0] : null;
+      }
+    } catch(e) {}
+  }
+  return null;
+}
+
+async function logWorkflowComplete(assetId, action) {
+  const token = localStorage.getItem('executorToken');
+  const executorId = Number(localStorage.getItem('executorId'));
+  const endpoints = [`/api/assets/${assetId}/workflow-complete`, `/assets/${assetId}/workflow-complete`];
+  for (const ep of endpoints) {
+    try {
+      const res = await fetch(`${API_URL}${ep}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ action, executorId, completedAt: new Date().toISOString() })
+      });
+      if (res.ok) return;
+    } catch(e) {}
+  }
+}
+
+// ═══════════════════════════════════════
+//  RENDER
+// ═══════════════════════════════════════
+function render(){
+  if (!ASSETS.length) return;
+  renderAssetBar();
+  renderSidebar();
+  renderContent();
+}
+
+function renderAssetBar(){
+  const el = document.getElementById('asset-bar');
+  const AL = {pass:'Pass',delete:'Delete',last_message:'Message'};
+  const AC = {pass:'chip-ap',delete:'chip-ad',last_message:'chip-am'};
+  el.innerHTML = ASSETS.map((a,i)=>{
+    const ico = getAppIcon(a.name);
+    return `<button class="asset-chip${i===ai?' sel':''}" onclick="selAsset(${i})">
+      <div class="chip-icon" style="background:${ico.color}">${ico.svg}</div>
+      <span class="chip-name">${a.name}</span>
+      <span class="chip-action ${AC[a.action]}">${AL[a.action]||a.action}</span>
+    </button>`;
+  }).join('');
+}
+
+function renderSidebar(){
+  const a = asset(); const ss = steps();
+  if (!a || !ss.length) return;
+  const ico = getAppIcon(a.name);
+  const AL = {pass:'Pass to Executor',delete:'Delete Account',last_message:'Last Message'};
+  const TC = {pass:'tag-pass',delete:'tag-delete',last_message:'tag-message'};
+
+  document.getElementById('sb-pill').innerHTML =
+    `<div class="sb-app-icon" style="background:${ico.color}">${ico.svg}</div>
+     <div class="sb-pill-info"><div class="sb-pill-name">${a.name}</div><div class="sb-pill-cat">${a.account}</div></div>
+     <span class="sb-action-tag ${TC[a.action]}">${AL[a.action]||a.action}</span>`;
+
+  const pct = Math.round((si+1)/ss.length*100);
+  document.getElementById('sb-prog-txt').textContent = `Step ${si+1} of ${ss.length}`;
+  document.getElementById('sb-prog-pct').textContent = pct+'%';
+  document.getElementById('sb-fill').style.width = pct+'%';
+
+  document.getElementById('sb-steps').innerHTML = ss.map((s,i)=>{
+    const key=a.id+'_'+i, isDone=done[key], isActive=i===si;
+    return `${i>0?'<div class="sb-connector"></div>':''}
+    <div class="sb-step${isActive?' active':''}${isDone?' done':''}" onclick="goStep(${i})">
+      <div class="sb-num">${isDone?icon('check',9,'var(--green)'):(i+1)}</div>
+      <div class="sb-step-info">
+        <div class="sb-step-title">${s.title}</div>
+        <div class="sb-step-desc">${s.desc}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('tb-asset').textContent = a.name;
+  document.getElementById('tb-step').textContent = steps()[si]?.title||'';
+  document.getElementById('tb-pill').textContent = `Step ${si+1} of ${ss.length}`;
+  document.getElementById('bb-label').textContent = `Step ${si+1} of ${ss.length}`;
+  document.getElementById('bb-fill').style.width = pct+'%';
+  document.getElementById('btn-prev').disabled = si===0;
+  const btnN = document.getElementById('btn-next');
+  btnN.innerHTML = si===ss.length-1
+    ? `Complete ${icon('check',13,'var(--cream)')}`
+    : `Next ${icon('arrow-right',13,'var(--cream)')}`;
+}
+
+function renderContent(){
+  const a = asset(); const s = steps()[si];
+  if(!s){document.getElementById('content').innerHTML='<p style="padding:2rem;color:var(--muted)">No workflow found for this asset.</p>';return;}
+
+  const hasCred = s.creds && (a.account||a.password);
+  const pwKey = `pw_${a.id}_${si}`;
+  const pwShown = shown[pwKey];
+  const ico = getAppIcon(a.name);
+
+  // Will section
+  let html = '';
+  if (WILL_DATA) {
+    const willDate = WILL_DATA.created_at ? new Date(WILL_DATA.created_at).toLocaleDateString() : '—';
+    html += `
+  <div class="will-section">
+    <div class="section-label">Assigned Will</div>
+    <div class="will-card">
+      <div class="will-icon">${icon('file-text',20,'var(--plum)')}</div>
+      <div class="will-body">
+        <div class="will-title">${WILL_DATA.title || 'Digital Will'}</div>
+        <div class="will-meta">${willDate}&nbsp;·&nbsp;${ASSETS.length} assets</div>
+      </div>
+      <span class="will-badge">${WILL_DATA.status || 'Published'}</span>
+      <div class="will-btns">
+        <button class="will-btn will-btn-view">${icon('file-text',12,'var(--cream)')} View Details</button>
+        <button class="will-btn will-btn-dl">${icon('download',12,'var(--text2)')} Download PDF</button>
+      </div>
+    </div>
+  </div>`;
+  }
+
+  html += `
+  <div class="step-hdr">
+    <div class="step-badge"><span>${si+1}</span></div>
+    <div class="step-hdr-text">
+      <h2>${s.title}</h2>
+      <div class="step-meta">STEP ${si+1} OF ${steps().length} &mdash; ${s.desc}</div>
+    </div>
+  </div>`;
+
+  if(s.warn){
+    html += `<div class="warn-card">
+      <div class="warn-icon">${icon('alert',15,'var(--red)')}</div>
+      <div class="warn-text"><strong>Warning: </strong>${s.warn}</div>
+    </div>`;
+  }
+
+  if(hasCred){
+    const pwDisplay = pwShown ? a.password : '••••••••';
+    html += `<div class="cred-card">
+      <div class="cred-heading">${icon('lock',10,'var(--plum)')} Login Credentials</div>
+      <div class="cred-fields">
+        ${a.account?`<div>
+          <div class="cred-field-label">Username / Email</div>
+          <div class="cred-field-box">
+            <span class="cred-val">${a.account}</span>
+            <button class="cred-btn" id="c-em-${ai}" onclick="copyVal('${a.account}','c-em-${ai}')">${icon('copy',11,'var(--muted)')}</button>
+          </div>
+        </div>`:''}
+        ${a.password?`<div>
+          <div class="cred-field-label">Password</div>
+          <div class="cred-field-box">
+            <span class="cred-val ${pwShown?'':'pwd-hidden'}">${pwDisplay}</span>
+            <button class="cred-btn" onclick="togglePw('${pwKey}')">${icon(pwShown?'eye-off':'eye',11,'var(--muted)')}</button>
+            <button class="cred-btn" id="c-pw-${ai}" onclick="copyVal('${a.password}','c-pw-${ai}')">${icon('copy',11,'var(--muted)')}</button>
+          </div>
+        </div>`:''}
+      </div>
+    </div>`;
+  }
+
+  const substeps = parseAction(s.action, a.action, s.title, ico);
+  html += `<div class="how-card">
+    <div class="how-header">${icon('check',12,'rgba(250,246,240,0.65)')} <span>How to do it</span></div>
+    <div class="how-title">${s.title}</div>
+    <div class="how-list">
+      ${substeps.map(ss=>`
+        <div class="how-item">
+          <div class="how-icon-box">${icon(ss.ico,14,'var(--plum)')}</div>
+          <div class="how-item-body">
+            <div class="how-item-label">${ss.label}</div>
+            <div class="how-item-title">${ss.title}</div>
+            <div class="how-item-detail">${ss.detail}</div>
+          </div>
+        </div>`).join('')}
+    </div>
+  </div>`;
+
+  if(s.farewell && a.farewell){
+    html += `<div class="farewell-card">
+      <div class="farewell-heading">${icon('heart',11,'var(--plum)')} Pre-written Farewell Message</div>
+      <div class="farewell-quote">${a.farewell}</div>
+    </div>`;
+  }
+
+  if(s.tips?.length){
+    html += `<div class="tips-card">
+      <div class="tips-heading">${icon('alert',11,'var(--amber)')} Tips &amp; Notes</div>
+      ${s.tips.map(t=>`<div class="tip-row"><div class="tip-dot"></div>${t}</div>`).join('')}
+    </div>`;
+  }
+
+  document.getElementById('content').innerHTML = html;
+  document.getElementById('content').scrollTop = 0;
+}
+
+// ── Parse action string into visual substeps ──
+function parseAction(actionStr, actionType, stepTitle, ico){
+  if(!actionStr) return [{ico:'check',label:'ACTION',title:stepTitle,detail:'Follow the instructions carefully.'}];
+  const parts = actionStr.split('→').map(p=>p.trim()).filter(Boolean);
+  function pickIcon(text){
+    const t = text.toLowerCase();
+    if(t.includes('open browser')||t.includes('web browser')) return 'globe';
+    if(t.includes('go to ')||t.includes('navigate')||t.includes('visit')) return 'external-link';
+    if(t.includes('click \"log in\"')||t.includes('login')||t.includes('sign in')) return 'log';
+    if(t.includes('password')||t.includes('enter password')) return 'lock';
+    if(t.includes('enter your email')||t.includes('username')) return 'user';
+    if(t.includes('settings')||t.includes('preferences')) return 'settings';
+    if(t.includes('search')) return 'search';
+    if(t.includes('screenshot')) return 'camera';
+    if(t.includes('document')||t.includes('create')) return 'file-text';
+    if(t.includes('delete')||t.includes('remove')||t.includes('close account')) return 'trash';
+    if(t.includes('transfer')||t.includes('send')||t.includes('withdraw')) return 'send';
+    if(t.includes('contact')||t.includes('call')||t.includes('phone')) return 'phone';
+    if(t.includes('email')||t.includes('compose')) return 'mail';
+    if(t.includes('message')) return 'message';
+    if(t.includes('verify')||t.includes('confirm')||t.includes('check')) return 'check';
+    if(t.includes('download')) return 'download';
+    if(t.includes('2fa')||t.includes('two-factor')) return 'shield';
+    return 'arrow-right';
+  }
+  if(parts.length <= 5){
+    return parts.map((p,i)=>({
+      ico: pickIcon(p), label: `STEP ${i+1}`,
+      title: p.length > 60 ? p.substring(0,57)+'…' : p,
+      detail: p.length > 60 ? p : ''
+    }));
+  }
+  const chunk = Math.ceil(parts.length/4);
+  const groups = [];
+  for(let i=0;i<parts.length;i+=chunk){
+    const grp = parts.slice(i,i+chunk);
+    groups.push({
+      ico: pickIcon(grp[0]), label: `STEP ${groups.length+1}`,
+      title: grp[0].length > 65 ? grp[0].substring(0,62)+'…' : grp[0],
+      detail: grp.slice(1).join(' → ')
+    });
+  }
+  return groups;
+}
+
+// ═══════════════════════════════════════
+//  ACTIONS
+// ═══════════════════════════════════════
+function selAsset(i){ ai=i; si=0; render(); }
+function goStep(i){ si=i; render(); }
+function markDone(){
+  const a = asset();
+  done[a.id+'_'+si]=true;
+  renderSidebar();
+  // log if final step
+  if(si===steps().length-1) logWorkflowComplete(a.id, a.action).catch(()=>{});
+}
+function next(){
+  markDone();
+  if(si<steps().length-1){ si++; render(); }
+}
+function prev(){
+  if(si>0){ si--; render(); }
+}
+function togglePw(key){ shown[key]=!shown[key]; renderContent(); }
+function copyVal(val,btnId){
+  navigator.clipboard.writeText(val).catch(()=>{});
+  const b=document.getElementById(btnId);
+  if(b){ const orig=b.innerHTML; b.innerHTML=icon('check',11,'var(--green)'); b.classList.add('ok'); setTimeout(()=>{b.innerHTML=orig;b.classList.remove('ok');},1500); }
+}
+
+// ═══════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════
+(async () => {
+  const ok = await checkAuth();
+  if (!ok) return;
+
+  document.getElementById('content').innerHTML = '<p style="padding:3rem;text-align:center;color:var(--muted)">Loading assets…</p>';
+
+  [ASSETS, WILL_DATA] = await Promise.all([fetchAssets(), fetchWill()]);
+
+  if (!ASSETS.length) {
+    document.getElementById('content').innerHTML = '<p style="padding:3rem;text-align:center;color:var(--muted)">No assets assigned to you yet.</p>';
+    document.getElementById('asset-bar').innerHTML = '';
+    return;
+  }
+
+  render();
+})();
+</script>
 </body>
 </html>
