@@ -127,26 +127,37 @@ function getCurrentUser() {
 
 // Executor Authentication
 async function executorLogin(email, password) {
-  const response = await fetch(`${API_URL}/api/executor-auth/login`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ email, password }),
-  });
+  const endpoints = ['/executor-auth/login', '/api/executor-auth/login'];
+  let lastError = 'Executor login failed';
 
-  const data = await response.json().catch(() => ({}));
+  for (const endpoint of endpoints) {
+    const response = await fetch(`${API_URL}${endpoint}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, password }),
+    });
 
-  if (!response.ok) {
-    throw new Error(data.error || `Executor login failed (${response.status})`);
+    const data = await response.json().catch(() => ({}));
+
+    if (response.ok) {
+      if (data.token) {
+        localStorage.setItem('executorToken', data.token);
+        localStorage.setItem('executor', JSON.stringify(data.executor));
+      }
+
+      return data;
+    }
+
+    lastError = data.error || `Executor login failed (${response.status})`;
+
+    if (response.status !== 404) {
+      throw new Error(lastError);
+    }
   }
 
-  if (data.token) {
-    localStorage.setItem('executorToken', data.token);
-    localStorage.setItem('executor', JSON.stringify(data.executor));
-  }
-
-  return data;
+  throw new Error(lastError);
 }
 
 // Asset Functions

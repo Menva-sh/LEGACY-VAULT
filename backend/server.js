@@ -141,18 +141,25 @@ console.log('Setting up digital will generator...');
 app.get('/generate-will', verifyToken, generateProfessionalWill);
 
 console.log('Loading auth routes...');
+app.use('/api/auth', authRoutes);
 app.use('/auth', authRoutes);
 console.log('Loading executor auth routes...');
+app.use('/api/executor-auth', executorAuthRoutes);
 app.use('/executor-auth', executorAuthRoutes);
 console.log('Loading asset routes...');
+app.use('/api/assets', assetRoutes);
 app.use('/assets', assetRoutes);
 console.log('Loading executor routes...');
+app.use('/api/executors', executorRoutes);
 app.use('/executors', executorRoutes);
 console.log('Loading will routes...');
+app.use('/api/wills', willRoutes);
 app.use('/wills', willRoutes);
 console.log('Loading switch routes...');
+app.use('/api/switches', switchRoutes);
 app.use('/switches', switchRoutes);
 console.log('Loading portal routes...');
+app.use('/api/executor-portal', executorPortalRoutes);
 app.use('/executor-portal', executorPortalRoutes);
 console.log('All routes loaded successfully');
 

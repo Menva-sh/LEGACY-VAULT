@@ -249,21 +249,32 @@
             : 'https://legacy-vault-backend-l50w.onrender.com';
 
         async function tryExecutorLogin(email, password) {
-            const response = await fetch(`${API_URL}/api/executor-auth/login`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ email, password })
-            });
+            const endpoints = ['/executor-auth/login', '/api/executor-auth/login'];
+            let lastError = 'Login failed';
 
-            const data = await response.json().catch(() => ({}));
+            for (const endpoint of endpoints) {
+                const response = await fetch(`${API_URL}${endpoint}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
 
-            if (!response.ok) {
-                throw new Error(data.error || `Login failed (${response.status})`);
+                const data = await response.json().catch(() => ({}));
+
+                if (response.ok) {
+                    return data;
+                }
+
+                lastError = data.error || `Login failed (${response.status})`;
+
+                if (response.status !== 404) {
+                    throw new Error(lastError);
+                }
             }
 
-            return data;
+            throw new Error(lastError);
         }
 
         // Check if already logged in
