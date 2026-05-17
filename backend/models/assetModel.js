@@ -1,14 +1,14 @@
 const pool = require('../db');
 
 // Create digital asset
-const createAsset = async (userId, assetName, assetType, description, email, password) => {
+const createAsset = async (userId, assetName, assetType, description, email, password, actionType, lastMessage) => {
   try {
     const query = `
-      INSERT INTO digital_assets (user_id, asset_name, asset_type, description, email, password, created_at)
-      VALUES ($1, $2, $3, $4, $5, $6, NOW())
-      RETURNING id, user_id, asset_name, asset_type, description, email, password, created_at
+      INSERT INTO digital_assets (user_id, asset_name, asset_type, description, email, password, action_type, last_message, created_at, updated_at)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW())
+      RETURNING id, user_id, asset_name, asset_type, description, email, password, action_type, last_message, created_at
     `;
-    const result = await pool.query(query, [userId, assetName, assetType, description, email, password]);
+    const result = await pool.query(query, [userId, assetName, assetType, description, email, password, actionType || 'pass', lastMessage || '']);
     return result.rows[0];
   } catch (err) {
     throw new Error(`Error creating asset: ${err.message}`);
@@ -18,7 +18,7 @@ const createAsset = async (userId, assetName, assetType, description, email, pas
 // Get all assets for a user
 const getAssetsByUserId = async (userId) => {
   try {
-    const query = 'SELECT id, user_id, asset_name, asset_type, description, email, created_at FROM digital_assets WHERE user_id = $1 ORDER BY created_at DESC';
+    const query = 'SELECT id, user_id, asset_name, asset_type, description, email, action_type, last_message, created_at FROM digital_assets WHERE user_id = $1 ORDER BY created_at DESC';
     const result = await pool.query(query, [userId]);
     return result.rows;
   } catch (err) {
@@ -29,7 +29,7 @@ const getAssetsByUserId = async (userId) => {
 // Get single asset by id
 const getAssetById = async (assetId, userId) => {
   try {
-    const query = 'SELECT id, user_id, asset_name, asset_type, description, email, password, created_at FROM digital_assets WHERE id = $1 AND user_id = $2';
+    const query = 'SELECT id, user_id, asset_name, asset_type, description, email, password, action_type, last_message, created_at FROM digital_assets WHERE id = $1 AND user_id = $2';
     const result = await pool.query(query, [assetId, userId]);
     return result.rows[0];
   } catch (err) {
@@ -38,15 +38,15 @@ const getAssetById = async (assetId, userId) => {
 };
 
 // Update asset
-const updateAsset = async (assetId, userId, assetName, email, password, description) => {
+const updateAsset = async (assetId, userId, assetName, email, password, description, actionType, lastMessage) => {
   try {
     const query = `
       UPDATE digital_assets
-      SET asset_name = $1, email = $2, password = $3, description = $4, updated_at = NOW()
-      WHERE id = $5 AND user_id = $6
-      RETURNING id, asset_name, email, password, description, updated_at
+      SET asset_name = $1, email = $2, password = $3, description = $4, action_type = $5, last_message = $6, updated_at = NOW()
+      WHERE id = $7 AND user_id = $8
+      RETURNING id, asset_name, email, password, description, action_type, last_message, updated_at
     `;
-    const result = await pool.query(query, [assetName, email, password, description, assetId, userId]);
+    const result = await pool.query(query, [assetName, email, password, description, actionType || 'pass', lastMessage || '', assetId, userId]);
     return result.rows[0];
   } catch (err) {
     throw new Error(`Error updating asset: ${err.message}`);

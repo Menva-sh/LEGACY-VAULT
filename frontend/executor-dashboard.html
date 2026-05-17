@@ -1208,7 +1208,28 @@
                 const platformData = WORKFLOWS[platform] || {};
                 const account = asset.email || asset.account || 'Account not provided';
                 const password = asset.password || '';
-                const message = asset.final_message || asset.farewell_message || '';
+                const message = asset.last_message || asset.final_message || asset.farewell_message || '';
+                
+                // Determine action type
+                const rawAction = asset.action_type || 'pass';
+                let actionKey = rawAction;
+                let btnLabel = 'View Instructions';
+                let btnIcon = 'ti ti-list-details';
+                
+                if (rawAction === 'pass') {
+                    actionKey = 'handoff';
+                    btnLabel = 'Pass to Executor';
+                    btnIcon = 'ti ti-user-share';
+                } else if (rawAction === 'delete') {
+                    actionKey = 'delete';
+                    btnLabel = 'Delete Account';
+                    btnIcon = 'ti ti-trash';
+                } else if (rawAction === 'last_message') {
+                    actionKey = 'last_message';
+                    btnLabel = 'Final Message';
+                    btnIcon = 'ti ti-heart';
+                }
+                
                 executorAssetsById[asset.id] = { platform, account, password, message };
 
                 return `
@@ -1224,10 +1245,10 @@
                         </div>
                         ${asset.description ? `<div class="will-description">${escapeHtml(asset.description)}</div>` : ''}
                         <div class="asset-actions">
-                            ${renderWorkflowButton(asset.id, 'handoff', 'View Instructions', 'ti ti-list-details')}
-                            ${renderWorkflowButton(asset.id, 'delete', 'Delete', 'ti ti-trash')}
-                            ${renderWorkflowButton(asset.id, 'pass', 'Transfer', 'ti ti-user-share')}
-                            ${renderWorkflowButton(asset.id, 'last_message', 'Message', 'ti ti-heart')}
+                            <button class="asset-action-btn" onclick="openWorkflowForAsset(${Number(asset.id)}, '${escapeJs(actionKey)}')">
+                                <i class="${btnIcon}"></i>
+                                ${btnLabel}
+                            </button>
                         </div>
                     </div>
                 `;

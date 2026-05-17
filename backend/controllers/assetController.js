@@ -4,7 +4,7 @@ const { createAsset, getAssetsByUserId, getAssetById, updateAsset, deleteAsset, 
 const uploadAsset = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { assetName, assetType, description, email, password } = req.body;
+    const { assetName, assetType, description, email, password, actionType, lastMessage, action_type, last_message } = req.body;
 
     console.log('Asset creation - User ID:', userId);
     console.log('Request body:', { assetName, assetType, description, email });
@@ -25,7 +25,14 @@ const uploadAsset = async (req, res) => {
       return res.status(401).json({ error: 'User not authenticated' });
     }
 
-    const asset = await createAsset(userId, assetName, assetType, description || '', email, password || '');
+    const finalActionType = actionType || action_type || 'pass';
+    const finalLastMessage = lastMessage || last_message || '';
+
+    if (finalActionType === 'last_message' && !finalLastMessage) {
+      return res.status(400).json({ error: 'Farewell message is required for Final Message action' });
+    }
+
+    const asset = await createAsset(userId, assetName, assetType, description || '', email, password || '', finalActionType, finalLastMessage);
 
     console.log('Asset created successfully:', asset);
 
@@ -85,13 +92,15 @@ const updateAssetMetadata = async (req, res) => {
   try {
     const { assetId } = req.params;
     const userId = req.user.id;
-    const { assetName, email, password, description } = req.body;
+    const { assetName, email, password, description, actionType, lastMessage, action_type, last_message } = req.body;
 
     if (!assetName || !email) {
       return res.status(400).json({ error: 'Asset name and email are required' });
     }
 
-    const asset = await updateAsset(assetId, userId, assetName, email, password || '', description || '');
+    const finalActionType = actionType || action_type || 'pass';
+    const finalLastMessage = lastMessage || last_message || '';
+    const asset = await updateAsset(assetId, userId, assetName, email, password || '', description || '', finalActionType, finalLastMessage);
 
     if (!asset) {
       return res.status(404).json({ error: 'Asset not found' });

@@ -74,7 +74,7 @@ const getExecutorAccessibleWills = async (executorId) => {
 const getExecutorAccessibleAssets = async (executorId) => {
   try {
     const query = `
-      SELECT a.id, a.asset_name, a.asset_type, a.description, a.email, a.password, a.created_at
+      SELECT a.id, a.asset_name, a.asset_type, a.description, a.email, a.password, a.action_type, a.last_message, a.created_at
       FROM digital_assets a
       INNER JOIN executors e ON a.user_id = e.user_id
       WHERE e.id = $1

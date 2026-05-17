@@ -299,6 +299,37 @@
       border-color: #d3b3aa;
     }
 
+    .action-selector {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .btn-selector {
+      flex: 1;
+      padding: 10px;
+      background: #fdfaf5;
+      border: 1px solid #e0ddd6;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      color: #2c2c2a;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s ease;
+    }
+
+    .btn-selector:hover {
+      background: #ebe8e0;
+      border-color: #c9c5bc;
+    }
+
+    .btn-selector.active {
+      background: #6b2d4e;
+      border-color: #6b2d4e;
+      color: white;
+    }
+
     /* EMPTY STATE */
     .empty-state {
       text-align: center;
@@ -555,6 +586,21 @@
           </div>
 
           <div class="form-group">
+            <label>After You: What Should Happen?</label>
+            <div class="action-selector">
+              <button type="button" class="btn-selector active" id="addBtnPass" onclick="selectAddAction('pass')">Pass to Executor</button>
+              <button type="button" class="btn-selector" id="addBtnDelete" onclick="selectAddAction('delete')">Delete Account</button>
+              <button type="button" class="btn-selector" id="addBtnLastMessage" onclick="selectAddAction('last_message')">Final Message</button>
+            </div>
+            <input type="hidden" id="assetActionType" value="pass">
+          </div>
+
+          <div class="form-group" id="assetLastMessageGroup" style="display: none;">
+            <label>Farewell Message</label>
+            <textarea id="assetLastMessage" placeholder="Enter your final farewell message for this account..."></textarea>
+          </div>
+
+          <div class="form-group">
             <label>Description (Optional)</label>
             <textarea id="assetDescription" placeholder="Add any additional notes..."></textarea>
           </div>
@@ -588,6 +634,21 @@
             <input type="password" id="editAssetPassword" placeholder="Enter password" required>
           </div>
           <div class="form-group">
+            <label>After You: What Should Happen?</label>
+            <div class="action-selector">
+              <button type="button" class="btn-selector" id="editBtnPass" onclick="selectEditAction('pass')">Pass to Executor</button>
+              <button type="button" class="btn-selector" id="editBtnDelete" onclick="selectEditAction('delete')">Delete Account</button>
+              <button type="button" class="btn-selector" id="editBtnLastMessage" onclick="selectEditAction('last_message')">Final Message</button>
+            </div>
+            <input type="hidden" id="editAssetActionType" value="pass">
+          </div>
+
+          <div class="form-group" id="editAssetLastMessageGroup" style="display: none;">
+            <label>Farewell Message</label>
+            <textarea id="editAssetLastMessage" placeholder="Enter your final farewell message for this account..."></textarea>
+          </div>
+
+          <div class="form-group">
             <label>Description</label>
             <textarea id="editAssetDescription" placeholder="Enter description..."></textarea>
           </div>
@@ -600,6 +661,42 @@
   <script src="/js/api.js"></script>
   <script>
     redirectToLogin();
+
+    function selectAddAction(actionType) {
+      document.getElementById('assetActionType').value = actionType;
+      document.querySelectorAll('#addAssetForm .btn-selector').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      
+      if (actionType === 'pass') {
+        document.getElementById('addBtnPass').classList.add('active');
+        document.getElementById('assetLastMessageGroup').style.display = 'none';
+      } else if (actionType === 'delete') {
+        document.getElementById('addBtnDelete').classList.add('active');
+        document.getElementById('assetLastMessageGroup').style.display = 'none';
+      } else if (actionType === 'last_message') {
+        document.getElementById('addBtnLastMessage').classList.add('active');
+        document.getElementById('assetLastMessageGroup').style.display = 'block';
+      }
+    }
+
+    function selectEditAction(actionType) {
+      document.getElementById('editAssetActionType').value = actionType;
+      document.querySelectorAll('#editAssetForm .btn-selector').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      
+      if (actionType === 'pass') {
+        document.getElementById('editBtnPass').classList.add('active');
+        document.getElementById('editAssetLastMessageGroup').style.display = 'none';
+      } else if (actionType === 'delete') {
+        document.getElementById('editBtnDelete').classList.add('active');
+        document.getElementById('editAssetLastMessageGroup').style.display = 'none';
+      } else if (actionType === 'last_message') {
+        document.getElementById('editBtnLastMessage').classList.add('active');
+        document.getElementById('editAssetLastMessageGroup').style.display = 'block';
+      }
+    }
 
     const user = getCurrentUser();
     if (user) {
@@ -699,32 +796,50 @@
           return iconMap[type] || 'ti-lock';
         }
 
+        const actionLabels = {
+          'pass': 'Pass to Executor',
+          'delete': 'Delete Account',
+          'last_message': 'Final Message'
+        };
+
         container.innerHTML = '<div class="items-grid">' + data.assets.map(asset => `
-          <div class="item-card">
-            <div style="display: flex; gap: 15px; width: 100%; align-items: start;">
-              <div style="font-size: 32px; color: #6b2d4e; flex-shrink: 0;">
+          <div class="item-card" style="display: flex; justify-content: space-between; align-items: flex-start; padding: 24px; background: white; border: 1px solid #e0ddd6; border-radius: 12px; margin-bottom: 16px;">
+            <div style="display: flex; gap: 16px; align-items: flex-start;">
+              <div style="font-size: 32px; color: #6b2d4e; flex-shrink: 0; background: #f5f4f1; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; border-radius: 8px;">
                 <i class="ti ${getAssetIcon(asset)}"></i>
               </div>
-              <div class="item-info" style="flex: 1;">
-                <div class="item-title">${asset.asset_name}</div>
-                <div class="item-meta">${asset.email || 'No email'}</div>
-                ${asset.description ? `<div class="item-desc">${asset.description}</div>` : ''}
+              <div>
+                <div style="font-size: 16px; font-weight: 600; color: #2c2c2a; display: flex; align-items: center; gap: 8px;">
+                  ${asset.asset_name}
+                </div>
+                <div style="font-size: 13px; color: #888780; margin-top: 4px;">${asset.email || 'No email'}</div>
+                <div style="margin-top: 8px;">
+                  <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; background: #e0ddd6; color: #2c2c2a; padding: 3px 8px; border-radius: 4px;">${asset.asset_type === 'social_media' ? 'social' : asset.asset_type}</span>
+                </div>
+                
+                <!-- Action selected -->
+                <div style="font-size: 13px; font-weight: 500; color: #6b2d4e; margin-top: 12px; display: flex; align-items: center; gap: 6px;">
+                  <i class="ti ${asset.action_type === 'delete' ? 'ti-trash' : (asset.action_type === 'last_message' ? 'ti-message' : 'ti-send')}"></i>
+                  ${actionLabels[asset.action_type] || 'Pass to Executor'}
+                </div>
+
+                <!-- Last Message -->
+                ${asset.action_type === 'last_message' && asset.last_message ? `
+                  <div style="background: #e0f2fe; border: 1px solid #bae6fd; border-radius: 8px; padding: 10px 14px; margin-top: 8px; font-size: 13px; color: #0369a1; max-width: 400px; word-break: break-word;">
+                    <strong>Message:</strong> ${asset.last_message}
+                  </div>
+                ` : ''}
+
+                <div style="font-size: 11px; color: #b4b2a9; margin-top: 8px;">
+                  Added ${new Date(asset.created_at).toLocaleString()}
+                </div>
               </div>
             </div>
-            <div class="asset-actions">
-              <button class="btn-action" onclick="passToExecutor(${asset.id})" title="Pass this asset to your executor">
-                <i class="ti ti-send"></i> Pass to Executor
-              </button>
-              <button class="btn-action" onclick="addFinalMessage(${asset.id})" title="Add a final message for this asset">
-                <i class="ti ti-message"></i> Final Message
-              </button>
-              <button class="btn-action btn-action-delete" onclick="deleteAccount(${asset.id})" title="Delete the associated account">
-                <i class="ti ti-trash"></i> Delete Account
-              </button>
-            </div>
-            <div class="item-actions">
-              <button class="btn-secondary" onclick="editAsset(${asset.id})">Edit</button>
-              <button class="btn-danger" onclick="confirmDelete(${asset.id})">Delete</button>
+
+            <!-- Edit/Delete Action Buttons -->
+            <div class="item-actions" style="display: flex; gap: 8px;">
+              <button class="btn-secondary" onclick="editAsset(${asset.id})" style="padding: 6px 12px; font-size: 12px; border-radius: 6px; cursor: pointer;">Edit</button>
+              <button class="btn-danger" onclick="confirmDelete(${asset.id})" style="padding: 6px 12px; font-size: 12px; border-radius: 6px; cursor: pointer;">Delete</button>
             </div>
           </div>
         `).join('') + '</div>';
@@ -756,6 +871,9 @@
         document.getElementById('editAssetPassword').value = asset.password || '';
         document.getElementById('editAssetDescription').value = asset.description || '';
         
+        selectEditAction(asset.action_type || 'pass');
+        document.getElementById('editAssetLastMessage').value = asset.last_message || '';
+        
         openModal('editAssetModal');
       } catch (error) {
         showAlert('Error loading asset: ' + error.message, 'danger');
@@ -775,7 +893,9 @@
           document.getElementById('assetType').value,
           document.getElementById('assetDescription').value,
           document.getElementById('assetEmail').value,
-          document.getElementById('assetPassword').value
+          document.getElementById('assetPassword').value,
+          document.getElementById('assetActionType').value,
+          document.getElementById('assetLastMessage').value
         );
 
         showAlert('Asset created successfully', 'success');
@@ -801,7 +921,9 @@
           document.getElementById('editAssetName').value,
           document.getElementById('editAssetEmail').value,
           document.getElementById('editAssetPassword').value,
-          document.getElementById('editAssetDescription').value
+          document.getElementById('editAssetDescription').value,
+          document.getElementById('editAssetActionType').value,
+          document.getElementById('editAssetLastMessage').value
         );
 
         showAlert('Asset updated successfully', 'success');

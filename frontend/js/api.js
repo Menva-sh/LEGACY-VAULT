@@ -162,13 +162,15 @@ async function executorLogin(email, password) {
 
 // Asset Functions
 
-async function createAsset(assetName, assetType, description, email, password) {
+async function createAsset(assetName, assetType, description, email, password, actionType, lastMessage) {
   return apiRequest('/assets', 'POST', {
     assetName,
     assetType,
     description,
     email,
     password,
+    actionType,
+    lastMessage,
   });
 }
 
@@ -180,12 +182,14 @@ async function getAsset(assetId) {
   return apiRequest(`/assets/${assetId}`);
 }
 
-async function updateAsset(assetId, assetName, email, password, description) {
+async function updateAsset(assetId, assetName, email, password, description, actionType, lastMessage) {
   return apiRequest(`/assets/${assetId}`, 'PUT', {
     assetName,
     email,
     password,
     description,
+    actionType,
+    lastMessage,
   });
 }
 
