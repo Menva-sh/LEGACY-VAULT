@@ -61,15 +61,18 @@ const generateDigitalWill = async (req, res) => {
     doc.fontSize(14).font('Helvetica-Bold').text('2. DIGITAL ASSETS');
     if (assets && assets.length > 0) {
       doc.moveDown(0.3);
+      const actionLabels = { pass: 'Pass credentials to Executor', delete: 'Delete Account', last_message: 'Send Final Message' };
       assets.forEach((asset, index) => {
         doc.fontSize(11).font('Helvetica-Bold').text(`Asset ${index + 1}: ${asset.asset_name}`);
         doc.fontSize(10).font('Helvetica')
           .text(`Type: ${asset.asset_type}`)
+          .text(`Account/Email: ${asset.email || 'N/A'}`)
           .text(`Description: ${asset.description || 'N/A'}`)
-          .text(`Location: ${asset.file_path || 'N/A'}`)
-          .text(`Size: ${(asset.file_size / 1024 / 1024).toFixed(2)} MB`)
-          .text(`Encrypted: ${asset.is_encrypted ? 'Yes' : 'No'}`)
-          .text(`Created: ${new Date(asset.created_at).toLocaleDateString()}`);
+          .text(`Inheritance Action: ${actionLabels[asset.action_type] || 'Pass credentials to Executor'}`);
+        if (asset.action_type === 'last_message' && asset.last_message) {
+          doc.text(`Farewell Message: "${asset.last_message}"`);
+        }
+        doc.text(`Registered: ${new Date(asset.created_at).toLocaleDateString()}`);
         doc.moveDown(0.3);
       });
     } else {
@@ -127,9 +130,16 @@ const generateDigitalWill = async (req, res) => {
         // Build detailed content with executor details
         let willContent = `Digital Will for ${user.first_name || 'User'} ${user.last_name || ''}\n\n`;
         willContent += `ASSETS (${assets.length}):\n`;
+        const actionLabels = { pass: 'Pass to Executor', delete: 'Delete Account', last_message: 'Final Message' };
         if (assets.length > 0) {
           assets.forEach((asset, i) => {
-            willContent += `${i+1}. ${asset.asset_name} (${asset.asset_type})\n   Description: ${asset.description || 'N/A'}\n`;
+            willContent += `${i+1}. ${asset.asset_name} (${asset.asset_type})\n`;
+            willContent += `   Account: ${asset.email || 'N/A'}\n`;
+            willContent += `   Action: ${actionLabels[asset.action_type] || 'Pass to Executor'}\n`;
+            if (asset.action_type === 'last_message' && asset.last_message) {
+              willContent += `   Farewell Message: "${asset.last_message}"\n`;
+            }
+            willContent += `   Description: ${asset.description || 'N/A'}\n`;
           });
         } else {
           willContent += 'None registered\n';
